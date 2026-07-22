@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Build a reproducible 3000-cell subsample (seed 42) shared by SLICE and dpath.
+
+Writes, into the scratchpad:
+  sub_genes_cells.mtx   MatrixMarket, genes x cells, raw UMI counts (subsample)
+  sub_features.tsv      gene symbols (row i of the mtx), full 23974
+  sub_cell_idx.txt      0-based indices into cells.tsv canonical order (length 3000, sorted)
+The genes x cells orientation and gene rownames match what SLICE::scEntropy and
+dpath::dpath expect.
+"""
+import numpy as np
+import scipy.sparse as sp
+import scipy.io as sio
+
+PREP = "/Users/damir/damir-research-vault/06-code/tautology-diagnostic/track2/data/prepared"
+OUT = "/private/tmp/claude-501/-Users-damir-damir-research-vault/f1408352-cdbb-4882-96f8-dc52eb89b3ad/scratchpad"
+N_SUB = 3000
+SEED = 42
+
+X = sp.load_npz(f"{PREP}/X_cells_genes.npz").tocsr()  # cells x genes
+n_cells, n_genes = X.shape
+print("full X:", X.shape, "nnz", X.nnz)
+
+with open(f"{PREP}/features.tsv") as f:
+    features = [ln.strip() for ln in f if ln.strip() != ""]
+assert len(features) == n_genes, (len(features), n_genes)
+
+rng = np.random.default_rng(SEED)
+idx = np.sort(rng.choice(n_cells, size=N_SUB, replace=False))
+print("subsample:", len(idx), "cells; first5", idx[:5].tolist())
+
+Xsub = X[idx, :]                # cells x genes (subsample)
+G = Xsub.T.tocoo()             # genes x cells
+G = sp.csc_matrix(G)
+print("genes x cells subsample:", G.shape, "nnz", G.nnz)
+
+sio.mmwrite(f"{OUT}/sub_genes_cells.mtx", G, field="integer", symmetry="general")
+with open(f"{OUT}/sub_features.tsv", "w") as f:
+    f.write("\n".join(features) + "\n")
+np.savetxt(f"{OUT}/sub_cell_idx.txt", idx, fmt="%d")
+# sanity: per-cell library size of subsample (for later cross-check)
+libsize = np.asarray(Xsub.sum(axis=1)).ravel()
+print("libsize range:", int(libsize.min()), int(libsize.max()))
+print("DONE")

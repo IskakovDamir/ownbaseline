@@ -1,0 +1,18 @@
+# Core diagnostic (own_baseline/) needs only numpy + scipy + scikit-learn.
+numpy==2.4.3
+scipy==1.18.0
+scikit-learn==1.9.0
+# Experiments / scores / figures additionally use:
+pandas==2.3.3
+matplotlib==3.11.1
+anndata==0.13.2
+lifelines==0.30.3    # survival experiments (experiments/w1_gate2)
+rdata==1.1.0         # reading R .rda PPI/scaffold objects
+# scanpy is imported by 2 experiment scripts only
+# (experiments/ct2_probe/probe_ct2_ownbaseline_paul15.py, experiments/atlas_run/baseline_validation_e_mtab_9067.py);
+# not installed in the dev environment, so those two are untested here. Uncomment to run them:
+# scanpy
+#
+# R packages (NOT pip) used by scores/*.R: SCENT (aet21/SCENT), SLICE (xu-lab/SLICE),
+# dpath (gongx030/dpath), ORIGINS (danielasenraoka/ORIGINS), NCG (Xinzhe-Ni/NCG),
+# plus Matrix, igraph. See README "Scores".

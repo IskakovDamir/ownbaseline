@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.ipynb_checkpoints/
+
+# data + large outputs — not tracked (fetch via data/README.md)
+*.npz
+*.h5ad
+*.h5
+*.loom
+*.mtx
+*.mtx.gz
+*.tsv.gz
+*.txt.gz
+*.tar
+*.rda
+*.rds
+data/*/
+**/results/
+**/data/prepared/
+*.log

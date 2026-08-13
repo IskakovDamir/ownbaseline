@@ -1,0 +1,17 @@
+LICENSE
+README.md
+pyproject.toml
+own_baseline/__init__.py
+own_baseline/conditional_skill.py
+own_baseline/own_baseline.py
+own_baseline/paths.R
+own_baseline/paths.py
+own_baseline/potency_metrics.py
+own_baseline/synthetic.py
+own_baseline.egg-info/PKG-INFO
+own_baseline.egg-info/SOURCES.txt
+own_baseline.egg-info/dependency_links.txt
+own_baseline.egg-info/requires.txt
+own_baseline.egg-info/top_level.txt
+own_baseline/atlas_run/wdm_tau.py
+tests/test_estimator.py

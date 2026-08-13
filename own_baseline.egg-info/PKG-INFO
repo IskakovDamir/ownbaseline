@@ -1,3 +1,42 @@
+Metadata-Version: 2.4
+Name: own-baseline
+Version: 0.1.0
+Summary: Does a single-cell potency score add anything beyond its own low-order primitive?
+License: MIT License
+        
+        Copyright (c) 2026 The own-baseline authors
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Repository, https://github.com/IskakovDamir/potency-ownbaseline
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.24
+Requires-Dist: scipy>=1.10
+Requires-Dist: scikit-learn>=1.2
+Provides-Extra: full
+Requires-Dist: pandas>=2.0; extra == "full"
+Requires-Dist: anndata>=0.10; extra == "full"
+Requires-Dist: matplotlib>=3.7; extra == "full"
+Dynamic: license-file
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
@@ -22,52 +61,49 @@ low-order statistic — is false for most of them.
 ```bash
 git clone https://github.com/IskakovDamir/potency-ownbaseline
 cd potency-ownbaseline
-pip install -e ".[full]"
-```
-
-```python
+pip install -r requirements.txt
+python3 -c "
 import numpy as np
 from own_baseline import conditional_skill_report
 
 rng = np.random.default_rng(0)
 n = 2000
-ordinal   = np.floor(6 * rng.random(n))                # stage, fixed before sequencing
-primitive = ordinal + 1.5 * rng.standard_normal(n)     # e.g. gene count per cell
+primitive = rng.standard_normal(n)                 # e.g. gene count per cell
+ordinal   = np.floor(6 * rng.random(n))            # a score-independent stage
 
-honest = 0.5 * primitive + 1.5 * ordinal + rng.standard_normal(n)
-sham   = np.exp(primitive / 2)                         # a monotone function of it
+honest = 0.3 * primitive + 1.2 * ordinal + 0.4 * rng.standard_normal(n)
+sham   = np.exp(primitive) + 1e-6 * rng.standard_normal(n)
 
 conditional_skill_report(honest, ordinal, {'gene_count': primitive},
                          score_name='honest_score', n_boot=(100, 300))
-conditional_skill_report(sham, ordinal, {'gene_count': primitive},
-                         score_name='sham_score', n_boot=(100, 300))
+conditional_skill_report(sham,   ordinal, {'gene_count': primitive},
+                         score_name='sham_score',   n_boot=(100, 300))
+"
 ```
 
-Real output, about thirty seconds:
+Real output, thirty seconds:
 
 ```
 [conditional_skill] score=honest_score n=2000
 
   vs primitive: gene_count
-    scipy_weightedtau  marginal gap  +0.1015   conditional skill +0.6786 CI[+0.6421,+0.7009]  ADDS-BEYOND
-    kang_wdm_taub      marginal gap  +0.2365   conditional skill +0.4316 CI[+0.4100,+0.4506]  ADDS-BEYOND
+    scipy_weightedtau  marginal gap  +0.4632   conditional skill +0.8459 CI[+0.8329,+0.8598]  ADDS-BEYOND
+    kang_wdm_taub      marginal gap  +0.6690   conditional skill +0.8301 CI[+0.8183,+0.8402]  ADDS-BEYOND
     => ADDS-BEYOND
+
 [conditional_skill] score=sham_score n=2000
 
   vs primitive: gene_count
-    scipy_weightedtau  marginal gap  +0.0000   conditional skill -0.5439 CI[-0.5770,+0.8255]  TAUTOLOG
-    kang_wdm_taub      marginal gap  +0.0000   conditional skill -0.6385 CI[-0.6491,+0.6440]  TAUTOLOG
-    => TAUTOLOG
+    scipy_weightedtau  marginal gap  +0.0000   conditional skill +0.4863 CI[+0.0491,+0.5304]  ADDS-BEYOND
+    kang_wdm_taub      marginal gap  +0.0000   conditional skill +0.0032 CI[-0.0532,+0.0571]  TAUTOLOG
+    => INCONCLUSIVE-kernel-disagree
 ```
 
-`sham_score` is `exp(primitive / 2)` — a monotone reparametrization that adds
-nothing. Its marginal gap is exactly `+0.0000` and its verdict is `TAUTOLOG`,
-which is right. But its conditional skill should also be zero and reports
-`-0.54` with an interval spanning most of [-1, 1]. That is not a near-null; it
-is rounding debris being scored as signal, and the verdict lands correctly only
-because the interval is wide enough to contain zero anyway. It is a real defect
-in the estimator, documented below as **F-2**, recorded by a failing test, and
-deliberately not patched.
+The second score is a monotone function of the primitive and carries no
+information beyond it. Its marginal gap is `+0.0000`, correctly. Its
+conditional skill should also be zero and one of the two kernels says `+0.49`:
+that is a real defect in the estimator, documented below as **F-2**, recorded
+by a failing test, and deliberately not patched.
 
 Two entry points, in increasing strength:
 
@@ -90,26 +126,20 @@ shows it. `conditional_skill_report` flags this; `run_own_baseline` does not.
 
 ## Install
 
+Verified in a clean environment on 2026-08-13: Python 3.14.3, macOS 15
+(Darwin 25.2.0), pip-installed `numpy 2.4.3`, `scipy 1.18.0`,
+`scikit-learn 1.9.0`, `pandas 2.3.3`, `matplotlib 3.11.1`, `anndata 0.13.2`.
+The core diagnostic needs only numpy, scipy and scikit-learn; pandas, anndata
+and matplotlib are used by the score implementations, the reproduction entry
+point and the figures.
+
 ```bash
-pip install -e ".[full]"            # or: pip install -r requirements.txt
+pip install -r requirements.txt
 python3 tests/run_tests.py          # 25 pass, 1 known defect (F-2), 0 fail
-python3 reproduce.py --self-test    # the whole reproduction chain, synthetic data
 ```
 
-Verified on 2026-08-13 in a fresh `python3 -m venv` on macOS 15 (Darwin
-25.2.0), Python 3.14.3, resolving from PyPI: `numpy 2.5.2`, `scipy 1.18.0`,
-`scikit-learn 1.9.0`, `pandas 3.0.5`, `matplotlib 3.11.1`, `anndata 0.13.2`.
-Both commands above pass in that environment, and `import own_baseline` works
-from outside the repository directory.
-
-The core diagnostic needs only numpy, scipy and scikit-learn — with just those
-three installed, 22 of the 25 tests pass and the 3 that do not are the ones
-constructing an `AnnData`. `pandas`, `anndata` and `matplotlib` come with the
-`[full]` extra and are needed by the score implementations, `reproduce.py` and
-the figures. `requirements.txt` pins the exact versions the audit ran on.
-
-The test suite needs no test runner: `python3 tests/run_tests.py` uses only the
-runtime dependencies. `pytest tests/` collects the same functions if you prefer.
+The test suite needs nothing beyond the runtime dependencies. `pytest tests/`
+collects the same functions if you prefer it.
 
 Two environment variables control where anything is read or written; both
 default inside the repository and both defaults are git-ignored:

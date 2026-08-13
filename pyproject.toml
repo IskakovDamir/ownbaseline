@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "own-baseline"
+version = "0.1.0"
+description = "Does a single-cell potency score add anything beyond its own low-order primitive?"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "scipy>=1.10", "scikit-learn>=1.2"]
+
+[project.optional-dependencies]
+# needed by the score implementations, reproduce.py and the figures
+full = ["pandas>=2.0", "anndata>=0.10", "matplotlib>=3.7"]
+
+[project.urls]
+Repository = "https://github.com/IskakovDamir/potency-ownbaseline"
+
+[tool.setuptools]
+# Only the library ships. experiments/ and scores/ are a run record, kept in
+# the repository but not installed: they are scripts, not importable modules.
+packages = ["own_baseline", "own_baseline.atlas_run"]
+
+[tool.setuptools.package-data]
+own_baseline = ["paths.R"]

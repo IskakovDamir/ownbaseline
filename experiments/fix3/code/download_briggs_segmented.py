@@ -5,7 +5,17 @@ misalignment that corrupted earlier attempts. (NCBI throttles per-IP so this
 is not faster, but it is CORRECT.)"""
 import os, time, urllib.request
 BASE = "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE113nnn/GSE113074/suppl/GSE113074_Raw_combined.annotated_counts.tsv.gz"
-F = "/Users/damir/damir-research-vault/06-code/tautology-diagnostic/fix3/data/GSE113074_Raw_combined.annotated_counts.tsv.gz"
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root  # noqa: E402
+F = str(data_root() / "fix3/data/GSE113074_Raw_combined.annotated_counts.tsv.gz")
 SIZE = 177842456
 PARTS = 24
 ps = SIZE // PARTS

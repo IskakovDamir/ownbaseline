@@ -4,7 +4,18 @@
 .libPaths(c(Sys.getenv("R_LIBS_USER"), .libPaths()))
 suppressMessages({ library(Matrix); library(SLICE) })
 
-SCR <- "/private/tmp/claude-501/-Users-damir-damir-research-vault/f1408352-cdbb-4882-96f8-dc52eb89b3ad/scratchpad"
+# --- repo-relative I/O roots -------------------------------------------------
+# Was an ephemeral agent-session scratchpad under /private/tmp, so this script
+# only ran on one machine on one day. Override with $OWNBASELINE_SCRATCH /
+# $OWNBASELINE_DATA_ROOT; defaults are <repo>/data/scratch and <repo>/data/runs.
+.argv  <- commandArgs(trailingOnly = FALSE)
+.self  <- sub("^--file=", "", grep("^--file=", .argv, value = TRUE))[1]
+.start <- if (is.na(.self)) getwd() else dirname(normalizePath(.self))
+.repo  <- .start
+while (!file.exists(file.path(.repo, "own_baseline", "paths.R")) &&
+       dirname(.repo) != .repo) .repo <- dirname(.repo)
+source(file.path(.repo, "own_baseline", "paths.R"))
+SCR <- ob_scratch_root()
 args <- commandArgs(trailingOnly = TRUE)
 B.num <- if (length(args) >= 1) as.integer(args[1]) else 100L
 out_txt <- if (length(args) >= 2) args[2] else file.path(SCR, "slice_score.txt")

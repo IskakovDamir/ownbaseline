@@ -2,8 +2,18 @@
 make_subsample.py; writes to a SEPARATE fix3_sub dir so the zebrafish subsample is intact)."""
 import numpy as np, scipy.sparse as sp, scipy.io as sio
 from pathlib import Path
-PREP = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic/fix3/data/prepared")
-OUT = Path("/private/tmp/claude-501/-Users-damir-damir-research-vault/f1408352-cdbb-4882-96f8-dc52eb89b3ad/scratchpad/fix3_sub")
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root, scratch_root  # noqa: E402
+PREP = data_root() / "fix3/data/prepared"
+OUT = scratch_root() / "fix3_sub"
 OUT.mkdir(parents=True, exist_ok=True)
 N_SUB, SEED = 3000, 42
 X = sp.load_npz(PREP / "X_cells_genes.npz").tocsr()

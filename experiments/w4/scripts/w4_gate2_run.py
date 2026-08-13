@@ -12,7 +12,7 @@ Design:
       library-size lognorm (log1p(CPM/median)), gene filter >= N cells
       (N locked per atlas below).
   - Scaffold: STRING v12.0 human, threshold 700, LCC =
-      /Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/scaffolds/human_string_v12_thr700_lcc.npz
+      $OWNBASELINE_DATA_ROOT/w4/scaffolds/human_string_v12_thr700_lcc.npz
     intersected per-atlas with expressed genes at analysis time
     (mirrors the mouse pipeline convention in scaffolds/).
   - Scores: CytoTRACE v1 (via potency_metrics.cytotrace_proxy → gene_counts;

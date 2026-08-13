@@ -26,14 +26,25 @@ import scipy.sparse as sp
 from scipy.stats import weightedtau, spearmanr
 import anndata as ad
 
-VAULT = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic")
-sys.path.insert(0, str(VAULT / "atlas_run"))
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root, repo_root  # noqa: E402
+CODE = repo_root()   # this repository (code)
+VAULT = data_root()  # run inputs and outputs (data)
+sys.path.insert(0, str(CODE / "own_baseline" / "atlas_run"))
 from wdm_tau import wdm_tau_b_bit, kang_absolute_weights  # noqa: E402
 
 H5AD = VAULT / "atlas_run/data/E-MTAB-9067/E-MTAB-9067.h5ad"
 STRING = VAULT / "w4/scaffolds/human_string_v12_thr700_lcc.npz"
 S3 = VAULT / "atlas_run/kang2025_SI/Table_S3.csv"
-OUT = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic/track4/results/L2b_pilot_e_mtab_9067.json")
+OUT = VAULT / "track4/results/L2b_pilot_e_mtab_9067.json"
 
 SEED = 42
 N_BOOT = 1000

@@ -25,6 +25,16 @@ import pandas as pd
 import scipy.sparse as sp
 from scipy.sparse.csgraph import connected_components
 
+# --- repo-relative I/O roots -------------------------------------------------
+# The --out default was an absolute path under the author's home directory.
+# Override with $OWNBASELINE_DATA_ROOT; default is <repo>/data/runs.
+# See own_baseline/paths.py.
+_sys_path_anchor = next(p for p in __import__("pathlib").Path(__file__).resolve().parents
+                        if (p / "own_baseline" / "paths.py").is_file())
+sys.path.insert(0, str(_sys_path_anchor))
+from own_baseline.paths import data_root  # noqa: E402
+
+
 
 def load_string_edges_symbols(links_path, info_path, score_threshold=700):
     info = pd.read_csv(info_path, sep="\t", compression="infer",
@@ -92,7 +102,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--links", default="/tmp/string_human_dl/9606.protein.links.v12.0.txt.gz")
     parser.add_argument("--info", default="/tmp/string_human_dl/9606.protein.info.v12.0.txt.gz")
-    parser.add_argument("--out", default="/Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/scaffolds/human_string_v12_thr700_lcc.npz")
+    parser.add_argument("--out", default=str(
+        data_root() / "w4/scaffolds/human_string_v12_thr700_lcc.npz"))
     parser.add_argument("--threshold", type=int, default=700)
     args = parser.parse_args()
 

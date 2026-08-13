@@ -13,16 +13,27 @@ from multiprocessing import Pool
 import numpy as np
 from scipy.stats import spearmanr
 
-VAULT = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic")
-sys.path.insert(0, str(VAULT / "atlas_run"))
-sys.path.insert(0, str(VAULT / "track2/code"))
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root, repo_root, scratch_root  # noqa: E402
+CODE = repo_root()   # this repository (code)
+VAULT = data_root()  # run inputs and outputs (data)
+sys.path.insert(0, str(CODE / "own_baseline" / "atlas_run"))
+sys.path.insert(0, str(CODE / "experiments" / "track2" / "code"))
 from conditional_skill import (scipy_wtau, kang_taub, rank_resid_multi, _verdict, align,
                                _unit, SEED, N_BOOT_WT, N_BOOT_KT)
 from wdm_tau import wdm_tau_b_bit
 
 PREP = VAULT / "fix3/data/prepared"
 RES = VAULT / "fix3/results"
-SC = Path("/private/tmp/claude-501/-Users-damir-damir-research-vault/f1408352-cdbb-4882-96f8-dc52eb89b3ad/scratchpad")
+SC = scratch_root()
 OUT = RES / "gate2_conditional_skill.json"
 
 

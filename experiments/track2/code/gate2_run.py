@@ -27,11 +27,22 @@ import pandas as pd
 import scipy.sparse as sp
 from scipy.stats import weightedtau, spearmanr, rankdata
 
-VAULT = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic")
-sys.path.insert(0, str(VAULT))
-sys.path.insert(0, str(VAULT / "atlas_run"))
-sys.path.insert(0, str(VAULT / "w4/scripts"))
-sys.path.insert(0, str(VAULT / "track4/code"))
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root, repo_root  # noqa: E402
+CODE = repo_root()   # this repository (code)
+VAULT = data_root()  # run inputs and outputs (data)
+sys.path.insert(0, str(CODE / "own_baseline"))
+sys.path.insert(0, str(CODE / "own_baseline" / "atlas_run"))
+sys.path.insert(0, str(CODE / "experiments" / "w4" / "scripts"))
+sys.path.insert(0, str(CODE / "experiments" / "track4" / "code"))
 import potency_metrics as pm
 from wdm_tau import wdm_tau_b_bit
 

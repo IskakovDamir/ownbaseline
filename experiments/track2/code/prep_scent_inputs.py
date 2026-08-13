@@ -22,11 +22,20 @@ import scipy.sparse as sp
 import scipy.io as sio
 from scipy.sparse.csgraph import connected_components
 
-VAULT = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic")
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root, scratch_root  # noqa: E402
+VAULT = data_root()  # run inputs and outputs (data)
 PREP = VAULT / "track2/data/prepared"
 STRING = VAULT / "w4/scaffolds/human_string_v12_thr700_lcc.npz"
-IO = Path("/private/tmp/claude-501/-Users-damir-damir-research-vault/"
-          "f1408352-cdbb-4882-96f8-dc52eb89b3ad/scratchpad/scent_io")
+IO = scratch_root() / "scent_io"
 IO.mkdir(parents=True, exist_ok=True)
 
 N_SUB = 500          # subsample size for the R validation run

@@ -20,3 +20,7 @@ data/*/
 **/results/
 **/data/prepared/
 *.log
+
+# default I/O roots created by own_baseline/paths.py
+data/runs/
+data/scratch/

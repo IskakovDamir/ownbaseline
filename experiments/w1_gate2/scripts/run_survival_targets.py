@@ -35,8 +35,18 @@ from lifelines import CoxPHFitter
 from lifelines.utils import concordance_index
 
 RNG = np.random.default_rng(20260718)
-DATA = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic/w1_gate2/data")
-RESULTS = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic/w1_gate2/results")
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root  # noqa: E402
+DATA = data_root() / "w1_gate2/data"
+RESULTS = data_root() / "w1_gate2/results"
 RESULTS.mkdir(exist_ok=True)
 
 

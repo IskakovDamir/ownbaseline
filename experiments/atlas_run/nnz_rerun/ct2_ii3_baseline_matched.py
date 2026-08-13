@@ -45,7 +45,7 @@ Decision rule (II.3′ prereg §3, verbatim)
 Reproducibility
 ---------------
 - Vignette 1 CT2 CSV downloaded from digitalcytometry/cytotrace2 main branch.
-- Vignette 2 RDS: Seurat obj with cell IDs, cached at /private/tmp/ct2_probe/data/.
+- Vignette 2 RDS: Seurat obj with cell IDs, cached under $OWNBASELINE_SCRATCH/ct2_probe/data/.
 - Kang S11: local vault CSV.
 - II.3′ potency maps: read from ct2_probe results JSONs.
 
@@ -55,6 +55,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import sys
 from pathlib import Path
 from statistics import median
@@ -64,9 +65,19 @@ from scipy.stats import weightedtau
 
 HERE = Path(__file__).parent
 KANG_S11 = HERE.parent / "kang2025_SI" / "Table_S11.csv"
-CT2_PROBE_RESULTS = Path("/Users/damir/damir-research-vault/06-code/tautology-diagnostic/ct2_probe/results")
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root, scratch_root  # noqa: E402
+CT2_PROBE_RESULTS = data_root() / "ct2_probe/results"
 VIGNETTE1_LOCAL = Path("/tmp/vignette1.csv")
-VIGNETTE2_RDS = Path("/private/tmp/ct2_probe/data/Vignette2_CytoTRACE2_results.rds")
+VIGNETTE2_RDS = scratch_root() / "ct2_probe/data/Vignette2_CytoTRACE2_results.rds"
 
 OUT = HERE / "ct2_ii3_baseline_matched.json"
 
@@ -157,22 +168,22 @@ def get_cordblood():
     kang = load_kang_s11("Cord blood (CITE-seq)")
 
     # Read cord blood cell IDs from the Vignette2 Seurat RDS via II.3′ venv.
-    # Called this via /private/tmp/ct2_probe/venv/bin/python3 walk;
+    # Called this via $CT2_PROBE_PYTHON (an interpreter with rdata);
     # embed the extraction inline here as a subprocess call for reproducibility.
     import subprocess
     script = """
 import rdata, json, warnings
 warnings.filterwarnings('ignore')
-p = rdata.parser.parse_file('/private/tmp/ct2_probe/data/Vignette2_CytoTRACE2_results.rds')
+p = rdata.parser.parse_file(RDS_PATH_PLACEHOLDER)
 obj = rdata.conversion.convert(p)
 cells = obj.assays['RNA'].cells['dim_0'].values.tolist()
 # We also need CT2 scores per cell — extract from meta.data
 # For Seurat objects with CytoTRACE2 pre-computed, scores are in meta.data columns.
 # Use the ct2_probe/results/result_cordblood.json for I.3'.
 print(json.dumps({'cells': cells}))
-"""
+""".replace("RDS_PATH_PLACEHOLDER", repr(str(VIGNETTE2_RDS)))
     result = subprocess.run(
-        ["/private/tmp/ct2_probe/venv/bin/python3", "-c", script],
+        [os.environ.get("CT2_PROBE_PYTHON", sys.executable), "-c", script],
         capture_output=True, text=True, timeout=60,
     )
     if result.returncode != 0:

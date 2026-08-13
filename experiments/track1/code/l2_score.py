@@ -25,8 +25,18 @@ warnings.filterwarnings("ignore")
 
 from lifelines import CoxPHFitter
 
-DATA_DIR = "/Users/damir/damir-research-vault/06-code/tautology-diagnostic/track1/data"
-RES_DIR = "/Users/damir/damir-research-vault/06-code/tautology-diagnostic/track1/results"
+# --- repo-relative I/O roots -------------------------------------------------
+# These were absolute paths under the author's home directory and an ephemeral
+# agent-session scratchpad, so the module only imported on one machine.
+# Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
+# <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import data_root  # noqa: E402
+DATA_DIR = str(data_root() / "track1/data")
+RES_DIR = str(data_root() / "track1/results")
 
 def load_xena_expr(path_gz):
     df = pd.read_csv(path_gz, sep="\t", index_col=0, compression="gzip")

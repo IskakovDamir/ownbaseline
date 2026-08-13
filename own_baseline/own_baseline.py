@@ -1,38 +1,98 @@
 """
-own_baseline.py — the own-baseline diagnostic (two flavours).
+own_baseline.py — does a score order cells better than its own primitive?
 
-Central claim
--------------
-When a signal (an error model; a "potency" score) appears to transfer or to
-order cells across contexts, that positive result is *expected* whenever the
-signal factors through a low-order statistic of the data that two contexts
-share by construction. Cross-context agreement is then NOT, on its own,
-evidence of conserved structure.
+What this module does
+---------------------
+An unsupervised potency/stemness score is usually validated by correlating it
+against a pseudotime, a marker panel, or a known hierarchy. A score that
+restates sequencing depth passes that test, and so does a score carrying real
+ordering information. The criterion does not separate them.
 
-Two diagnostics, same logic
----------------------------
-(A) Error-model version (§4.3, §5 of the paper — the original Test A):
+This module implements the cheap version of a criterion that does: compare the
+score against the low-order statistic it is closest to — its *primitive* —
+rather than against the gold standard alone.
+
+(A) Error-model version (the original Test A):
         Delta = AUROC_transfer(A -> B) - AUROC_own-entropy(B)
     Rationale: local label entropy estimates the Bayes error; the
     entropy->Bayes-error map is domain-invariant by Fano's inequality.
     See test_A() below.
 
-(B) Potency-score version (§5 extension; §8.5 worked example — this file's
-    new API):
+(B) Potency-score version — the marginal gap:
         Delta = tau_wt(score, GT) - tau_wt(nnz, GT)
     where GT is a per-cell ground-truth potency ordinal and `nnz` is the
-    raw per-cell gene count (nnz_g = #{g : x_{c,g} > 0}). Rationale
-    (paper §5, algebra section):
-        - CytoTRACE v1 orders cells by nnz => tau(CT v1, GT) ~= tau(nnz, GT)
-          by construction (nnz IS the primitive).
-        - SCENT SR reduces to mean-field corr(x, degree) (Teschendorff &
-          Enver 2017 Nat Commun 8:15599); its rank is a low-order statistic
-          driven by broad-of-expression.
-        - CCAT = Pearson(x, degree) — an explicit low-order statistic
-          (Teschendorff et al. 2021 Bioinformatics 37(11):1528).
-    All three are conserved between any two datasets whose broad-of-
-    expression profile is comparable — by construction, not biology.
+    raw per-cell gene count (nnz_c = #{g : x_{c,g} > 0}).
     See run_own_baseline() below.
+
+The primitives are not our choice. Each is the statistic the score's own
+authors identify as what their score approximates:
+    - CytoTRACE v1 orders cells by gene count (Gulati et al. 2020).
+    - CCAT is *defined* as Pearson(x, PPI degree) (Teschendorff et al. 2021
+      Bioinformatics 37(11):1528).
+    - Teschendorff & Enver (2017) Nat Commun 8:15599 report that the same
+      degree correlation approximates signalling entropy at R^2 = 0.96 — with
+      an explicit caveat, in the same paragraph, that the approximation is
+      empirical and not an equivalence.
+
+Two warnings about this particular function
+-------------------------------------------
+1. The marginal gap is the WEAKER of the two tests in this repository. It does
+   not residualize: it compares two marginal correlations. A score built from
+   the primitive plus a little noise can show a positive Delta. The test the
+   accompanying paper actually reports is conditional skill — the score rank
+   residualized on the primitive rank, then scored against the ordinal under
+   two kernels with a bootstrap interval. Use conditional_skill_report() in
+   own_baseline.conditional_skill for that. Prefer it.
+
+2. Check the direction of the baseline before reading the margin. In sorted
+   haematopoietic progenitors the gene-count primitive orders cells BELOW
+   chance (AUROC 0.378: HSC carry a median 916 detected genes, the GMP below
+   them carry 1,404). A score that "beats" a reversed baseline has supplied a
+   sign correction, not biology, and nothing in Delta shows this. In intestinal
+   epithelium the same primitive reaches AUROC 0.798. The primitive did not
+   change; only whether dissociation happened to put the deeper cells on top.
+
+What the accompanying paper found
+---------------------------------
+This tool was built to demonstrate a strong hypothesis: that every unsupervised
+potency score is a reparametrization of a fixed low-order statistic, so that
+cross-context agreement between such scores is guaranteed by construction
+rather than by biology. **That hypothesis was tested and refuted.**
+
+On a 12-stage microscopy-staged zebrafish ordinal (GSE106474, 39,505 whole-
+embryo cells), of the seven scores that could be placed on the ordinal, five
+carry ordering skill beyond their own primitive, measured as Kendall tau_b
+after rank residualization:
+
+    CytoTRACE  0.653     SR (SCENT)  0.430     ORIGINS  0.402
+    NCG        0.402 *   dpath       0.120
+    CCAT       no measurable residual (rho = 0.998 with its primitive)
+    SLICE      near zero (rho = 0.932 with its entropy primitive)
+    * on a 3,000-cell subsample against its own GO-weighted connectome, so the
+      agreement with the ORIGINS figure is a coincidence of rounding.
+
+Residualizing on four low-order statistics at once — gene count, transcriptome-
+connectome correlation, Shannon entropy, log library size — all four
+substantive scores survive, with bootstrap intervals excluding zero under both
+kernels: CytoTRACE 0.653 -> 0.288, SR 0.430 -> 0.183, ORIGINS 0.402 -> 0.156,
+dpath 0.120 -> 0.134.
+
+So the reduction is real for the identity and entropy constructions (CCAT is
+its primitive by definition; StemID and cmEntropy equal a transcriptome
+entropy by construction; SLICE tracks one it does not improve on) and FALSE
+for the entropy-rate and diffusion constructions (signalling entropy,
+CytoTRACE) at single-cell resolution on this ordinal.
+
+Specifically: the claim that signalling entropy *reduces to* a mean-field
+correlation with node degree, and that such scores are conserved across
+datasets by construction rather than by biology, is NOT supported for SR. SR
+sits at rho = 0.93 with the degree correlation and still retains conditional
+skill. The claim stands for CCAT alone, where there is no gap between the
+score and the statistic it would have to beat.
+
+What the surviving residual consists of is open. A staged timecourse traces a
+developmental manifold, and a score tracking that manifold keeps skill whether
+or not it measures potency in any deeper sense.
 
 Decision rule (potency-score flavour)
 -------------------------------------
@@ -63,15 +123,17 @@ Cite:
     gene-counts already dominate the scaffold-anchored surrogates).
   - Banerji et al. (2015) PLoS Comput Biol, PMC4368751 — SR reported as
     conserved across breast and lung cancer.
-  - See paper §5 (05-writing/paper1-FULL-DRAFT-v1.md) for the algebraic
-    identities; the Session-6 dossier (04-experiments/2026-07-17-hod5-
-    atlas-scale-dossier.md §S6) for the II.7 atlas numbers this tool
-    reuses.
+  - Farrell et al. (2018) Science 360:eaar3131, GSE106474 — the 12-stage
+    zebrafish ordinal the audit above is measured on.
+  - Teschendorff & Enver (2017) Nat Commun 8:15599 — signalling entropy, and
+    the R^2 = 0.96 degree-correlation approximation together with the caveat
+    that it is empirical rather than an equivalence.
+  - Gulati et al. (2020) Science 367:405 — CytoTRACE v1.
+  - See README.md for the audit table and the reproduction entry point.
 
-Practitioner-facing 5-line usage
---------------------------------
-    from own_baseline import run_own_baseline
-    from potency_metrics import ccat, build_ppi_adjacency, load_string_ppi
+Practitioner-facing usage
+-------------------------
+    from own_baseline import run_own_baseline, load_string_ppi
 
     edges = load_string_ppi("9606.protein.links.v12.0.txt.gz",
                             "9606.protein.info.v12.0.txt.gz",
@@ -79,6 +141,11 @@ Practitioner-facing 5-line usage
     result = run_own_baseline(adata, score="ccat", gt_ordinal="broad_pot",
                               ppi_edges=edges)
     print(result["takeaway"])
+
+For the residualized test the paper actually reports, use instead:
+
+    from own_baseline import conditional_skill_report
+    report = conditional_skill_report(score, ordinal, {"PCC(x,degree)": pcc})
 """
 from __future__ import annotations
 
@@ -203,7 +270,7 @@ def test_A(Xs, ys_err, Xt, yt_err, entropy_feat_t, eps: float = 0.03, cv: int = 
 
 
 # ============================================================================
-# POTENCY-SCORE VERSION (§8.5 practitioner tool)
+# POTENCY-SCORE VERSION (the practitioner marginal-gap tool)
 # ============================================================================
 #
 # Decision-rule constants, pre-registered. The two thresholds 0.05 and 0.10 are
@@ -220,14 +287,19 @@ VERDICT_INCONCLUSIVE = "INCONCLUSIVE"
 VERDICT_ADDS = "ADDS-BEYOND-PRIMITIVE"
 VERDICT_UNDEFINED = "UNDEFINED"
 
-# Algebraic identity messages (§5 of the paper).
-# One line each, printed under PASS to explain WHY the score collapsed.
+# Algebraic identity messages: why a score can collapse onto its primitive.
+# One line each, printed under REDUCES-TO-PRIMITIVE to explain the collapse.
 _ALGEBRA_HINT = {
     "cytotrace_v1": (
-        "CytoTRACE v1 orders cells by gene counts (nnz); log(nnz) is the "
-        "order-0 Rényi (Hartley) entropy H_0 of the expression vector. So "
-        "tau(CT v1, GT) equals tau(nnz, GT) by construction — the "
-        "scaffold is the gene-count ranking itself."
+        "score='cytotrace_v1' returns the raw gene count itself, not "
+        "CytoTRACE. Delta is therefore 0 by construction and carries no "
+        "information: it is a self-test of the plumbing, not a measurement. "
+        "The real CytoTRACE v1 adds an NNLS + Markov-diffusion smoothing "
+        "step on top of the gene-count ranking, and in this repo's audit that "
+        "full algorithm carries the LARGEST conditional skill beyond gene "
+        "count of any score tested (tau_b 0.653). To measure it, run the "
+        "R-faithful port in scores/cytotrace_full.py and pass the result as "
+        "a callable."
     ),
     "scent_sr": (
         "Signalling entropy rate reduces in the mean-field / degenerate "
@@ -248,7 +320,8 @@ _ALGEBRA_HINT = {
         "Your custom score orders cells no better than raw nnz on this "
         "dataset. This is consistent with the score factoring through a "
         "low-order statistic shared with nnz (e.g. a monotone function of "
-        "gene counts or of a fixed scaffold). See paper §5 for the class."
+        "gene counts or of a fixed scaffold). Confirm with the residualized "
+        "test before concluding: see conditional_skill_report()."
     ),
 }
 
@@ -259,7 +332,7 @@ def nnz_per_cell(X_or_adata) -> np.ndarray:
 
     Accepts a scipy.sparse matrix, a dense numpy array (cells x genes), or
     an AnnData object (uses .X). This is the primitive against which every
-    scaffold-anchored score is compared, per paper §5.
+    scaffold-anchored score is compared.
 
     NB: gene counts, not molecule counts. Kang 2025 confirms across n=23
     atlas rows that this raw primitive already dominates SCENT (SR),
@@ -361,22 +434,28 @@ def _score_from_name(
     """
     Compute a named potency score using potency_metrics.py.
 
-    Supported names: 'cytotrace_v1' (returns gene_counts, i.e. the CT v1
-    primitive per §5), 'scent_sr', 'ccat'.
+    Supported names: 'scent_sr', 'ccat', and 'cytotrace_v1'.
+
+    WARNING on 'cytotrace_v1': it returns the raw per-cell gene count, which
+    is CytoTRACE v1's *primitive*, not CytoTRACE v1. Delta against nnz is then
+    exactly 0 by construction. It is kept as a plumbing self-test and as a
+    demonstration of the identity; it is not a measurement of CytoTRACE. The
+    full algorithm (MVG -> GCS -> NNLS -> Markov diffusion) is in
+    scores/cytotrace_full.py -- pass its output as a callable instead.
 
     For 'scent_sr' and 'ccat' the caller MUST supply ppi_edges (edge list of
     gene symbols, e.g. from potency_metrics.load_string_ppi). This is a
     hard requirement: the "scaffold" is the PPI graph and randomizing it is
-    the null the paper §5 discusses.
+    the scaffold-randomization null (see potency_metrics.scaffold_null).
     """
     _here = Path(__file__).parent
     sys.path.insert(0, str(_here))
     import potency_metrics as pm  # type: ignore
 
     if score_name == "cytotrace_v1":
-        # By paper §5: CT v1 orders cells by gene counts. Rank-equivalent
-        # to nnz => tau(CT v1, GT) == tau(nnz, GT) exactly if we use nnz.
-        # Returned as the raw primitive to make the identity visible.
+        # Deliberately the PRIMITIVE, not the score: gene counts. Makes the
+        # identity tau(nnz, GT) == tau(nnz, GT) visible as an exact 0. See the
+        # WARNING above -- this is not the CytoTRACE algorithm.
         return pm.cytotrace_proxy(adata)["gene_counts"]
 
     if score_name == "scent_sr":

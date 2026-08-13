@@ -130,13 +130,30 @@ python3 reproduce.py --self-test     # whole chain on synthetic data, ~1 min
 python3 reproduce.py                 # download ~135 MB and run
 ```
 
-**Reproducible end to end**, from public accessions with `pip` and no R:
-the three primitives (gene count, `PCC(x, degree)` on STRING v12, Shannon
-entropy), **CytoTRACE v1** (the full MVG → GCS → NNLS → Markov-diffusion port
-in `scores/cytotrace_full.py`), and **SCENT's SR and CCAT** (the Python
-implementations in `own_baseline/potency_metrics.py`). That covers the audit's
-largest effect (CytoTRACE, τ_b 0.653) and the CCAT row the reduction thesis
-survives on.
+**Reproducible end to end**, from public accessions with `pip` and no R: the
+three primitives (gene count, `PCC(x, degree)` on STRING v12, Shannon entropy),
+**CytoTRACE v1** (the full MVG → GCS → NNLS → Markov-diffusion port in
+`scores/cytotrace_full.py`), and **SCENT's SR and CCAT** (the Python
+implementations in `own_baseline/potency_metrics.py`).
+
+This was run, not asserted. On 2026-08-13 `reproduce.py` downloaded
+GSE106474 and STRING v12, rebuilt the scaffold, prepared **39,505 cells across
+12 stages** — the paper's n exactly — and regenerated four rows of the headline
+table. They match the values behind the manuscript to every digit reported,
+including both bootstrap bounds under both kernels:
+
+| row | τ_b (reproduced) | 95% CI | weighted τ | 95% CI | verdict |
+|---|---|---|---|---|---|
+| CytoTRACE v1 \| gene count | +0.6531 | [+0.6479, +0.6579] | +0.7901 | [+0.7672, +0.8067] | ADDS-BEYOND |
+| SR \| `PCC(x, degree)` | +0.4300 | [+0.4248, +0.4350] | +0.7366 | [+0.7174, +0.7611] | ADDS-BEYOND |
+| SR \| CCAT | +0.4678 | [+0.4626, +0.4727] | +0.7522 | [+0.7347, +0.7766] | ADDS-BEYOND |
+| CCAT \| `PCC(x, degree)` | −0.2209 | [−0.2267, −0.2151] | +0.1716 | [+0.1186, +0.2104] | INCONCLUSIVE-kernel-disagree |
+
+That is the audit's largest effect (CytoTRACE, τ_b 0.653), the signalling-entropy
+row the refutation turns on (SR, 0.430), and the CCAT row the reduction thesis
+survives on. Read the last row with the scope note above and defect **F-2**
+below in mind: the two kernels disagree at a near-null, and that disagreement is
+also the signature of the F-2 artefact.
 
 **Not reproducible here, and why.** Nothing below is silently skipped;
 `reproduce.py` names the blocker for each.

@@ -34,17 +34,23 @@ Two diagnostics, same logic
     expression profile is comparable — by construction, not biology.
     See run_own_baseline() below.
 
-Decision rule (both flavours)
------------------------------
-    Delta <= 0.05 -> PASS  ("no gain over the primitive baseline: your score
-                             is not distinguishable from raw gene counts on
-                             this dataset — a scaffold-anchored surrogate
-                             suffices to explain what you see.")
-    0.05 < Delta <= 0.10 -> INCONCLUSIVE ("underpowered / borderline —
-                             collect more cells or check baseline sensitivity
-                             across kernels.")
-    Delta > 0.10 -> FAIL  ("your score captures structure BEYOND raw gene
-                             counts; proceed but check baseline sensitivity.")
+Decision rule (potency-score flavour)
+-------------------------------------
+    Delta <= 0.05        -> REDUCES-TO-PRIMITIVE
+                            "no gain over the primitive baseline: the score is
+                             not distinguishable from raw gene counts on this
+                             dataset — a scaffold-anchored surrogate suffices
+                             to explain what you see."
+    0.05 < Delta <= 0.10 -> INCONCLUSIVE
+                            "underpowered / borderline — collect more cells or
+                             check baseline sensitivity across kernels."
+    Delta > 0.10         -> ADDS-BEYOND-PRIMITIVE
+                            "the score captures structure beyond raw gene
+                             counts; proceed but check baseline sensitivity."
+
+The verdict names say which way the evidence points. They are not a quality
+judgement on the score and there is no pass/fail: ADDS-BEYOND-PRIMITIVE is the
+outcome for most of the scores this repo audited.
 
 Cite:
   - Fano (1961) via Cover & Thomas, Elements of Information Theory 2nd ed.
@@ -200,13 +206,19 @@ def test_A(Xs, ys_err, Xt, yt_err, entropy_feat_t, eps: float = 0.03, cv: int = 
 # POTENCY-SCORE VERSION (§8.5 practitioner tool)
 # ============================================================================
 #
-# Decision-rule constants, pre-registered:
-#   - PASS threshold 0.05 and FAIL threshold 0.10 match the II.3'/II.7
-#     prereg (04-experiments/2026-07-17-hod5-atlas-scale-reduction-prereg.md
-#     §2 H1) so that verdicts here are directly comparable to the atlas run
-#     in per_dataset_results.json.
-PASS_DELTA = 0.05
-FAIL_DELTA = 0.10
+# Decision-rule constants, pre-registered. The two thresholds 0.05 and 0.10 are
+# unchanged from the atlas-run pre-registration, so verdicts here stay directly
+# comparable to the atlas run's per_dataset_results.json. Only the NAMES of the
+# bands changed (they used to be "PASS"/"FAIL", which read backwards).
+REDUCES_DELTA = 0.05
+ADDS_DELTA = 0.10
+
+# Verdict labels. REDUCES-TO-PRIMITIVE and ADDS-BEYOND-PRIMITIVE describe the
+# direction of the evidence; neither is a pass or a failure.
+VERDICT_REDUCES = "REDUCES-TO-PRIMITIVE"
+VERDICT_INCONCLUSIVE = "INCONCLUSIVE"
+VERDICT_ADDS = "ADDS-BEYOND-PRIMITIVE"
+VERDICT_UNDEFINED = "UNDEFINED"
 
 # Algebraic identity messages (§5 of the paper).
 # One line each, printed under PASS to explain WHY the score collapsed.
@@ -220,14 +232,17 @@ _ALGEBRA_HINT = {
     "scent_sr": (
         "Signalling entropy rate reduces in the mean-field / degenerate "
         "limit to Pearson corr(x, degree) (Teschendorff & Enver 2017; "
-        "see also CCAT). If it PASSes own-baseline, the transferred "
-        "signal is the shared PPI scaffold, not conserved potency biology."
+        "see also CCAT). If it REDUCES-TO-PRIMITIVE here, the transferred "
+        "signal is the shared PPI scaffold, not conserved potency biology. "
+        "Note this repo's own audit found the opposite on a 12-stage staged "
+        "ordinal: SR retains conditional skill beyond the degree correlation."
     ),
     "ccat": (
         "CCAT = Pearson(x, degree_vector) is an explicit low-order "
         "statistic of x anchored to a fixed scaffold (the PPI degree "
         "vector, shared between any two human single-cell datasets). "
-        "If it PASSes own-baseline, the 'conservation' is by construction."
+        "If it REDUCES-TO-PRIMITIVE here, the 'conservation' is by "
+        "construction. This is the one reduction the audit confirmed."
     ),
     "custom": (
         "Your custom score orders cells no better than raw nnz on this "
@@ -438,17 +453,22 @@ def run_own_baseline(
         tau_score          : weighted tau of the score vs GT
         tau_nnz            : weighted tau of raw nnz vs GT (the baseline)
         delta              : tau_score - tau_nnz  (the informative quantity)
-        verdict            : "PASS" / "INCONCLUSIVE" / "FAIL"
-        algebra_hint       : if PASS, the §5 identity explaining why
+        verdict            : "REDUCES-TO-PRIMITIVE" / "INCONCLUSIVE" /
+                             "ADDS-BEYOND-PRIMITIVE" / "UNDEFINED"
+        algebra_hint       : if REDUCES-TO-PRIMITIVE, the identity explaining why
         takeaway           : one-sentence actionable message
         n_cells            : number of cells used (post-NaN mask)
         score_name         : label for the score
 
-    Verdict decision rule (§8.5, prereg-locked)
-    -------------------------------------------
-        delta <= 0.05        -> PASS  (score not distinguishable from nnz)
+    Verdict decision rule (prereg-locked thresholds)
+    ------------------------------------------------
+        delta <= 0.05        -> REDUCES-TO-PRIMITIVE (not distinguishable
+                                from nnz on this dataset)
         0.05 < delta <= 0.10 -> INCONCLUSIVE (underpowered)
-        delta > 0.10         -> FAIL  (score adds structure beyond nnz)
+        delta > 0.10         -> ADDS-BEYOND-PRIMITIVE (structure beyond nnz)
+
+    Neither end is a pass or a failure; the label states which way the
+    evidence points.
     """
     # 1) Resolve score.
     if isinstance(score, str):
@@ -495,25 +515,27 @@ def run_own_baseline(
 
     # 6) Verdict.
     if np.isnan(delta):
-        verdict = "UNDEFINED"
+        verdict = VERDICT_UNDEFINED
         algebra = ""
         takeaway = (
             "Diagnostic undefined — check that ground-truth ordinal has "
             "at least 2 levels and that score/nnz have at least 3 non-NaN "
             "cells in common."
         )
-    elif delta <= PASS_DELTA:
-        verdict = "PASS"
+    elif delta <= REDUCES_DELTA:
+        verdict = VERDICT_REDUCES
         algebra = _ALGEBRA_HINT.get(hint_key, _ALGEBRA_HINT["custom"])
         takeaway = (
             f"Your {score_name} result is not distinguishable from raw "
-            f"gene counts on this dataset (Delta = {delta:+.4f}, PASS). "
-            f"Before publishing this as evidence of conserved potency, "
-            f"re-run against a shuffle-scaffold or per-cell nnz baseline. "
-            f"See paper1-FULL-DRAFT-v1.md §5 for the algebraic derivation."
+            f"gene counts on this dataset (Delta = {delta:+.4f}, "
+            f"REDUCES-TO-PRIMITIVE). Before publishing this as evidence of "
+            f"conserved potency, re-run against a shuffle-scaffold or "
+            f"per-cell nnz baseline. This marginal gap is the weaker of the "
+            f"two tests in this repo; see conditional_skill_report() for the "
+            f"residualized version."
         )
-    elif delta <= FAIL_DELTA:
-        verdict = "INCONCLUSIVE"
+    elif delta <= ADDS_DELTA:
+        verdict = VERDICT_INCONCLUSIVE
         algebra = ""
         takeaway = (
             f"Your {score_name} result is borderline vs raw gene counts "
@@ -523,14 +545,15 @@ def run_own_baseline(
             f"versa) before reading this as conservation."
         )
     else:
-        verdict = "FAIL"
+        verdict = VERDICT_ADDS
         algebra = ""
         takeaway = (
             f"Your {score_name} adds structure beyond raw gene counts on "
-            f"this dataset (Delta = {delta:+.4f}, FAIL). The potency "
-            f"claim survives the primitive; proceed but check baseline "
-            f"sensitivity across kernels before reading cross-context "
-            f"agreement as conservation."
+            f"this dataset (Delta = {delta:+.4f}, ADDS-BEYOND-PRIMITIVE). "
+            f"The potency claim survives the primitive; proceed but check "
+            f"baseline sensitivity across kernels, and check the direction "
+            f"of the baseline itself — a primitive that orders below chance "
+            f"turns a beaten baseline into a sign correction."
         )
 
     result = {
@@ -560,9 +583,9 @@ def run_own_baseline(
 
 
 if __name__ == "__main__":
-    # Minimal smoke test: synthetic PASS-by-construction (score == nnz)
-    # and FAIL-by-construction (score correlates with the true ordinal
-    # much better than nnz does). Full test suite in test_own_baseline.py.
+    # Minimal smoke test: synthetic REDUCES-by-construction (score == nnz)
+    # and ADDS-by-construction (score correlates with the true ordinal
+    # much better than nnz does). Full test suite in tests/.
     import anndata as ad
 
     rng = np.random.default_rng(0)
@@ -580,13 +603,13 @@ if __name__ == "__main__":
     adata.var_names = [f"g{i}" for i in range(n_genes)]
     adata.obs["gt"] = gt
 
-    print("=== PASS case: custom score = nnz (Delta should be ~ 0) ===")
+    print("=== REDUCES case: custom score = nnz (Delta should be ~ 0) ===")
     _ = run_own_baseline(adata,
                         score=lambda ad_: nnz_per_cell(ad_),
                         gt_ordinal="gt",
                         higher_gt_more_potent=True)
 
-    print("\n=== FAIL case: custom score = gt + tiny noise (Delta should be > 0.10) ===")
+    print("\n=== ADDS case: custom score = gt + tiny noise (Delta should be > 0.10) ===")
     _ = run_own_baseline(adata,
                         score=lambda ad_: adata.obs["gt"].values +
                                           0.05 * rng.standard_normal(n_cells),

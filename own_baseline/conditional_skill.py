@@ -88,11 +88,21 @@ def _verdict(lo, hi):
 
 
 def _unit(task):
-    """task = (label, s_aligned, cov_list, o). Returns (label, both-kernel result)."""
-    label, s, covs, o = task
+    """
+    task = (label, s_aligned, cov_list, o). Returns (label, both-kernel result).
+
+    The 4-tuple form is what the track-2 decider run passed, and Pool.map still
+    passes it. A 5-tuple (…, n_boot) overrides the resample counts; omitting it
+    keeps (N_BOOT_WT, N_BOOT_KT) and therefore the published numbers.
+    """
+    if len(task) == 5:
+        label, s, covs, o, n_boot = task
+    else:
+        label, s, covs, o = task
+        n_boot = (N_BOOT_WT, N_BOOT_KT)
     out = {}
-    for kname, kfun, nb in [("scipy_weightedtau", scipy_wtau, N_BOOT_WT),
-                            ("kang_wdm_taub", kang_taub, N_BOOT_KT)]:
+    for kname, kfun, nb in [("scipy_weightedtau", scipy_wtau, n_boot[0]),
+                            ("kang_wdm_taub", kang_taub, n_boot[1])]:
         real = kfun(rank_resid_multi(s, covs), o)
         rng = np.random.default_rng(SEED)
         n = len(o)
@@ -111,6 +121,236 @@ def _unit(task):
 
 def align(score, ordinal):
     return (-1.0 if spearmanr(score, ordinal, nan_policy="omit").statistic < 0 else 1.0) * score
+
+
+# ============================================================================
+# PRACTITIONER API
+# ============================================================================
+# Everything above is the track-2 decider exactly as it ran. The function below
+# is a wrapper: it reuses align(), rank_resid_multi(), scipy_wtau(), kang_taub()
+# and _unit() unchanged, and adds no estimator of its own. It exists because
+# what the paper describes -- conditional skill against a score's own primitive
+# -- was reachable only by running this file as a script against one specific
+# prepared dataset. run_own_baseline() in own_baseline.py, the function a reader
+# would actually find, computes something weaker: a marginal gap against raw
+# gene counts with no residualization.
+#
+# NOTE ON THE OTHER RESIDUAL IMPLEMENTATION. This repository contains two.
+# This one, rank_resid_multi() above, is the track-2 estimator: it rank-
+# transforms score and covariates, fits by least squares WITH an intercept, and
+# accepts any number of covariates. The other, rank_residual(), appears in
+# experiments/w4/scripts/w4_gate2_run.py, experiments/track4/code/,
+# experiments/cytotrace_v1/ and experiments/stemsc/, and differs in three ways:
+#
+#   1. Its slope is np.cov(r_s, r_p)[0, 1] / np.var(r_p). np.cov defaults to
+#      ddof=1 and np.var to ddof=0, so its slope is the least-squares slope
+#      times n/(n-1) -- 1.000025 at n = 39,505, but 1.0204 at n = 50.
+#   2. It fits no intercept. Rank-based tau is invariant to a constant offset,
+#      so this difference alone does not move a number.
+#   3. It takes exactly one covariate. The joint residualization on four
+#      primitives at once is only expressible with rank_resid_multi().
+#
+#   Measured consequence of (1): |tau_A - tau_B| reaches 3.7e-2 at n = 106 and
+#   falls to 6.6e-07 at n = 39,505. It is negligible at atlas scale and is not
+#   negligible on the 3,000-cell subsamples or smaller.
+#
+#   The two are NOT merged here, and this wrapper uses only rank_resid_multi().
+#   Deciding which is correct, and re-running whatever depends on the other, is
+#   a numerical decision for the authors, not a refactor.
+
+def _as_primitive_dict(primitives):
+    """Accept a dict, a single vector, or a sequence of vectors."""
+    if isinstance(primitives, dict):
+        return {str(k): np.asarray(v, dtype=float) for k, v in primitives.items()}
+    arr = np.asarray(primitives, dtype=float)
+    if arr.ndim == 1:
+        return {"primitive": arr}
+    return {f"primitive_{i}": np.asarray(v, dtype=float) for i, v in enumerate(arr)}
+
+
+def conditional_skill_report(
+    score,
+    ordinal,
+    primitives,
+    *,
+    score_name="score",
+    n_boot=None,
+    joint=True,
+    verbose=True,
+):
+    """
+    Does `score` order cells by `ordinal` beyond what `primitives` already do?
+
+    This is the test the paper reports. It answers a different question from
+    run_own_baseline(), which compares two marginal correlations and can call a
+    score substantive when it is the primitive plus noise.
+
+    Parameters
+    ----------
+    score : (n,) array
+        Per-cell score. Polarity does not matter; it is sign-aligned to the
+        ordinal before residualization, so a score where "low = more potent"
+        needs no manual negation.
+    ordinal : (n,) array
+        Score-independent potency ordinal, higher = more potent. It must be
+        fixed independently of expression -- a developmental stage assigned by
+        microscopy before dissociation, not a pseudotime.
+    primitives : dict[str, array] | array | sequence of arrays
+        The low-order statistic(s) the score is claimed to approximate. Use the
+        one the score's own authors name. own_baseline.potency_metrics computes
+        the three used in the paper: gene count, Pearson(x, PPI degree),
+        Shannon entropy.
+    n_boot : (int, int), optional
+        Bootstrap resamples for (weightedtau, kendalltau). Defaults to the
+        published (300, 1000). Lower them for a quick look; the intervals widen.
+    joint : bool
+        Also residualize on every primitive at once. Only meaningful with more
+        than one primitive.
+
+    Returns
+    -------
+    dict with, for each primitive name and for "JOINT":
+
+        marginal_skill      tau(score, ordinal) and tau(primitive, ordinal),
+                            both kernels -- the two numbers the field usually
+                            reports.
+        marginal_gap        tau(score) - tau(primitive), both kernels. This is
+                            the quantity run_own_baseline() calls Delta.
+        direction_check     the sign of the primitive's own association with
+                            the ordinal, and a flag when it is negative. A
+                            primitive that orders cells the wrong way makes the
+                            marginal gap meaningless: beating a reversed
+                            baseline is a sign correction, not biology. In
+                            sorted haematopoietic progenitors the gene-count
+                            primitive sits at AUROC 0.378, and CytoTRACE
+                            "beats" it by 0.141.
+        conditional_skill   tau(residual, ordinal) with a 95% bootstrap
+                            interval and a verdict, under both kernels, plus
+                            whether the kernels agree. This is the answer.
+
+    The verdict vocabulary is the decider's, unchanged:
+        TAUTOLOG      interval contains 0 -- no skill beyond the primitive
+        ADDS-BEYOND   interval strictly positive
+        SIGN-FLIPPED  interval strictly negative
+        INCONCLUSIVE-kernel-disagree
+
+    Reading it: call a score substantive only when all three hold -- the two
+    kernels agree, the interval excludes zero, and it survives a depth control
+    (add log10 library size as a further primitive). That conjunction is
+    stricter than a corrected single test near the boundary.
+
+    Rows with a non-finite score, ordinal or primitive are dropped jointly
+    before anything is computed; `n` in the result is what remained.
+    """
+    score = np.asarray(score, dtype=float)
+    ordinal = np.asarray(ordinal, dtype=float)
+    prims = _as_primitive_dict(primitives)
+
+    n_in = len(score)
+    for name, v in prims.items():
+        if len(v) != n_in:
+            raise ValueError(
+                f"primitive {name!r} has length {len(v)}, score has {n_in}")
+    if len(ordinal) != n_in:
+        raise ValueError(
+            f"ordinal has length {len(ordinal)}, score has {n_in}")
+
+    mask = np.isfinite(score) & np.isfinite(ordinal)
+    for v in prims.values():
+        mask &= np.isfinite(v)
+    if mask.sum() < 3:
+        raise ValueError(
+            f"only {int(mask.sum())} rows are finite across score, ordinal and "
+            f"all primitives; need at least 3")
+    s, o = score[mask], ordinal[mask]
+    prims = {k: v[mask] for k, v in prims.items()}
+
+    s_aligned = align(s, o)
+    flipped = bool(np.any(s_aligned != s))
+
+    tau_score = {"scipy_weightedtau": scipy_wtau(s_aligned, o),
+                 "kang_wdm_taub": kang_taub(s_aligned, o)}
+
+    units, out = [], {}
+    for name, p in prims.items():
+        units.append((name, s_aligned, [p], o))
+    if joint and len(prims) > 1:
+        units.append(("JOINT", s_aligned, list(prims.values()), o))
+
+    if n_boot is not None:
+        units = [(*u, tuple(n_boot)) for u in units]
+
+    results = dict(_unit(u) for u in units)
+
+    for name in list(prims) + (["JOINT"] if joint and len(prims) > 1 else []):
+        if name == "JOINT":
+            tau_prim = {k: None for k in tau_score}
+            direction = {"note": "no single direction for a joint fit"}
+        else:
+            p = prims[name]
+            tau_prim = {"scipy_weightedtau": scipy_wtau(p, o),
+                        "kang_wdm_taub": kang_taub(p, o)}
+            rho = float(spearmanr(p, o, nan_policy="omit").statistic)
+            below = rho < 0
+            direction = {
+                "spearman_primitive_vs_ordinal": rho,
+                "primitive_orders_below_chance": below,
+                "note": (
+                    "the primitive orders cells OPPOSITE to the ordinal, so a "
+                    "positive marginal gap is a sign correction, not evidence "
+                    "of added biology; read the conditional skill instead"
+                ) if below else "primitive orders in the same direction as the ordinal",
+            }
+        out[name] = {
+            "marginal_skill": {f"tau({score_name})": tau_score,
+                               f"tau({name})": tau_prim},
+            "marginal_gap": {
+                k: (None if tau_prim[k] is None else tau_score[k] - tau_prim[k])
+                for k in tau_score},
+            "direction_check": direction,
+            "conditional_skill": results[name],
+        }
+
+    report = {
+        "score_name": score_name,
+        "n_input": int(n_in),
+        "n_used": int(mask.sum()),
+        "n_dropped_nonfinite": int(n_in - mask.sum()),
+        "score_sign_flipped_to_align": flipped,
+        "seed": SEED,
+        "kernels": ["scipy.stats.weightedtau",
+                    "Kang wdm uniform == Kendall tau-b (scipy.stats.kendalltau)"],
+        "residual": "rank_resid_multi (track-2 estimator: rank, OLS with "
+                    "intercept, any number of covariates)",
+        "by_primitive": out,
+    }
+
+    if verbose:
+        _print_report(report)
+    return report
+
+
+def _print_report(r):
+    dropped = r["n_dropped_nonfinite"]
+    tail = f" (dropped {dropped} non-finite)" if dropped else ""
+    print(f"[conditional_skill] score={r['score_name']} n={r['n_used']}{tail}")
+    if r["score_sign_flipped_to_align"]:
+        print("[conditional_skill] score was negated to align with the ordinal")
+    for name, d in r["by_primitive"].items():
+        print(f"\n  vs primitive: {name}")
+        dc = d["direction_check"]
+        if dc.get("primitive_orders_below_chance"):
+            print(f"    !! DIRECTION: primitive orders BELOW chance "
+                  f"(Spearman {dc['spearman_primitive_vs_ordinal']:+.3f}). "
+                  f"The marginal gap below is a sign correction.")
+        for k in ("scipy_weightedtau", "kang_wdm_taub"):
+            gap = d["marginal_gap"][k]
+            cs = d["conditional_skill"][k]
+            gs = "     n/a" if gap is None else f"{gap:+8.4f}"
+            print(f"    {k:18s} marginal gap {gs}   "
+                  f"conditional skill {cs['tau']:+.4f} "
+                  f"CI[{cs['CI95'][0]:+.4f},{cs['CI95'][1]:+.4f}]  {cs['verdict']}")
+        print(f"    => {d['conditional_skill']['combined_verdict']}")
 
 
 def main():

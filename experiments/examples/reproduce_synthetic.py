@@ -11,11 +11,15 @@ Expected qualitative result (the pre-registered prediction):
     Delta strictly increasing in align
     Delta > 0 at align = 1
 """
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import os
+import sys
+from pathlib import Path
+sys.path.insert(0, str(next(
+    p for p in Path(__file__).resolve().parents
+    if (p / "own_baseline" / "paths.py").is_file())))
 
 import numpy as np
-from synthetic import align_sweep
+from own_baseline.synthetic import align_sweep
 
 res = align_sweep()                       # {align: (mean_delta, mc_se)}
 aligns = np.array(sorted(res))

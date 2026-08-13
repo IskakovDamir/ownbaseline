@@ -138,9 +138,13 @@ def align(score, ordinal):
 # NOTE ON THE OTHER RESIDUAL IMPLEMENTATION. This repository contains two.
 # This one, rank_resid_multi() above, is the track-2 estimator: it rank-
 # transforms score and covariates, fits by least squares WITH an intercept, and
-# accepts any number of covariates. The other, rank_residual(), appears in
-# experiments/w4/scripts/w4_gate2_run.py, experiments/track4/code/,
-# experiments/cytotrace_v1/ and experiments/stemsc/, and differs in three ways:
+# accepts any number of covariates. The other appears under TWO names, so a
+# grep for one of them misses half the call sites: rank_residual() in
+# experiments/track2/code/gate2_run.py and experiments/track4/code/
+# {gate2b_ownbaseline, gate2b_origins_c1c2, gate2c_resolve}.py, and
+# _rank_residual() -- leading underscore -- in
+# experiments/w4/scripts/w4_gate2_run.py, experiments/cytotrace_v1/ct_full_run.py
+# and experiments/stemsc/stemsc_run.py. It differs in three ways:
 #
 #   1. Its slope is np.cov(r_s, r_p)[0, 1] / np.var(r_p). np.cov defaults to
 #      ddof=1 and np.var to ddof=0, so its slope is the least-squares slope

@@ -76,7 +76,7 @@ _sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
                              if (p / "own_baseline" / "paths.py").is_file())))
 from own_baseline.paths import data_root, scratch_root  # noqa: E402
 CT2_PROBE_RESULTS = data_root() / "ct2_probe/results"
-VIGNETTE1_LOCAL = Path("/tmp/vignette1.csv")
+VIGNETTE1_LOCAL = scratch_root() / "vignette1.csv"
 VIGNETTE2_RDS = scratch_root() / "ct2_probe/data/Vignette2_CytoTRACE2_results.rds"
 
 OUT = HERE / "ct2_ii3_baseline_matched.json"

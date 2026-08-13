@@ -16,3 +16,11 @@ rdata==1.1.0         # reading R .rda PPI/scaffold objects
 # R packages (NOT pip) used by scores/*.R: SCENT (aet21/SCENT), SLICE (xu-lab/SLICE),
 # dpath (gongx030/dpath), ORIGINS (danielasenraoka/ORIGINS), NCG (Xinzhe-Ni/NCG),
 # plus Matrix, igraph. See README "Scores".
+#
+# Additional imports found in individual experiment scripts (not needed by
+# own_baseline/ or by the reproduction entry point):
+#   requests   experiments/ct2_probe/probe_ct2_ownbaseline_cordblood.py,
+#              experiments/w1_gate2/scripts/run_t1_ici.py
+#   gdown      experiments/ct2_probe/probe_ct2_ownbaseline_{pancreas,cordblood}.py
+#   cytotrace2_py  experiments/ct2_probe/probe_ct2_ownbaseline_paul15.py --
+#              NOT on PyPI; install from github.com/digitalcytometry/cytotrace2

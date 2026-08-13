@@ -32,7 +32,7 @@ from scipy.sparse.csgraph import connected_components
 _sys_path_anchor = next(p for p in __import__("pathlib").Path(__file__).resolve().parents
                         if (p / "own_baseline" / "paths.py").is_file())
 sys.path.insert(0, str(_sys_path_anchor))
-from own_baseline.paths import data_root  # noqa: E402
+from own_baseline.paths import data_root, scratch_root  # noqa: E402
 
 
 
@@ -100,8 +100,9 @@ def save_npz(path, A, genes, degree):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--links", default="/tmp/string_human_dl/9606.protein.links.v12.0.txt.gz")
-    parser.add_argument("--info", default="/tmp/string_human_dl/9606.protein.info.v12.0.txt.gz")
+    _dl = scratch_root() / "string_human_dl"
+    parser.add_argument("--links", default=str(_dl / "9606.protein.links.v12.0.txt.gz"))
+    parser.add_argument("--info", default=str(_dl / "9606.protein.info.v12.0.txt.gz"))
     parser.add_argument("--out", default=str(
         data_root() / "w4/scaffolds/human_string_v12_thr700_lcc.npz"))
     parser.add_argument("--threshold", type=int, default=700)

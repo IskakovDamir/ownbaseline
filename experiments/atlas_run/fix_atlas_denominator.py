@@ -34,8 +34,15 @@ import sys
 import urllib.request
 from pathlib import Path
 
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import scratch_root  # noqa: E402
+
+
 METADATA_URL = "https://cytotrace2.stanford.edu/metadata_paper_datasets.txt"
-LOCAL_CACHE = Path("/tmp/ct2_provenance/probe_metadata_paper_datasets.txt")
+LOCAL_CACHE = scratch_root() / "ct2_provenance" / "probe_metadata_paper_datasets.txt"
 
 
 def sha256_first_4mb(path: Path) -> str:
@@ -53,7 +60,7 @@ def load_metadata() -> tuple[list[dict], dict]:
         src["local_cache"] = str(path)
         src["source"] = "local_cache"
     else:
-        path = Path("/tmp/ct2_atlas_metadata.txt")
+        path = scratch_root() / "ct2_atlas_metadata.txt"
         path.parent.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(METADATA_URL, path)
         src["local_cache"] = str(path)

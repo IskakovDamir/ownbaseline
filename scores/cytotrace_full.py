@@ -140,8 +140,10 @@ import scipy.sparse as sp
 
 # Reuse steps 1-2 from potency_metrics
 HERE = Path(__file__).resolve().parent
-PKG_ROOT = HERE.parent  # tautology-diagnostic/
-sys.path.insert(0, str(PKG_ROOT))
+_OB = next(p for p in HERE.parents if (p / "own_baseline" / "paths.py").is_file())
+sys.path.insert(0, str(_OB))          # repo root, for `own_baseline.*`
+sys.path.append(str(_OB / "own_baseline"))  # flat imports kept from the vault
+                                      # layout; appended so the package wins
 import potency_metrics as pm  # noqa: E402
 from potency_metrics import (  # noqa: E402
     _rows_dense, library_normalize, cytotrace_proxy, _pearson_cols_vs_vec,

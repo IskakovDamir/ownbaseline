@@ -52,6 +52,13 @@ import numpy as np
 import pandas as pd
 from scipy.stats import weightedtau
 
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import scratch_root  # noqa: E402
+
+
 SEED = 20260713
 DRIVE_ID = "1TYdQsMoDIJjoeuiTD5EO_kZgNJUyfRY2"
 DRIVE_URL = f"https://drive.google.com/uc?id={DRIVE_ID}"
@@ -277,7 +284,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--out",
-        default="/tmp/ct2_probe/data",
+        default=str(scratch_root() / "ct2_probe" / "data"),
         help="Working directory for data + result.json",
     )
     args = ap.parse_args()

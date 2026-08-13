@@ -66,6 +66,13 @@ import pandas as pd
 import scipy.sparse as sp
 from scipy.sparse.csgraph import connected_components
 
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import scratch_root  # noqa: E402
+
+
 
 # ---- run-time records (populated by main()) --------------------------------
 N_NODES_FULL_HIGHCONF: int | None = None
@@ -237,9 +244,10 @@ def smoke_test(path: str) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--links", default="/tmp/string_mouse_dl/10090.protein.links.v12.0.txt.gz",
+    _dl = scratch_root() / "string_mouse_dl"
+    parser.add_argument("--links", default=str(_dl / "10090.protein.links.v12.0.txt.gz"),
                         help="path to 10090.protein.links.v12.0.txt.gz")
-    parser.add_argument("--info", default="/tmp/string_mouse_dl/10090.protein.info.v12.0.txt.gz",
+    parser.add_argument("--info", default=str(_dl / "10090.protein.info.v12.0.txt.gz"),
                         help="path to 10090.protein.info.v12.0.txt.gz")
     parser.add_argument("--out", default=os.path.join(os.path.dirname(__file__),
                                                      "mouse_string_v12_thr700_lcc.npz"),

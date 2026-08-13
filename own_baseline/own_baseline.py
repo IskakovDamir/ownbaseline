@@ -119,8 +119,8 @@ Cite:
   - Kang et al. (2025) Nat Methods 22(11):2258-2263, doi
     10.1038/s41592-025-02857-2 — CytoTRACE 2 benchmark; source of Table S13
     Test-cohort median-relative-order CT1 = 0.512 vs SR = 0.194,
-    CCAT = 0.271, StemID = 0.230 (the field's own numbers showing raw
-    gene-counts already dominate the scaffold-anchored surrogates).
+    CCAT = 0.271, StemID = 0.230. Note these are measured against a proxy
+    baseline, not against raw gene counts; see nnz_per_cell().
   - Banerji et al. (2015) PLoS Comput Biol, PMC4368751 — SR reported as
     conserved across breast and lung cancer.
   - Farrell et al. (2018) Science 360:eaar3131, GSE106474 — the 12-stage
@@ -334,10 +334,16 @@ def nnz_per_cell(X_or_adata) -> np.ndarray:
     an AnnData object (uses .X). This is the primitive against which every
     scaffold-anchored score is compared.
 
-    NB: gene counts, not molecule counts. Kang 2025 confirms across n=23
-    atlas rows that this raw primitive already dominates SCENT (SR),
-    SCENT (CCAT), and StemID on the Test-cohort median relative order
-    (S13: CT1=0.512 vs SR=0.194, CCAT=0.271, StemID=0.230).
+    NB: gene counts, not molecule counts.
+
+    A note on the atlas comparison, because an earlier version of this
+    docstring got it wrong. Kang 2025 Table S13 reports Test-cohort median
+    relative order CT1 = 0.512 against SR = 0.194, CCAT = 0.271 and
+    StemID = 0.230. That is NOT a comparison against this primitive. Across
+    those twenty-three datasets only published per-cell scores were
+    available, so the baseline there is a proxy rather than raw gene counts,
+    and the two comparisons are not the same quantity. The margin against
+    raw gene counts at atlas scale is unmeasured.
     """
     try:
         import scipy.sparse as sp
@@ -408,7 +414,11 @@ def score_vs_gt_tau(
     if kernel == "scipy":
         from scipy.stats import weightedtau
         r = weightedtau(s, g)
-        return float(getattr(r, "statistic", None) or r.correlation)
+        # NB: `getattr(r, "statistic", None) or r.correlation` would fall
+        # through to the deprecated alias whenever the statistic is exactly
+        # 0.0, which is falsy. Same value on scipy today, AttributeError the
+        # day the alias is removed.
+        return float(getattr(r, "statistic", np.nan))
     if kernel == "kang":
         if std_phenotype is None:
             raise ValueError(

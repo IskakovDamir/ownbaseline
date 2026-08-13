@@ -63,7 +63,7 @@ Reproducibility
 ---------------
     (venv2, python 3.13)
     pip install cytotrace2-py 'setuptools<81' scanpy openpyxl
-    python run_ct2_paul15.py       # produces /tmp/ct2_probe/paul15/ct2_result.csv
+    python run_ct2_paul15.py       # produces $OWNBASELINE_SCRATCH/ct2_probe/paul15/ct2_result.csv
     python probe_ct2_ownbaseline_paul15.py
 """
 
@@ -77,6 +77,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.stats import weightedtau
+
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(next(p for p in _Path(__file__).resolve().parents
+                             if (p / "own_baseline" / "paths.py").is_file())))
+from own_baseline.paths import scratch_root  # noqa: E402
+
 
 SEED = 20260713
 
@@ -327,6 +334,6 @@ def main(work_dir: Path) -> dict:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--work", default="/tmp/ct2_probe/paul15")
+    ap.add_argument("--work", default=str(scratch_root() / "ct2_probe" / "paul15"))
     args = ap.parse_args()
     main(Path(args.work))

@@ -43,17 +43,19 @@ from scipy.stats import weightedtau, rankdata
 from sklearn.metrics import roc_auc_score
 
 HERE = Path(__file__).resolve().parent
-PKG_ROOT = HERE.parent  # tautology-diagnostic/
-W4_SCRIPTS = PKG_ROOT / "w4" / "scripts"
-W4_DATA = PKG_ROOT / "w4" / "data"
-W4_RESULTS = PKG_ROOT / "w4" / "results"
-ATLAS_RUN = PKG_ROOT / "atlas_run"
+PKG_ROOT = next(p for p in HERE.parents if (p / "own_baseline" / "paths.py").is_file())
+sys.path.insert(0, str(PKG_ROOT))
+from own_baseline.paths import data_root  # noqa: E402
+W4_SCRIPTS = PKG_ROOT / "experiments" / "w4" / "scripts"
+W4_DATA = data_root() / "w4" / "data"
+W4_RESULTS = data_root() / "w4" / "results"
+ATLAS_RUN = PKG_ROOT / "own_baseline" / "atlas_run"
 
 # Add paths so we can reuse W4 loaders and Kang wdm
-sys.path.insert(0, str(PKG_ROOT))
 sys.path.insert(0, str(W4_SCRIPTS))
 sys.path.insert(0, str(ATLAS_RUN))
 sys.path.insert(0, str(HERE))
+sys.path.append(str(PKG_ROOT / "own_baseline"))
 
 from w4_gate2_run import (  # noqa: E402
     load_c1, load_c2,

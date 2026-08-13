@@ -63,8 +63,10 @@ from sklearn.metrics import roc_auc_score
 
 # Import score implementations from existing tautology-diagnostic package
 HERE = Path(__file__).resolve().parent
-PKG_ROOT = HERE.parent.parent  # tautology-diagnostic/
+PKG_ROOT = next(p for p in HERE.parents if (p / "own_baseline" / "paths.py").is_file())
 sys.path.insert(0, str(PKG_ROOT))
+from own_baseline.paths import data_root  # noqa: E402
+sys.path.append(str(PKG_ROOT / "own_baseline"))  # appended: the package must win
 import potency_metrics as pm  # noqa: E402
 
 
@@ -84,7 +86,9 @@ DELTA_SCORE_BEATS = 0.10
 DELTA_SIGN_FLIP = -0.10
 
 # STRING scaffold
-STRING_NPZ = HERE.parent / "scaffolds" / "human_string_v12_thr700_lcc.npz"
+# Written by build_human_string_v12_thr700_lcc.py, which defaults to the same
+# location. Both sides resolve through $OWNBASELINE_DATA_ROOT.
+STRING_NPZ = data_root() / "w4" / "scaffolds" / "human_string_v12_thr700_lcc.npz"
 
 
 # =============================================================================
@@ -643,14 +647,14 @@ def main():
     parser.add_argument("--c2-only", action="store_true")
     args = parser.parse_args()
 
-    out_dir = HERE.parent / "results"
+    out_dir = data_root() / "w4" / "results"
     out_dir.mkdir(exist_ok=True, parents=True)
 
     summary = {}
 
     if not args.c2_only:
         X, genes, cell_ids, labels, ranks = load_c1(
-            HERE.parent / "data" / "c1_gse117498"
+            data_root() / "w4" / "data" / "c1_gse117498"
         )
         res_c1 = run_atlas(
             "C1_GSE117498",
@@ -676,7 +680,7 @@ def main():
 
     if not args.c1_only:
         X, genes, cell_ids, labels, ranks = load_c2(
-            HERE.parent / "data" / "c2_gse125970"
+            data_root() / "w4" / "data" / "c2_gse125970"
         )
         res_c2 = run_atlas(
             "C2_GSE125970",

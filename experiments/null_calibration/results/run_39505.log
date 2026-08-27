@@ -1,0 +1,9 @@
+[null-grid] 120 cells x 200 seeds = 24,000 replicates on 9 procs
+[null-grid] 20/120 cells (191s)
+[null-grid] 40/120 cells (304s)
+[null-grid] 60/120 cells (317s)
+[null-grid] 80/120 cells (330s)
+[null-grid] 100/120 cells (351s)
+[null-grid] 120/120 cells (367s)
+[null-grid] wrote results/null_grid_n39505.csv (360 rows) in 368s
+[null-grid] wrote results/null_grid_n39505.npz (360 arrays)

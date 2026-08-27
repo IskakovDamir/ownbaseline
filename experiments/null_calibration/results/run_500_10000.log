@@ -1,0 +1,12 @@
+[null-grid] 168 cells x 200 seeds = 33,600 replicates on 9 procs
+[null-grid] 20/168 cells (45s)
+[null-grid] 40/168 cells (82s)
+[null-grid] 60/168 cells (97s)
+[null-grid] 80/168 cells (108s)
+[null-grid] 100/168 cells (119s)
+[null-grid] 120/168 cells (130s)
+[null-grid] 140/168 cells (133s)
+[null-grid] 160/168 cells (136s)
+[null-grid] 168/168 cells (137s)
+[null-grid] wrote results/null_grid_n500_n10000.csv (504 rows) in 138s
+[null-grid] wrote results/null_grid_n500_n10000.npz (504 arrays)

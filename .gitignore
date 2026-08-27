@@ -27,3 +27,8 @@ data/scratch/
 
 # reproduction outputs
 reproduction/
+
+# null calibration raw output is evidence, not a build artefact
+!experiments/null_calibration/results/
+!experiments/null_calibration/results/*.csv
+!experiments/null_calibration/results/*.log

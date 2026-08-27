@@ -154,8 +154,8 @@ def run_cell(task):
     return rows, vals
 
 
-def build_tasks(n_seeds, smoke=False):
-    n_grid = [500, 3000] if smoke else N_GRID
+def build_tasks(n_seeds, smoke=False, n_values=None):
+    n_grid = n_values if n_values else ([500, 3000] if smoke else N_GRID)
     rho_grid = [0.0, 0.998, 1.0] if smoke else RHO_GRID
     strengths = [0.55] if smoke else NULLB_STRENGTH
     tasks, cid = [], 0
@@ -186,10 +186,13 @@ def main():
     ap.add_argument("--raw", default=None, help="optional .npz of every replicate")
     ap.add_argument("--seeds", type=int, default=N_SEEDS)
     ap.add_argument("--procs", type=int, default=max(1, (os.cpu_count() or 2) - 1))
+    ap.add_argument("--n", default=None,
+                    help="comma-separated n values to run; default is the full N_GRID")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
 
-    tasks = build_tasks(args.seeds if not args.smoke else 20, smoke=args.smoke)
+    tasks = build_tasks(args.seeds if not args.smoke else 20, smoke=args.smoke,
+                        n_values=[int(x) for x in args.n.split(',')] if args.n else None)
     # longest cells first, so the tail does not straggle
     tasks.sort(key=lambda t: -t[1])
     print(f"[null-grid] {len(tasks)} cells x {tasks[0][6]} seeds "

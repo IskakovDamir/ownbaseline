@@ -1,1 +1,16 @@
 [dec] 6 cells, bootstrap (300, 1000) per fit, 2 fits per replicate
+[dec] n=3000 rho=0.998 200 reps in 1343s
+[dec] n=3000 rho=0.9 200 reps in 1346s
+[dec] n=3000 rho=0.5 200 reps in 1346s
+[dec] n=39505 rho=0.998 40 reps in 12238s
+[dec] n=39505 rho=0.5 40 reps in 12239s
+[dec] n=39505 rho=0.9 40 reps in 12240s
+[dec] wrote null_decision_rule.csv (720 rows) in 12242s
+
+      n    rho  reps  taub CI excl 0  taub CI > 0  wtau CI > 0  kernels agree  FULL RULE FIRES
+   3000  0.500   200           40.5%        40.5%       100.0%          40.5%            35.5%
+   3000  0.900   200           63.5%        63.5%       100.0%          63.5%            59.0%
+   3000  0.998   200           12.5%        11.5%       100.0%          11.5%             7.5%
+  39505  0.500    40          100.0%       100.0%       100.0%         100.0%           100.0%
+  39505  0.900    40          100.0%       100.0%       100.0%         100.0%           100.0%
+  39505  0.998    40           42.5%        42.5%       100.0%          42.5%            40.0%

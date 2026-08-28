@@ -1,0 +1,8 @@
+[cov] 30 cells x 200 seeds
+[cov] 5/30 (74s)
+[cov] 10/30 (157s)
+[cov] 15/30 (207s)
+[cov] 20/30 (213s)
+[cov] 25/30 (218s)
+[cov] 30/30 (222s)
+[cov] wrote experiments/null_calibration/results/null_covariates.csv (90 rows)

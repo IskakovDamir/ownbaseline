@@ -1,0 +1,26 @@
+[cells] 12 cells x 200 seeds on 6 procs
+[cells]   id=228 null=B n=127607 rho=0.998 align=1 strength=0.45 levels=12
+[cells]   id=229 null=B n=127607 rho=0.998 align=1 strength=0.55 levels=12
+[cells]   id=230 null=B n=127607 rho=0.998 align=1 strength=0.63 levels=12
+[cells]   id=231 null=B n=127607 rho=0.998 align=0 strength=0.45 levels=12
+[cells]   id=232 null=B n=127607 rho=0.998 align=0 strength=0.55 levels=12
+[cells]   id=233 null=B n=127607 rho=0.998 align=0 strength=0.63 levels=12
+[cells]   id=234 null=B n=127607 rho=1.0 align=1 strength=0.45 levels=12
+[cells]   id=235 null=B n=127607 rho=1.0 align=1 strength=0.55 levels=12
+[cells]   id=236 null=B n=127607 rho=1.0 align=1 strength=0.63 levels=12
+[cells]   id=237 null=B n=127607 rho=1.0 align=0 strength=0.45 levels=12
+[cells]   id=238 null=B n=127607 rho=1.0 align=0 strength=0.55 levels=12
+[cells]   id=239 null=B n=127607 rho=1.0 align=0 strength=0.63 levels=12
+[cells] 1/12 (cell 232, 141s)
+[cells] 2/12 (cell 231, 141s)
+[cells] 3/12 (cell 233, 141s)
+[cells] 4/12 (cell 229, 146s)
+[cells] 5/12 (cell 228, 146s)
+[cells] 6/12 (cell 230, 147s)
+[cells] 7/12 (cell 236, 277s)
+[cells] 8/12 (cell 235, 277s)
+[cells] 9/12 (cell 238, 278s)
+[cells] 10/12 (cell 239, 278s)
+[cells] 11/12 (cell 234, 278s)
+[cells] 12/12 (cell 237, 279s)
+[cells] done in 279s -> experiments/null_calibration/results/null_grid_n127607_tail.csv

@@ -1,0 +1,1128 @@
+{
+  "provenance": {
+    "SI_files": {
+      "41592_2025_2857_MOESM1_ESM.pdf": {
+        "sha256": "bb69421153af00bdae5c58db7410cec2aee10cce0bfa8f5f5a4246aefbf8499d",
+        "size_bytes": 296721
+      },
+      "41592_2025_2857_MOESM2_ESM.pdf": {
+        "sha256": "caf4a5a17481803ce1ffd419bc8b58e3bc34c9aaf437fb0542660b1a9a404283",
+        "size_bytes": 3914238
+      },
+      "41592_2025_2857_MOESM3_ESM.pdf": {
+        "sha256": "658a6d65277a2c3837599a25bf9a310c39258b10ce3e455ef96ba307fcaf1608",
+        "size_bytes": 249869
+      },
+      "41592_2025_2857_MOESM4_ESM.xlsb": {
+        "sha256": "074088871acf60727467349b00ff1d6a3c63ee0ce3fd00309f7a5c23ce6e9646",
+        "size_bytes": 19588780
+      },
+      "Table_S1.csv": {
+        "sha256": "f44054ebe3ddc8639b2e27840ad20365480677094df701b087807443a8ee78f7",
+        "size_bytes": 14361
+      },
+      "Table_S11.csv": {
+        "sha256": "cf6b3d00c1b4cbdf1c4e8818d9dc3ddcca072f1c2425c7d2b4986dc5d4755688",
+        "size_bytes": 42624502
+      },
+      "Table_S12.csv": {
+        "sha256": "04e28c4ca24eaee81b5358a21169b8c13674bf40d5c89c67e3ba2260e836438b",
+        "size_bytes": 13020
+      },
+      "Table_S13.csv": {
+        "sha256": "fefeb2e3db9fa20d86094c86c86bf3cde30c5ba88135f900d8daa9d918366eb3",
+        "size_bytes": 2612529
+      },
+      "Table_S14.csv": {
+        "sha256": "8063d61cdfbae475d1142e36d5f258b996f239e91e85380b97541ba5005c7931",
+        "size_bytes": 1397
+      },
+      "Table_S2.csv": {
+        "sha256": "4e5288ab0d47d486bc86c906c727c8a079c2bd75e5554105cd99e29d4ff62942",
+        "size_bytes": 19688
+      },
+      "Table_S3.csv": {
+        "sha256": "548570e0e64d7d40aaa596a812bc39c54f6d10bb72ff807db5dcf158c971ea90",
+        "size_bytes": 147480
+      },
+      "Table_S4.csv": {
+        "sha256": "050668b53d5689be5ea85fd1e1b03fd3db1587db29ef353c1da1e62d0f936ff1",
+        "size_bytes": 88098
+      },
+      "Table_S5.csv": {
+        "sha256": "0821f85f48c2b0cc321661b7fea62607819ae75e70bd2add65ffc2ce58fdfad1",
+        "size_bytes": 1574
+      },
+      "Table_of_Contents.csv": {
+        "sha256": "5013477fb52fa96ba1a879e797e09b5198330ed598c2097a831cf7c198d9f6cd",
+        "size_bytes": 1822
+      },
+      "provenance.md": {
+        "sha256": "24fa8f4f7241cbc9ddba61937963ea7f20115fcf67a218474415c0ca5e1ed2f1",
+        "size_bytes": 3559
+      }
+    },
+    "atlas_N_snapshot_H1_rows": 23,
+    "script_hash": "1a39e91c991631e52f885aaabb6d98fa62cd84b8ed92dace2b65e4327951641f",
+    "wdm_tau_hash": "5033e22739eb2b0a735c528e34bf7471e6f0b00b703489bc4829797fbe9ae7df",
+    "seed_bootstrap": 42,
+    "n_bootstrap": 10000,
+    "generated_at": "2026-07-17T09:24:28",
+    "wall_seconds": 9.6
+  },
+  "per_dataset": [
+    {
+      "dataset_name": "Bone marrow (10x)",
+      "s11_dataset_name": "Bone marrow (10x)",
+      "accession": "GSE109774",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "10x",
+      "n_cells": 3427,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 11,
+      "tau_scipy": {
+        "gene_counts": 0.7705009295513199,
+        "SCENT (CCAT)": 0.6239507105113665,
+        "SCENT (SR)": 0.71011023468874,
+        "StemID": 0.568403641718182,
+        "CytoTRACE 2 potency score": 0.812473225068857
+      },
+      "tau_kang": {
+        "gene_counts": 0.5025258590900297,
+        "SCENT (CCAT)": 0.5332492962303007,
+        "SCENT (SR)": 0.5752430292463967,
+        "StemID": 0.4248331664134417,
+        "CytoTRACE 2 potency score": 0.6292511711420155
+      }
+    },
+    {
+      "dataset_name": "Bone marrow (Smart-seq2)",
+      "s11_dataset_name": "Bone marrow (Smart-seq2)",
+      "accession": "GSE109774",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "Smart-seq2",
+      "n_cells": 4080,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 7,
+      "tau_scipy": {
+        "gene_counts": 0.8143126406607331,
+        "SCENT (CCAT)": 0.5801753242856506,
+        "SCENT (SR)": 0.6395820039528473,
+        "StemID": 0.7212347466665285,
+        "CytoTRACE 2 potency score": 0.8326953603465421
+      },
+      "tau_kang": {
+        "gene_counts": 0.6845141465269182,
+        "SCENT (CCAT)": 0.5538687693471583,
+        "SCENT (SR)": 0.5624894000814668,
+        "StemID": 0.5000546665587422,
+        "CytoTRACE 2 potency score": 0.7727900767326695
+      }
+    },
+    {
+      "dataset_name": "Dendritic cells (C1)",
+      "s11_dataset_name": "Dendritic cells (C1)",
+      "accession": "GSE60783",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "C1",
+      "n_cells": 251,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 3,
+      "tau_scipy": {
+        "gene_counts": 0.768042117988307,
+        "SCENT (CCAT)": 0.6829252117167814,
+        "SCENT (SR)": 0.6310834424650948,
+        "StemID": 0.5780785748908388,
+        "CytoTRACE 2 potency score": 0.6170143214570636
+      },
+      "tau_kang": {
+        "gene_counts": 0.6628784875586149,
+        "SCENT (CCAT)": 0.5340584755288105,
+        "SCENT (SR)": 0.4887398707136605,
+        "StemID": 0.45919514492256813,
+        "CytoTRACE 2 potency score": 0.656118253691161
+      }
+    },
+    {
+      "dataset_name": "Direct in vitro neuron (inDrop)",
+      "s11_dataset_name": "Direct in vitro neuron (inDrop)",
+      "accession": "GSE97391",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "inDrop",
+      "n_cells": 2366,
+      "n_broad_pot_levels": 4,
+      "n_std_phenotypes": 4,
+      "tau_scipy": {
+        "gene_counts": 0.7386395445277807,
+        "SCENT (CCAT)": 0.6864178825822213,
+        "SCENT (SR)": 0.7052229556126253,
+        "StemID": 0.1600915388250655,
+        "CytoTRACE 2 potency score": 0.7386212997164445
+      },
+      "tau_kang": {
+        "gene_counts": 0.8085229901473875,
+        "SCENT (CCAT)": 0.6700116643692368,
+        "SCENT (SR)": 0.6063352196379481,
+        "StemID": 0.04071370249225887,
+        "CytoTRACE 2 potency score": 0.8185062649058259
+      }
+    },
+    {
+      "dataset_name": "HSPCs (C1)",
+      "s11_dataset_name": "HSPCs (C1)",
+      "accession": "GSE70245",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "C1",
+      "n_cells": 376,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 7,
+      "tau_scipy": {
+        "gene_counts": 0.054198252569532215,
+        "SCENT (CCAT)": -0.02344734891962158,
+        "SCENT (SR)": -0.024735127047839867,
+        "StemID": 0.3685682962305725,
+        "CytoTRACE 2 potency score": 0.7273610630074998
+      },
+      "tau_kang": {
+        "gene_counts": -0.2855819945571512,
+        "SCENT (CCAT)": -0.2610557719591459,
+        "SCENT (SR)": -0.20568000378910173,
+        "StemID": -0.012990158678275637,
+        "CytoTRACE 2 potency score": 0.43972801778701415
+      }
+    },
+    {
+      "dataset_name": "Human breast 1 (10x)",
+      "s11_dataset_name": "Human breast 1 (10x)",
+      "accession": "GSE113197",
+      "cohort": "Training",
+      "species": "Human",
+      "platform": "10x",
+      "n_cells": 300,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 3,
+      "tau_scipy": {
+        "gene_counts": -0.285945750950637,
+        "SCENT (CCAT)": -0.19066292681754365,
+        "SCENT (SR)": -0.0976464687833764,
+        "StemID": 0.03456589220220535,
+        "CytoTRACE 2 potency score": 0.7795905260356111
+      },
+      "tau_kang": {
+        "gene_counts": -0.43362980682207036,
+        "SCENT (CCAT)": -0.33303292594859846,
+        "SCENT (SR)": -0.3060435188849831,
+        "StemID": -0.23123651587229835,
+        "CytoTRACE 2 potency score": 0.7011248190525664
+      }
+    },
+    {
+      "dataset_name": "Human breast 2 (10x)",
+      "s11_dataset_name": "Human breast 2 (10x)",
+      "accession": "GSE161529",
+      "cohort": "Training",
+      "species": "Human",
+      "platform": "10x",
+      "n_cells": 300,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 3,
+      "tau_scipy": {
+        "gene_counts": -0.1198700537062655,
+        "SCENT (CCAT)": 0.39710272563696514,
+        "SCENT (SR)": 0.11883372810538272,
+        "StemID": 0.022068285461809667,
+        "CytoTRACE 2 potency score": 0.8101640105387975
+      },
+      "tau_kang": {
+        "gene_counts": -0.16051881696016101,
+        "SCENT (CCAT)": 0.2854879502729032,
+        "SCENT (SR)": 0.04972593786266326,
+        "StemID": -0.02889774897720024,
+        "CytoTRACE 2 potency score": 0.795724053911903
+      }
+    },
+    {
+      "dataset_name": "Immune cell atlas (10x)",
+      "s11_dataset_name": "Immune cell atlas (10x)",
+      "accession": "E-MTAB-11536",
+      "cohort": "Training",
+      "species": "Human",
+      "platform": "10x",
+      "n_cells": 1495,
+      "n_broad_pot_levels": 4,
+      "n_std_phenotypes": 15,
+      "tau_scipy": {
+        "gene_counts": 0.5257974163844064,
+        "SCENT (CCAT)": 0.57695774775251,
+        "SCENT (SR)": 0.5876906602048069,
+        "StemID": 0.5780966007970161,
+        "CytoTRACE 2 potency score": 0.661105644912952
+      },
+      "tau_kang": {
+        "gene_counts": 0.31546783287871794,
+        "SCENT (CCAT)": 0.34913977858698747,
+        "SCENT (SR)": 0.35647102559300115,
+        "StemID": 0.2734259018498997,
+        "CytoTRACE 2 potency score": 0.5356868870882449
+      }
+    },
+    {
+      "dataset_name": "Intestine (Drop-seq)",
+      "s11_dataset_name": "Intestine (Drop-seq)",
+      "accession": "GSE92332",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "Drop-seq",
+      "n_cells": 4581,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 8,
+      "tau_scipy": {
+        "gene_counts": 0.4686545254998741,
+        "SCENT (CCAT)": 0.3243919060599994,
+        "SCENT (SR)": 0.2686823329203116,
+        "StemID": 0.2790754967018713,
+        "CytoTRACE 2 potency score": 0.7142112161529228
+      },
+      "tau_kang": {
+        "gene_counts": 0.4328131299312405,
+        "SCENT (CCAT)": 0.2722828759547804,
+        "SCENT (SR)": 0.16374197701862775,
+        "StemID": 0.18486739310715147,
+        "CytoTRACE 2 potency score": 0.5353819417647494
+      }
+    },
+    {
+      "dataset_name": "Intestine (Smart-seq2)",
+      "s11_dataset_name": "Intestine (Smart-seq2)",
+      "accession": "GSE92332",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "Smart-seq2",
+      "n_cells": 1522,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 7,
+      "tau_scipy": {
+        "gene_counts": 0.6433407566065015,
+        "SCENT (CCAT)": 0.545024076759909,
+        "SCENT (SR)": 0.5114698908638803,
+        "StemID": 0.3476482804609813,
+        "CytoTRACE 2 potency score": 0.6712088265605332
+      },
+      "tau_kang": {
+        "gene_counts": 0.6132284215353667,
+        "SCENT (CCAT)": 0.36439655917155206,
+        "SCENT (SR)": 0.3004195305523301,
+        "StemID": 0.19348565402502152,
+        "CytoTRACE 2 potency score": 0.7197921099129526
+      }
+    },
+    {
+      "dataset_name": "Mesoderm (C1)",
+      "s11_dataset_name": "Mesoderm (C1)",
+      "accession": "GSE85066",
+      "cohort": "Training",
+      "species": "Human",
+      "platform": "C1",
+      "n_cells": 422,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 7,
+      "tau_scipy": {
+        "gene_counts": 0.7964177335789597,
+        "SCENT (CCAT)": 0.40006766848863673,
+        "SCENT (SR)": 0.4643264649661528,
+        "StemID": 0.7139353918360126,
+        "CytoTRACE 2 potency score": 0.6746410831363057
+      },
+      "tau_kang": {
+        "gene_counts": 0.6993620307380007,
+        "SCENT (CCAT)": 0.33445385423312857,
+        "SCENT (SR)": 0.37705291957792003,
+        "StemID": 0.5522080143831974,
+        "CytoTRACE 2 potency score": 0.6005250132926682
+      }
+    },
+    {
+      "dataset_name": "Mouse embryo 1 (Tang et al.)",
+      "s11_dataset_name": "Mouse embryo 1 (Tang et al.)",
+      "accession": "GSE45719",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "Tang et al.",
+      "n_cells": 286,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 8,
+      "tau_scipy": {
+        "gene_counts": 0.7853153641566162,
+        "SCENT (CCAT)": -0.5453460916479428,
+        "SCENT (SR)": -0.07726522086540909,
+        "StemID": 0.38844223050157123,
+        "CytoTRACE 2 potency score": 0.7853153641566162
+      },
+      "tau_kang": {
+        "gene_counts": 0.7124100746853961,
+        "SCENT (CCAT)": -0.6941370842692501,
+        "SCENT (SR)": -0.26525231088977297,
+        "StemID": 0.47577180672786173,
+        "CytoTRACE 2 potency score": 0.7124100746853962
+      }
+    },
+    {
+      "dataset_name": "Peripheral blood (10x)d",
+      "s11_dataset_name": "Peripheral blood (10x)",
+      "accession": "SRP073767",
+      "cohort": "Training",
+      "species": "Human",
+      "platform": "10x",
+      "n_cells": 5000,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 6,
+      "tau_scipy": {
+        "gene_counts": 0.8209863701970035,
+        "SCENT (CCAT)": 0.7651112987373634,
+        "SCENT (SR)": 0.7918914742143568,
+        "StemID": 0.6466661498645364,
+        "CytoTRACE 2 potency score": 0.81830946630542
+      },
+      "tau_kang": {
+        "gene_counts": 0.6433097081978999,
+        "SCENT (CCAT)": 0.5002818922724582,
+        "SCENT (SR)": 0.6105722000003138,
+        "StemID": 0.5849044800659005,
+        "CytoTRACE 2 potency score": 0.6343160362938346
+      }
+    },
+    {
+      "dataset_name": "Standard in vitro neuron (inDrop)",
+      "s11_dataset_name": "Standard in vitro neuron (inDrop)",
+      "accession": "GSE97391",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "inDrop",
+      "n_cells": 1726,
+      "n_broad_pot_levels": 4,
+      "n_std_phenotypes": 5,
+      "tau_scipy": {
+        "gene_counts": 0.589536205216527,
+        "SCENT (CCAT)": 0.6237930658292274,
+        "SCENT (SR)": 0.6545382302784453,
+        "StemID": -0.12849814833755746,
+        "CytoTRACE 2 potency score": 0.6844208411312607
+      },
+      "tau_kang": {
+        "gene_counts": 0.7476395125910456,
+        "SCENT (CCAT)": 0.6911226890064518,
+        "SCENT (SR)": 0.5475144786724411,
+        "StemID": -0.21855109947036305,
+        "CytoTRACE 2 potency score": 0.836050943848229
+      }
+    },
+    {
+      "dataset_name": "Tabula Muris - Lung (10x)",
+      "s11_dataset_name": "Tabula Muris - Lung (10x)",
+      "accession": "GSE109774",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "10x",
+      "n_cells": 294,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 10,
+      "tau_scipy": {
+        "gene_counts": 0.3354192727263147,
+        "SCENT (CCAT)": 0.1549604409512423,
+        "SCENT (SR)": 0.28634001301189654,
+        "StemID": -0.26320684114427473,
+        "CytoTRACE 2 potency score": -0.41490742180504075
+      },
+      "tau_kang": {
+        "gene_counts": 0.5525430987798488,
+        "SCENT (CCAT)": 0.10222047327427017,
+        "SCENT (SR)": 0.2944265369212626,
+        "StemID": -0.48527316913475416,
+        "CytoTRACE 2 potency score": -0.5204429758983606
+      }
+    },
+    {
+      "dataset_name": "Tabula Muris - Mammary Gland (10x)",
+      "s11_dataset_name": "Tabula Muris - Mammary_Gland (10x)",
+      "accession": "GSE109774",
+      "cohort": "Training",
+      "species": "Mouse",
+      "platform": "10x",
+      "n_cells": 210,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 7,
+      "tau_scipy": {
+        "gene_counts": 0.3162144604552475,
+        "SCENT (CCAT)": 0.6137411005795271,
+        "SCENT (SR)": 0.4702717469251378,
+        "StemID": 0.6243233570007694,
+        "CytoTRACE 2 potency score": 0.3667023708097683
+      },
+      "tau_kang": {
+        "gene_counts": 0.5145048618694427,
+        "SCENT (CCAT)": 0.6155636173466122,
+        "SCENT (SR)": 0.5239791201954274,
+        "StemID": 0.6160899650313891,
+        "CytoTRACE 2 potency score": 0.5481911136951659
+      }
+    },
+    {
+      "dataset_name": "BM-MNC (CITE-seq)e",
+      "s11_dataset_name": "BM-MNC (CITE-seq)",
+      "accession": "GSE128639",
+      "cohort": "Test",
+      "species": "Human",
+      "platform": "CITE-seq",
+      "n_cells": 30672,
+      "n_broad_pot_levels": 4,
+      "n_std_phenotypes": 20,
+      "tau_scipy": {
+        "gene_counts": 0.5981482620679354,
+        "SCENT (CCAT)": 0.6316364636092915,
+        "SCENT (SR)": 0.6548865499993808,
+        "StemID": 0.6950244012159382,
+        "CytoTRACE 2 potency score": 0.9061538511788086
+      },
+      "tau_kang": {
+        "gene_counts": 0.3640411528902783,
+        "SCENT (CCAT)": 0.36019193808468847,
+        "SCENT (SR)": 0.3560715718989807,
+        "StemID": 0.19664819144955994,
+        "CytoTRACE 2 potency score": 0.6748523661008441
+      }
+    },
+    {
+      "dataset_name": "HSC development (Smart-seq2)",
+      "s11_dataset_name": "HSC development (Smart-seq2)",
+      "accession": "E-MTAB-9067",
+      "cohort": "Test",
+      "species": "Human",
+      "platform": "Smart-seq2",
+      "n_cells": 4419,
+      "n_broad_pot_levels": 4,
+      "n_std_phenotypes": 12,
+      "tau_scipy": {
+        "gene_counts": 0.39615991984753973,
+        "SCENT (CCAT)": 0.15994763362013828,
+        "SCENT (SR)": 0.22872672066488714,
+        "StemID": 0.38849028920372153,
+        "CytoTRACE 2 potency score": 0.7754731799379626
+      },
+      "tau_kang": {
+        "gene_counts": 0.2651039517613983,
+        "SCENT (CCAT)": 0.1215420892187234,
+        "SCENT (SR)": 0.12123025310987767,
+        "StemID": 0.2647537880574975,
+        "CytoTRACE 2 potency score": 0.5892171318030304
+      }
+    },
+    {
+      "dataset_name": "Lgr5-CreER intestine (CEL-seq)",
+      "s11_dataset_name": "Lgr5-CreER intestine (CEL-seq)",
+      "accession": "GSE76408",
+      "cohort": "Test",
+      "species": "Mouse",
+      "platform": "CEL-seq",
+      "n_cells": 480,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 6,
+      "tau_scipy": {
+        "gene_counts": 0.7822946970276986,
+        "SCENT (CCAT)": 0.6695803714856874,
+        "SCENT (SR)": 0.533336806587374,
+        "StemID": 0.464093927024451,
+        "CytoTRACE 2 potency score": 0.7612740198873365
+      },
+      "tau_kang": {
+        "gene_counts": 0.617018370171184,
+        "SCENT (CCAT)": 0.49807247601799154,
+        "SCENT (SR)": 0.3086996969103657,
+        "StemID": 0.27385206797646244,
+        "CytoTRACE 2 potency score": 0.6121455505695135
+      }
+    },
+    {
+      "dataset_name": "Mouse neurogenesis (10x)",
+      "s11_dataset_name": "Mouse neurogenesis (10x)",
+      "accession": "GSE249416",
+      "cohort": "Test",
+      "species": "Mouse",
+      "platform": "10x",
+      "n_cells": 14835,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 8,
+      "tau_scipy": {
+        "gene_counts": 0.771320652764399,
+        "SCENT (CCAT)": 0.7998933450127013,
+        "SCENT (SR)": 0.748403969350304,
+        "StemID": 0.6324904793286181,
+        "CytoTRACE 2 potency score": 0.8390445076197256
+      },
+      "tau_kang": {
+        "gene_counts": 0.412918332017217,
+        "SCENT (CCAT)": 0.43584376788086787,
+        "SCENT (SR)": 0.311135359231188,
+        "StemID": 0.2092745552128461,
+        "CytoTRACE 2 potency score": 0.4687602597486315
+      }
+    },
+    {
+      "dataset_name": "Peripheral glia (Smart-seq2)g",
+      "s11_dataset_name": "Peripheral glia (Smart-seq2)",
+      "accession": "GSE99933",
+      "cohort": "Test",
+      "species": "Mouse",
+      "platform": "Smart-seq2",
+      "n_cells": 211,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 2,
+      "tau_scipy": {
+        "gene_counts": 0.7598548120489796,
+        "SCENT (CCAT)": 0.7424889319376575,
+        "SCENT (SR)": 0.7182364671797421,
+        "StemID": 0.42714108559389763,
+        "CytoTRACE 2 potency score": 0.7642606224743502
+      },
+      "tau_kang": {
+        "gene_counts": 0.6911707744746467,
+        "SCENT (CCAT)": 0.6444974690932113,
+        "SCENT (SR)": 0.5792901265023365,
+        "StemID": 0.3764979967435788,
+        "CytoTRACE 2 potency score": 0.7086225321390096
+      }
+    },
+    {
+      "dataset_name": "Retinal neurons (10x)",
+      "s11_dataset_name": "Retinal neurons (10x)",
+      "accession": "GSE122466",
+      "cohort": "Test",
+      "species": "Mouse",
+      "platform": "10x",
+      "n_cells": 5190,
+      "n_broad_pot_levels": 3,
+      "n_std_phenotypes": 5,
+      "tau_scipy": {
+        "gene_counts": -0.16903289433035595,
+        "SCENT (CCAT)": 0.5710539922015583,
+        "SCENT (SR)": 0.41978063836362245,
+        "StemID": 0.4741468179644502,
+        "CytoTRACE 2 potency score": 0.7813887737413041
+      },
+      "tau_kang": {
+        "gene_counts": -0.6704009347655481,
+        "SCENT (CCAT)": 0.2846542287483248,
+        "SCENT (SR)": 0.14341994927902335,
+        "StemID": 0.2395674564444124,
+        "CytoTRACE 2 potency score": 0.7774826164554023
+      }
+    },
+    {
+      "dataset_name": "Skeletal stem cell (C1)d",
+      "s11_dataset_name": "Skeletal stem cell (C1)",
+      "accession": "GSE64447",
+      "cohort": "Test",
+      "species": "Mouse",
+      "platform": "C1",
+      "n_cells": 447,
+      "n_broad_pot_levels": 2,
+      "n_std_phenotypes": 4,
+      "tau_scipy": {
+        "gene_counts": 0.6054406272751871,
+        "SCENT (CCAT)": 0.5432252015333259,
+        "SCENT (SR)": 0.30612608411377984,
+        "StemID": 0.5219374662525211,
+        "CytoTRACE 2 potency score": 0.5749652474986853
+      },
+      "tau_kang": {
+        "gene_counts": 0.637690690457768,
+        "SCENT (CCAT)": 0.4728589674631027,
+        "SCENT (SR)": 0.4418318628282313,
+        "StemID": 0.5257232586978806,
+        "CytoTRACE 2 potency score": 0.5662378566977584
+      }
+    }
+  ],
+  "H1": {
+    "SCENT (SR)": {
+      "scipy": {
+        "n": 23,
+        "median": -0.04907925971441818,
+        "iqr_lo": -0.1710819179452692,
+        "iqr_hi": 0.059315765875922966,
+        "deltas": [
+          -0.06039069486257986,
+          -0.1747306367078858,
+          -0.13695867552321217,
+          -0.03341658891515542,
+          -0.07893337961737208,
+          0.1882992821672606,
+          0.2387037818116482,
+          0.06189324382040051,
+          -0.1999721925795625,
+          -0.1318708657426212,
+          -0.3320912686128069,
+          -0.8625805850220253,
+          -0.029094895982646696,
+          0.06500202506191821,
+          -0.04907925971441818,
+          0.1540572864698903,
+          0.05673828793144542,
+          -0.1674331991826526,
+          -0.24895789044032457,
+          -0.02291668341409503,
+          -0.041618344869237545,
+          0.5888135326939784,
+          -0.29931454316140726
+        ]
+      },
+      "kang": {
+        "n": 23,
+        "median": -0.12202474644545147,
+        "iqr_lo": -0.23015216618401277,
+        "iqr_hi": 0.025238725520133953,
+        "deltas": [
+          0.07271717015636703,
+          -0.12202474644545147,
+          -0.1741386168449544,
+          -0.20218777050943937,
+          0.07990199076804949,
+          0.12758628793708726,
+          0.2102447548228243,
+          0.04100319271428321,
+          -0.26907115291261274,
+          -0.3128088909830366,
+          -0.3223091111600807,
+          -0.977662385575169,
+          -0.03273750819758614,
+          -0.20012503391860448,
+          -0.25811656185858617,
+          0.009474258325984697,
+          -0.007969580991297576,
+          -0.1438736986515206,
+          -0.3083186732608183,
+          -0.10178297278602899,
+          -0.11188064797231023,
+          0.8138208840445714,
+          -0.19585882762953677
+        ]
+      },
+      "scipy_verdict": "PASS",
+      "kang_verdict": "PASS"
+    },
+    "SCENT (CCAT)": {
+      "scipy": {
+        "n": 23,
+        "median": -0.06221542574186123,
+        "iqr_lo": -0.14540641923991401,
+        "iqr_hi": 0.033872531077028256,
+        "deltas": [
+          -0.14655021903995336,
+          -0.2341373163750825,
+          -0.08511690627152557,
+          -0.05222166194555944,
+          -0.0776456014891538,
+          0.09528282413309336,
+          0.5169727793432306,
+          0.051160331368103606,
+          -0.14426261943987467,
+          -0.09831667984659243,
+          -0.396350065090323,
+          -1.330661455804559,
+          -0.0558750714596401,
+          0.03425686061270039,
+          -0.1804588317750724,
+          0.29752664012427965,
+          0.03348820154135612,
+          -0.23621228622740145,
+          -0.11271432554201122,
+          0.02857269224830228,
+          -0.01736588011132212,
+          0.7400868865319142,
+          -0.06221542574186123
+        ]
+      },
+      "kang": {
+        "n": 23,
+        "median": -0.11894589415319246,
+        "iqr_lo": -0.1520460582595675,
+        "iqr_hi": 0.027624829869138168,
+        "deltas": [
+          0.030723437140271037,
+          -0.13064537717975988,
+          -0.12882001202980442,
+          -0.13851132577815073,
+          0.0245262225980053,
+          0.1005968808734719,
+          0.4460067672330642,
+          0.033671945708269535,
+          -0.1605302539764601,
+          -0.24883186236381466,
+          -0.3649081765048722,
+          -1.406547158954646,
+          -0.14302781592544167,
+          -0.056516823584593756,
+          -0.45032262550557856,
+          0.10105875547716958,
+          -0.0038492148055898068,
+          -0.1435618625426749,
+          -0.11894589415319246,
+          0.022925435863650867,
+          -0.04667330538143544,
+          0.9550551635138729,
+          -0.16483172299466536
+        ]
+      },
+      "scipy_verdict": "PASS",
+      "kang_verdict": "PASS"
+    },
+    "StemID": {
+      "scipy": {
+        "n": 23,
+        "median": -0.13883017343578086,
+        "iqr_lo": -0.3069466230743839,
+        "iqr_hi": 0.07458766178030629,
+        "deltas": [
+          -0.20209728783313785,
+          -0.09307789399420452,
+          -0.1899635430974682,
+          -0.5785480057027153,
+          0.3143700436610403,
+          0.32051164315284236,
+          0.14193833916807516,
+          0.05229918441260972,
+          -0.18957902879800276,
+          -0.2956924761455202,
+          -0.08248234174294711,
+          -0.39687313365504495,
+          -0.17432022033246708,
+          -0.7180343535540845,
+          -0.5986261138705895,
+          0.30810889654552187,
+          0.09687613914800286,
+          -0.007669630643818204,
+          -0.3182007700032476,
+          -0.13883017343578086,
+          -0.332713726455082,
+          0.6431797122948062,
+          -0.08350316102266597
+        ]
+      },
+      "kang": {
+        "n": 23,
+        "median": -0.16739296144071833,
+        "iqr_lo": -0.28130925727757844,
+        "iqr_hi": -0.02119604736635952,
+        "deltas": [
+          -0.07769269267658796,
+          -0.18445947996817602,
+          -0.20368334263604676,
+          -0.7678092876551286,
+          0.2725918358788756,
+          0.20239329094977201,
+          0.13162106798296078,
+          -0.04204193102881826,
+          -0.24794573682408902,
+          -0.4197427675103452,
+          -0.1471540163548033,
+          -0.23663826795753434,
+          -0.05840522813199944,
+          -0.9661906120614085,
+          -1.0378162679146028,
+          0.10158510316194647,
+          -0.16739296144071833,
+          -0.00035016370390078544,
+          -0.34316630219472155,
+          -0.2036437768043709,
+          -0.3146727777310679,
+          0.9099683912099605,
+          -0.11196743175988744
+        ]
+      },
+      "scipy_verdict": "PASS",
+      "kang_verdict": "PASS"
+    }
+  },
+  "H2": {
+    "SCENT (SR)": {
+      "scipy": {
+        "n": 23,
+        "rho": 0.5849802371541503,
+        "ci95_lo": 0.17628896498148386,
+        "ci95_hi": 0.862621633776796
+      },
+      "kang": {
+        "n": 23,
+        "rho": 0.6215415019762845,
+        "ci95_lo": 0.2009800945545767,
+        "ci95_hi": 0.8808356393582393
+      },
+      "scipy_verdict": "PASS",
+      "kang_verdict": "PASS",
+      "prereg_op": "ge",
+      "prereg_threshold": 0.4
+    },
+    "SCENT (CCAT)": {
+      "scipy": {
+        "n": 23,
+        "rho": 0.5059288537549407,
+        "ci95_lo": 0.07583488882583961,
+        "ci95_hi": 0.8334252387088007
+      },
+      "kang": {
+        "n": 23,
+        "rho": 0.58300395256917,
+        "ci95_lo": 0.13588512311208217,
+        "ci95_hi": 0.9014447300580225
+      },
+      "scipy_verdict": "PASS",
+      "kang_verdict": "PASS",
+      "prereg_op": "ge",
+      "prereg_threshold": 0.4
+    },
+    "CytoTRACE 2 potency score": {
+      "scipy": {
+        "n": 23,
+        "rho": 0.2727272727272727,
+        "ci95_lo": -0.17437253092990798,
+        "ci95_hi": 0.6201908589582255
+      },
+      "kang": {
+        "n": 23,
+        "rho": 0.3270750988142293,
+        "ci95_lo": -0.18055763473053893,
+        "ci95_hi": 0.7236950520147853
+      },
+      "scipy_verdict": "PASS",
+      "kang_verdict": "FAIL",
+      "prereg_op": "le",
+      "prereg_threshold": 0.3
+    }
+  },
+  "H3": {
+    "scipy": {
+      "n": 23,
+      "rho": 0.6017786561264823,
+      "verdict": "PASS"
+    },
+    "kang": {
+      "n": 23,
+      "rho": 0.5464426877470356,
+      "verdict": "PASS"
+    }
+  },
+  "H4": {
+    "scipy": {
+      "n": 23,
+      "median": 0.6054406272751871,
+      "mean": 0.5115541679201566,
+      "std": 0.33373519181716177,
+      "min": -0.285945750950637,
+      "max": 0.8209863701970035,
+      "frac_negative": 0.13043478260869565,
+      "frac_near_zero": 0.043478260869565216,
+      "per_dataset": [
+        {
+          "dataset": "Bone marrow (10x)",
+          "tau_gc": 0.7705009295513199
+        },
+        {
+          "dataset": "Bone marrow (Smart-seq2)",
+          "tau_gc": 0.8143126406607331
+        },
+        {
+          "dataset": "Dendritic cells (C1)",
+          "tau_gc": 0.768042117988307
+        },
+        {
+          "dataset": "Direct in vitro neuron (inDrop)",
+          "tau_gc": 0.7386395445277807
+        },
+        {
+          "dataset": "HSPCs (C1)",
+          "tau_gc": 0.054198252569532215
+        },
+        {
+          "dataset": "Human breast 1 (10x)",
+          "tau_gc": -0.285945750950637
+        },
+        {
+          "dataset": "Human breast 2 (10x)",
+          "tau_gc": -0.1198700537062655
+        },
+        {
+          "dataset": "Immune cell atlas (10x)",
+          "tau_gc": 0.5257974163844064
+        },
+        {
+          "dataset": "Intestine (Drop-seq)",
+          "tau_gc": 0.4686545254998741
+        },
+        {
+          "dataset": "Intestine (Smart-seq2)",
+          "tau_gc": 0.6433407566065015
+        },
+        {
+          "dataset": "Mesoderm (C1)",
+          "tau_gc": 0.7964177335789597
+        },
+        {
+          "dataset": "Mouse embryo 1 (Tang et al.)",
+          "tau_gc": 0.7853153641566162
+        },
+        {
+          "dataset": "Peripheral blood (10x)d",
+          "tau_gc": 0.8209863701970035
+        },
+        {
+          "dataset": "Standard in vitro neuron (inDrop)",
+          "tau_gc": 0.589536205216527
+        },
+        {
+          "dataset": "Tabula Muris - Lung (10x)",
+          "tau_gc": 0.3354192727263147
+        },
+        {
+          "dataset": "Tabula Muris - Mammary Gland (10x)",
+          "tau_gc": 0.3162144604552475
+        },
+        {
+          "dataset": "BM-MNC (CITE-seq)e",
+          "tau_gc": 0.5981482620679354
+        },
+        {
+          "dataset": "HSC development (Smart-seq2)",
+          "tau_gc": 0.39615991984753973
+        },
+        {
+          "dataset": "Lgr5-CreER intestine (CEL-seq)",
+          "tau_gc": 0.7822946970276986
+        },
+        {
+          "dataset": "Mouse neurogenesis (10x)",
+          "tau_gc": 0.771320652764399
+        },
+        {
+          "dataset": "Peripheral glia (Smart-seq2)g",
+          "tau_gc": 0.7598548120489796
+        },
+        {
+          "dataset": "Retinal neurons (10x)",
+          "tau_gc": -0.16903289433035595
+        },
+        {
+          "dataset": "Skeletal stem cell (C1)d",
+          "tau_gc": 0.6054406272751871
+        }
+      ]
+    },
+    "kang": {
+      "n": 23,
+      "median": 0.5525430987798488,
+      "mean": 0.405544864052064,
+      "std": 0.3965624478227946,
+      "min": -0.6704009347655481,
+      "max": 0.8085229901473875,
+      "frac_negative": 0.17391304347826086,
+      "frac_near_zero": 0.0,
+      "per_dataset": [
+        {
+          "dataset": "Bone marrow (10x)",
+          "tau_gc": 0.5025258590900297
+        },
+        {
+          "dataset": "Bone marrow (Smart-seq2)",
+          "tau_gc": 0.6845141465269182
+        },
+        {
+          "dataset": "Dendritic cells (C1)",
+          "tau_gc": 0.6628784875586149
+        },
+        {
+          "dataset": "Direct in vitro neuron (inDrop)",
+          "tau_gc": 0.8085229901473875
+        },
+        {
+          "dataset": "HSPCs (C1)",
+          "tau_gc": -0.2855819945571512
+        },
+        {
+          "dataset": "Human breast 1 (10x)",
+          "tau_gc": -0.43362980682207036
+        },
+        {
+          "dataset": "Human breast 2 (10x)",
+          "tau_gc": -0.16051881696016101
+        },
+        {
+          "dataset": "Immune cell atlas (10x)",
+          "tau_gc": 0.31546783287871794
+        },
+        {
+          "dataset": "Intestine (Drop-seq)",
+          "tau_gc": 0.4328131299312405
+        },
+        {
+          "dataset": "Intestine (Smart-seq2)",
+          "tau_gc": 0.6132284215353667
+        },
+        {
+          "dataset": "Mesoderm (C1)",
+          "tau_gc": 0.6993620307380007
+        },
+        {
+          "dataset": "Mouse embryo 1 (Tang et al.)",
+          "tau_gc": 0.7124100746853961
+        },
+        {
+          "dataset": "Peripheral blood (10x)d",
+          "tau_gc": 0.6433097081978999
+        },
+        {
+          "dataset": "Standard in vitro neuron (inDrop)",
+          "tau_gc": 0.7476395125910456
+        },
+        {
+          "dataset": "Tabula Muris - Lung (10x)",
+          "tau_gc": 0.5525430987798488
+        },
+        {
+          "dataset": "Tabula Muris - Mammary Gland (10x)",
+          "tau_gc": 0.5145048618694427
+        },
+        {
+          "dataset": "BM-MNC (CITE-seq)e",
+          "tau_gc": 0.3640411528902783
+        },
+        {
+          "dataset": "HSC development (Smart-seq2)",
+          "tau_gc": 0.2651039517613983
+        },
+        {
+          "dataset": "Lgr5-CreER intestine (CEL-seq)",
+          "tau_gc": 0.617018370171184
+        },
+        {
+          "dataset": "Mouse neurogenesis (10x)",
+          "tau_gc": 0.412918332017217
+        },
+        {
+          "dataset": "Peripheral glia (Smart-seq2)g",
+          "tau_gc": 0.6911707744746467
+        },
+        {
+          "dataset": "Retinal neurons (10x)",
+          "tau_gc": -0.6704009347655481
+        },
+        {
+          "dataset": "Skeletal stem cell (C1)d",
+          "tau_gc": 0.637690690457768
+        }
+      ]
+    }
+  }
+}

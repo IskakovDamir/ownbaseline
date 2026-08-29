@@ -396,7 +396,11 @@ def _wtau(x, y):
     mask = np.isfinite(x) & np.isfinite(y)
     if mask.sum() < 3:
         return float("nan")
-    r = weightedtau(x[mask], y[mask])
+    if os.environ.get("OWNBASELINE_KERNEL", "weightedtau") == "kendalltau":
+        from scipy.stats import kendalltau
+        r = kendalltau(x[mask], y[mask], variant="b")
+    else:
+        r = weightedtau(x[mask], y[mask])
     return float(getattr(r, "statistic", None) or r.correlation)
 
 
@@ -624,7 +628,9 @@ def run_atlas(atlas_name, X, gene_list, cell_ids, labels, ranks, min_cells,
             "source": "STRING v12.0 human, threshold >=700, LCC free = 15,882 nodes",
             "intersect_atlas_LCC_nodes": int(A_scaffold.shape[0]),
         },
-        "kernel": "scipy.stats.weightedtau (tie-handled via lexicographic averaging)",
+        "kernel": ("scipy.stats.kendalltau (variant=b)"
+                   if os.environ.get("OWNBASELINE_KERNEL", "weightedtau") == "kendalltau"
+                   else "scipy.stats.weightedtau (tie-handled via lexicographic averaging)"),
         "per_tier_n": tier_ns,
         "per_population_depth": depth,
         "per_score": per_score_results,

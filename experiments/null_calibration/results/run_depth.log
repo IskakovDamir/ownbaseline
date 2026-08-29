@@ -1,0 +1,209 @@
+[reproduce] data root: /Users/damir/damir-research-vault/06-code/tautology-diagnostic
+[reproduce] scratch:   /Users/damir/potency-ownbaseline/data/scratch
+[reproduce] ===== stage: depth =====
+[reproduce] $ /Library/Frameworks/Python.framework/Versions/3.14/bin/python3 /Users/damir/potency-ownbaseline/experiments/w4/scripts/w4_gate2_run.py
+[C1] loading population TSVs...
+  HSC                        :   1282 cells x  25464 genes
+  MPP                        :    215 cells x  25464 genes
+  MLP                        :    123 cells x  25464 genes
+  PreBNK                     :    592 cells x  25464 genes
+  MEP                        :   1211 cells x  25464 genes
+  CMP                        :   1576 cells x  25464 genes
+  GMP                        :   1012 cells x  25464 genes
+  LinNegCD34PosCD164Pos      :   6343 cells x  24719 genes
+  LinNegCD34NegCD164high     :   4434 cells x  24719 genes
+  LinNegCD34lowCD164high     :   4266 cells x  24719 genes
+  LinNegCD34NegCD164low      :    358 cells x  24719 genes
+[C1] union genes across all populations: 29,601
+[C1] total cells: 21,412
+
+=== C1_GSE117498 ===
+  cells (loaded): 21,412
+  genes (loaded): 29,601
+  applying gene filter (min_cells=10) ...
+    gene filter: kept 19,517 / 29,601 genes (>= 10 cells)
+  loading STRING v12 human LCC scaffold ...
+  STRING LCC (free): 15,882 nodes
+  STRING ∩ atlas: 13,109 genes present in both
+  STRING ∩ atlas LCC: 12,952 nodes
+  computing scores and primitives ...
+  CytoTRACE proxy (GCS on top-200 GC-correlated genes) ...
+  SCENT SR on human STRING LCC intersection ...
+  CCAT on human STRING LCC intersection ...
+  own-baseline: CT ...
+  own-baseline: SR ...
+  own-baseline: CCAT ...
+  written /Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/results/c1_gse117498_results.json
+[C2] loading raw UMI matrix (this reads ~19k genes x 14.5k cells)...
+[C2] matrix shape: 19,525 genes x 14,537 cells
+
+=== C2_GSE125970 ===
+  cells (loaded): 14,537
+  genes (loaded): 19,525
+  applying gene filter (min_cells=10) ...
+    gene filter: kept 17,416 / 19,525 genes (>= 10 cells)
+  loading STRING v12 human LCC scaffold ...
+  STRING LCC (free): 15,882 nodes
+  STRING ∩ atlas: 11,583 genes present in both
+  STRING ∩ atlas LCC: 11,353 nodes
+  computing scores and primitives ...
+  CytoTRACE proxy (GCS on top-200 GC-correlated genes) ...
+  SCENT SR on human STRING LCC intersection ...
+  CCAT on human STRING LCC intersection ...
+  own-baseline: CT ...
+  own-baseline: SR ...
+  own-baseline: CCAT ...
+  written /Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/results/c2_gse125970_results.json
+
+SUMMARY written: /Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/results/summary.json
+{
+  "C1_GSE117498": {
+    "CT": {
+      "skill_score": 0.18409289969916603,
+      "skill_primitive": 0.04298902576700017,
+      "marginal_delta": 0.14110387393216586,
+      "marginal_delta_CI95": [
+        0.07097631609416839,
+        0.19230788552523553
+      ],
+      "conditional_skill": 0.19039852101542493,
+      "conditional_skill_CI95": [
+        0.1381879112143189,
+        0.22130215725428354
+      ],
+      "AUROC_score_top_vs_bot": 0.2721336277962664,
+      "AUROC_primitive_top_vs_bot": 0.37837207626848596,
+      "verdict": "SCORE-BEATS-PRIMITIVE"
+    },
+    "SR": {
+      "skill_score": 0.21983588783159724,
+      "skill_primitive": 0.37596108930055316,
+      "marginal_delta": -0.15612520146895592,
+      "marginal_delta_CI95": [
+        -0.23697069352855302,
+        -0.030960252046166703
+      ],
+      "conditional_skill": 0.35067495070230226,
+      "conditional_skill_CI95": [
+        0.2886240000152287,
+        0.389719818816197
+      ],
+      "AUROC_score_top_vs_bot": 0.4559968189136091,
+      "AUROC_primitive_top_vs_bot": 0.7947719898138732,
+      "verdict": "SIGN-FLIPPED SCAFFOLD"
+    },
+    "CCAT": {
+      "skill_score": 0.22171817126818105,
+      "skill_primitive": 0.2851747849483197,
+      "marginal_delta": -0.06345661368013866,
+      "marginal_delta_CI95": [
+        -0.13609909167769896,
+        -0.015793764145744602
+      ],
+      "conditional_skill": 0.14676091094061494,
+      "conditional_skill_CI95": [
+        0.05302107089190976,
+        0.19584079421858466
+      ],
+      "AUROC_score_top_vs_bot": 0.5229088097804552,
+      "AUROC_primitive_top_vs_bot": 0.4414092656068587,
+      "verdict": "inconclusive"
+    }
+  },
+  "C2_GSE125970": {
+    "CT": {
+      "skill_score": 0.7029220700544239,
+      "skill_primitive": 0.6213589540592854,
+      "marginal_delta": 0.08156311599513844,
+      "marginal_delta_CI95": [
+        0.04073976190295153,
+        0.14274343580415885
+      ],
+      "conditional_skill": 0.5896212023325063,
+      "conditional_skill_CI95": [
+        0.5699862151522264,
+        0.6068620564278532
+      ],
+      "AUROC_score_top_vs_bot": 0.9280414580588495,
+      "AUROC_primitive_top_vs_bot": 0.7979776899429074,
+      "verdict": "inconclusive"
+    },
+    "SR": {
+      "skill_score": 0.6283316930044704,
+      "skill_primitive": 0.6963894033615097,
+      "marginal_delta": -0.06805771035703923,
+      "marginal_delta_CI95": [
+        -0.15735317914872135,
+        -0.003013461547860373
+      ],
+      "conditional_skill": 0.1103165146584579,
+      "conditional_skill_CI95": [
+        0.05490941819656867,
+        0.18609789071072672
+      ],
+      "AUROC_score_top_vs_bot": 0.8643989459815546,
+      "AUROC_primitive_top_vs_bot": 0.9595745278875715,
+      "verdict": "inconclusive"
+    },
+    "CCAT": {
+      "skill_score": 0.719600539395628,
+      "skill_primitive": 0.6460672118754611,
+      "marginal_delta": 0.07353332752016684,
+      "marginal_delta_CI95": [
+        0.016844598247351433,
+        0.1500184232903645
+      ],
+      "conditional_skill": 0.32426186859390854,
+      "conditional_skill_CI95": [
+        0.28327203954746116,
+        0.4152886223286088
+      ],
+      "AUROC_score_top_vs_bot": 0.9476129995608257,
+      "AUROC_primitive_top_vs_bot": 0.9125963987703118,
+      "verdict": "inconclusive"
+    }
+  }
+}
+
+What this repository can and cannot regenerate
+
+  gene count / PCC(x,degree) / Shannon primitives      RUNS
+                                                         pure Python in own_baseline/potency_metrics.py; needs GSE106474 + STRING v12
+  CytoTRACE v1  (tau_b 0.653 | gene count)             RUNS
+                                                         R-faithful port in scores/cytotrace_full.py; MVG -> GCS -> NNLS -> Markov diffusion, no 
+                                                         R needed
+  SCENT SR      (tau_b 0.430 | PCC(x,degree))          RUNS
+                                                         Python implementation in potency_metrics.scent_sr. The R cross-check against aet21/SCENT
+                                                          does NOT run here: it needs CompSRana.R, DoIntegPPI.R and CompCCAT.R copied into $OWNBA
+                                                         SELINE_SCRATCH/scent_src, and no script in this repository fetches them.
+  SCENT CCAT    (rho 0.998 with its primitive)         RUNS
+                                                         Python implementation in potency_metrics.ccat; same cross-check caveat
+  ORIGINS       (tau_b 0.402 | PCC(x,degree))          BLOCKED
+                                                         needs diff_edges.tsv, which is ORIGINS::differentiation_edges dumped to TSV by hand. No 
+                                                         script here writes it, so this row cannot start.
+  SLICE         (rho 0.932, skill ~ 0, n=3,000)        BLOCKED
+                                                         needs the SLICE R package (xu-lab/SLICE) and its bundled hs_kappasim.rda. Nothing here f
+                                                         etches or places that file.
+  dpath         (tau_b 0.120, n=3,000)                 BLOCKED
+                                                         needs the dpath R package (gongx030/dpath), GitHub-only, with a documented R >= 4.2 inco
+                                                         mpatibility patched at runtime in scores/run_dpath.R
+  NCG           (tau_b 0.402, n=3,000, GO connectome)  BLOCKED
+                                                         needs the NCG repo (Xinzhe-Ni/NCG) cloned WITH Git-LFS: a plain clone yields pointer fil
+                                                         es, not the HPRD and GO matrices
+  MCE                                                  BLOCKED
+                                                         no public implementation exists (Shi 2020)
+  SPIDE                                                BLOCKED
+                                                         the formula is paywalled (Zheng 2023) and was never obtained
+  scEnergy                                             BLOCKED
+                                                         requires a MATLAB environment
+  StemID, cmEntropy                                    NOT-A-MEASUREMENT
+                                                         equal to a transcriptome-entropy primitive by construction. The paper declines to report
+                                                          a number for them and so does this script. NOTE: figures/make_paper_a_figures.py plots 
+                                                         them at rho 0.990 / 1.000 and skill 0.000 as though measured; those literals have no run
+                                                          behind them.
+  StemSC                                               NOT-A-MEASUREMENT
+                                                         measured on the sorted atlases, not on this ordinal
+  Figure 3 / depth confound (AUROC 0.378 vs 0.798)     RUNS-SEPARATELY
+                                                         experiments/w4/scripts/w4_gate2_run.py, on GSE117498 + GSE125970. Driven by --stages dep
+                                                         th. Slower and larger than the zebrafish chain.
+

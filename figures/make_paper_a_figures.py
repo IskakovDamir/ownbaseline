@@ -712,7 +712,7 @@ def make_fig2(rows):
     n_out = len([r for r in rows if r.kind == "out-of-class"])
     fig.text(0.215, up(0.80),
              f"{n_clear} of {len(meas)} measured scores exceed their own measured null floor\n"
-             f"every audited score has a row: {n_blocked} blocked, "
+             f"every score considered has a row: {n_blocked} blocked, "
              f"{n_off} measured on another ordinal, {n_out} outside the audited class, "
              f"{len(band)} never measured",
              fontsize=7.6, ha="left", va="top", color="#555", linespacing=1.5)

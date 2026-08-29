@@ -1,0 +1,280 @@
+{
+  "kernel": "Kendall tau_b",
+  "decision_rule": "value > 97.5th percentile of the estimator's measured null at the value's own n and its own score-primitive rank correlation",
+  "run_record": "data/run_record",
+  "null_grid": "experiments/null_calibration/results",
+  "artefacts": {
+    "track2/gate2_conditional_skill.json": "1ad8f5eb3523939128b27bd06f03f8e762fb39089a0858ca34b64e2e2af3e852",
+    "track4/fix1_mce_ncg_skill.json": "885bbc365204f2e5a09a14ca9014310962798138f904d284307dbbb9518896ff",
+    "w4/c1_gse117498_results.json": "1fc503e5ab8fc45ed93b4e63d4b3bf06efa841fb5dabe7cdba9ba8a333f6d6ec",
+    "w4/c2_gse125970_results.json": "d7f03f7200799e5a15ba4920590e146b2f60a794c1895fe66e76f6de14961f5f"
+  },
+  "rows": [
+    {
+      "kind": "measured",
+      "score": "CytoTRACE v1",
+      "primitive": "gene count",
+      "tau": 0.6530681030073291,
+      "ci95": [
+        0.6479361189145809,
+        0.6578909422465541
+      ],
+      "n": 39505,
+      "rho": 0.48435464052856564,
+      "null_mean": 0.017546869424108814,
+      "null_p97_5": 0.024699989425226325,
+      "null_cell": "Null B, align on, 12 levels, n=39,505, rho=0.5, kendalltau, 3 coupling strengths, 200 seeds each",
+      "null_files": [
+        "null_grid_n39505.csv"
+      ],
+      "clears_own_floor": true,
+      "subsample_3000": false,
+      "reason": null,
+      "sources": {
+        "tau": "track2/gate2_conditional_skill.json:conditional_skill/CytoTRACE_v1 | gene_count/kang_wdm_taub/tau",
+        "ci": "track2/gate2_conditional_skill.json:conditional_skill/CytoTRACE_v1 | gene_count/kang_wdm_taub/CI95",
+        "rho": "track2/gate2_conditional_skill.json:spearman_score_vs_primitive/CytoTRACE_v1 | gene_count",
+        "n": "track2/gate2_conditional_skill.json:n_cells_full"
+      }
+    },
+    {
+      "kind": "measured",
+      "score": "SCENT SR",
+      "primitive": "PCC(x, degree)",
+      "tau": 0.4299684120579581,
+      "ci95": [
+        0.4248333182971235,
+        0.43499266719511614
+      ],
+      "n": 39505,
+      "rho": 0.9305466517130603,
+      "null_mean": 0.023369069548937266,
+      "null_p97_5": 0.031050650679017557,
+      "null_cell": "Null B, align on, 12 levels, n=39,505, rho=0.93, kendalltau, 3 coupling strengths, 200 seeds each",
+      "null_files": [
+        "null_grid_n39505.csv"
+      ],
+      "clears_own_floor": true,
+      "subsample_3000": false,
+      "reason": null,
+      "sources": {
+        "tau": "track2/gate2_conditional_skill.json:conditional_skill/SR | PCC(x,degree)/kang_wdm_taub/tau",
+        "ci": "track2/gate2_conditional_skill.json:conditional_skill/SR | PCC(x,degree)/kang_wdm_taub/CI95",
+        "rho": "track2/gate2_conditional_skill.json:spearman_score_vs_primitive/SR | PCC(x,degree)",
+        "n": "track2/gate2_conditional_skill.json:n_cells_full"
+      }
+    },
+    {
+      "kind": "measured",
+      "score": "ORIGINS",
+      "primitive": "PCC(x, degree)",
+      "tau": 0.40187689819718914,
+      "ci95": [
+        0.3966610766104692,
+        0.4068400233100355
+      ],
+      "n": 39505,
+      "rho": 0.433862186232707,
+      "null_mean": 0.017546869424108814,
+      "null_p97_5": 0.024699989425226325,
+      "null_cell": "Null B, align on, 12 levels, n=39,505, rho=0.5, kendalltau, 3 coupling strengths, 200 seeds each",
+      "null_files": [
+        "null_grid_n39505.csv"
+      ],
+      "clears_own_floor": true,
+      "subsample_3000": false,
+      "reason": null,
+      "sources": {
+        "tau": "track2/gate2_conditional_skill.json:conditional_skill/ORIGINS | PCC(x,degree)/kang_wdm_taub/tau",
+        "ci": "track2/gate2_conditional_skill.json:conditional_skill/ORIGINS | PCC(x,degree)/kang_wdm_taub/CI95",
+        "rho": "track2/gate2_conditional_skill.json:spearman_score_vs_primitive/ORIGINS | PCC(x,degree)",
+        "n": "track2/gate2_conditional_skill.json:n_cells_full"
+      }
+    },
+    {
+      "kind": "measured",
+      "score": "NCG",
+      "primitive": "PCC(x, degree)",
+      "tau": 0.40154244659253835,
+      "ci95": [
+        0.3824497247644574,
+        0.42123482655350586
+      ],
+      "n": 3000,
+      "rho": 0.3777834606426067,
+      "null_mean": 0.017999030562027677,
+      "null_p97_5": 0.04105038460480451,
+      "null_cell": "Null B, align on, 12 levels, n=3,000, rho=0.5, kendalltau, 3 coupling strengths, 200 seeds each",
+      "null_files": [
+        "null_grid_n3000.csv"
+      ],
+      "clears_own_floor": true,
+      "subsample_3000": true,
+      "reason": null,
+      "sources": {
+        "tau": "track4/fix1_mce_ncg_skill.json:scores/NCG/conditional_skill_vs_PCC/kang_wdm_taub/tau",
+        "ci": "track4/fix1_mce_ncg_skill.json:scores/NCG/conditional_skill_vs_PCC/kang_wdm_taub/CI95",
+        "rho": "track4/fix1_mce_ncg_skill.json:scores/NCG/spearman_score_vs_PCC",
+        "n": "track4/fix1_mce_ncg_skill.json:scores/NCG/n"
+      }
+    },
+    {
+      "kind": "measured",
+      "score": "dpath",
+      "primitive": "Shannon H",
+      "tau": 0.12019121925106047,
+      "ci95": [
+        0.09487357368217775,
+        0.1456444173717934
+      ],
+      "n": 3000,
+      "rho": 0.4769372498819166,
+      "null_mean": 0.017999030562027677,
+      "null_p97_5": 0.04105038460480451,
+      "null_cell": "Null B, align on, 12 levels, n=3,000, rho=0.5, kendalltau, 3 coupling strengths, 200 seeds each",
+      "null_files": [
+        "null_grid_n3000.csv"
+      ],
+      "clears_own_floor": true,
+      "subsample_3000": true,
+      "reason": null,
+      "sources": {
+        "tau": "track2/gate2_conditional_skill.json:conditional_skill/dpath | Shannon_H/kang_wdm_taub/tau",
+        "ci": "track2/gate2_conditional_skill.json:conditional_skill/dpath | Shannon_H/kang_wdm_taub/CI95",
+        "rho": "track2/gate2_conditional_skill.json:spearman_score_vs_primitive/dpath | Shannon_H",
+        "n": "track2/gate2_conditional_skill.json:marginal_skill/dpath/n"
+      }
+    },
+    {
+      "kind": "measured",
+      "score": "SLICE",
+      "primitive": "Shannon H",
+      "tau": -0.11316582940860277,
+      "ci95": [
+        -0.1351727585411509,
+        -0.09146017886964795
+      ],
+      "n": 3000,
+      "rho": 0.931739642637738,
+      "null_mean": 0.023247975420483166,
+      "null_p97_5": 0.04786519848013857,
+      "null_cell": "Null B, align on, 12 levels, n=3,000, rho=0.93, kendalltau, 3 coupling strengths, 200 seeds each",
+      "null_files": [
+        "null_grid_n3000.csv"
+      ],
+      "clears_own_floor": false,
+      "subsample_3000": true,
+      "reason": null,
+      "sources": {
+        "tau": "track2/gate2_conditional_skill.json:conditional_skill/SLICE | Shannon_H/kang_wdm_taub/tau",
+        "ci": "track2/gate2_conditional_skill.json:conditional_skill/SLICE | Shannon_H/kang_wdm_taub/CI95",
+        "rho": "track2/gate2_conditional_skill.json:spearman_score_vs_primitive/SLICE | Shannon_H",
+        "n": "track2/gate2_conditional_skill.json:marginal_skill/SLICE/n"
+      }
+    },
+    {
+      "kind": "measured",
+      "score": "CCAT",
+      "primitive": "PCC(x, degree)",
+      "tau": -0.22089922162381936,
+      "ci95": [
+        -0.22674002852176528,
+        -0.21506133815121636
+      ],
+      "n": 39505,
+      "rho": 0.9981774880514592,
+      "null_mean": 0.005442677709506905,
+      "null_p97_5": 0.011498206981037101,
+      "null_cell": "Null B, align on, 12 levels, n=39,505, rho=0.998, kendalltau, 3 coupling strengths, 200 seeds each",
+      "null_files": [
+        "null_grid_n39505.csv"
+      ],
+      "clears_own_floor": false,
+      "subsample_3000": false,
+      "reason": null,
+      "sources": {
+        "tau": "track2/gate2_conditional_skill.json:conditional_skill/CCAT | PCC(x,degree)/kang_wdm_taub/tau",
+        "ci": "track2/gate2_conditional_skill.json:conditional_skill/CCAT | PCC(x,degree)/kang_wdm_taub/CI95",
+        "rho": "track2/gate2_conditional_skill.json:spearman_score_vs_primitive/CCAT | PCC(x,degree)",
+        "n": "track2/gate2_conditional_skill.json:n_cells_full"
+      }
+    },
+    {
+      "kind": "blocked",
+      "score": "MCE",
+      "primitive": "PCC(x, degree)",
+      "tau": null,
+      "ci95": null,
+      "n": null,
+      "rho": null,
+      "null_mean": null,
+      "null_p97_5": null,
+      "null_cell": null,
+      "null_files": null,
+      "clears_own_floor": null,
+      "subsample_3000": false,
+      "reason": "INCONCLUSIVE-infra (no real implementation ran in-session)",
+      "sources": {
+        "status": "track4/fix1_mce_ncg_skill.json:scores/MCE/status"
+      }
+    },
+    {
+      "kind": "blocked",
+      "score": "SPIDE",
+      "primitive": "unresolved",
+      "tau": null,
+      "ci95": null,
+      "n": null,
+      "rho": null,
+      "null_mean": null,
+      "null_p97_5": null,
+      "null_cell": null,
+      "null_files": null,
+      "clears_own_floor": null,
+      "subsample_3000": false,
+      "reason": "formula paywalled (Zheng 2023); never obtained, so the declared primitive cannot be derived and no own-baseline can be defined",
+      "sources": {
+        "status": "04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md, final-2-reductions section"
+      }
+    },
+    {
+      "kind": "by-construction",
+      "score": "StemID",
+      "primitive": "Shannon H",
+      "tau": null,
+      "ci95": null,
+      "n": null,
+      "rho": null,
+      "null_mean": null,
+      "null_p97_5": null,
+      "null_cell": null,
+      "null_files": null,
+      "clears_own_floor": null,
+      "subsample_3000": false,
+      "reason": "equals the per-cell transcriptome-entropy component by construction",
+      "sources": {
+        "status": "04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md (reduction column) and reproduction/table.md (NOT-A-MEASUREMENT)"
+      }
+    },
+    {
+      "kind": "by-construction",
+      "score": "cmEntropy",
+      "primitive": "Shannon H",
+      "tau": null,
+      "ci95": null,
+      "n": null,
+      "rho": null,
+      "null_mean": null,
+      "null_p97_5": null,
+      "null_cell": null,
+      "null_files": null,
+      "clears_own_floor": null,
+      "subsample_3000": false,
+      "reason": "equals H(x/sum x) by definition",
+      "sources": {
+        "status": "04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md (reduction column) and reproduction/table.md (NOT-A-MEASUREMENT)"
+      }
+    }
+  ],
+  "caption": "Figure 2 | Field audit on a clean fine ordinal: 5 of 7 measured scores carry ordering skill beyond their own declared primitive. Conditional skill of each score after rank-residualizing on the primitive its authors declare, against the 12-stage Kimmel ordinal of GSE106474 (zebrafish whole embryos), Kendall tau_b, seed 42. Bars are point estimates; black whiskers are 95% bootstrap intervals and measure sampling precision of the point estimate, not the verdict. The dashed marker on each bar is that score's own decision floor: the 97.5th percentile of the estimator's measured null at that value's own n and its own score-primitive rank correlation rho, from the 200-seed null grid. Floors are per-row and not comparable across rows (+0.0115 to +0.0479 here) because they rise as n falls and vary with rho; there is no single threshold line. NCG, dpath and SLICE were measured on the shared seed-42 3,000-cell subsample and so face floors roughly twice those of the 39,505-cell rows. CytoTRACE v1, SCENT SR, ORIGINS, NCG and dpath exceed their own floors. SLICE and CCAT do not; SLICE and CCAT are negative, and a negative value does not exceed a positive threshold \u2014 that is where the value sits, not a failed test. MCE and SPIDE are blocked and carry no value: the reason is printed on the row. StemID and cmEntropy are not measurements \u2014 each equals a transcriptome-entropy primitive by construction, no run produces a number for them, and they appear only in the shaded band at the foot of the plot, which carries no scale. Values: CytoTRACE v1 +0.6531 [+0.6479, +0.6579] vs floor +0.0247 at n=39,505, rho=+0.4844; SCENT SR +0.4300 [+0.4248, +0.4350] vs floor +0.0311 at n=39,505, rho=+0.9305; ORIGINS +0.4019 [+0.3967, +0.4068] vs floor +0.0247 at n=39,505, rho=+0.4339; NCG +0.4015 [+0.3824, +0.4212] vs floor +0.0411 at n=3,000, rho=+0.3778; dpath +0.1202 [+0.0949, +0.1456] vs floor +0.0411 at n=3,000, rho=+0.4769; SLICE -0.1132 [-0.1352, -0.0915] vs floor +0.0479 at n=3,000, rho=+0.9317; CCAT -0.2209 [-0.2267, -0.2151] vs floor +0.0115 at n=39,505, rho=+0.9982."
+}

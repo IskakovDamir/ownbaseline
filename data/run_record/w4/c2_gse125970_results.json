@@ -1,0 +1,162 @@
+{
+  "atlas": "C2_GSE125970",
+  "n_cells_total": 14537,
+  "n_cells_ranked": 14537,
+  "n_cells_unranked": 0,
+  "n_genes_loaded": 19525,
+  "n_genes_after_filter": 17416,
+  "gene_filter_min_cells": 10,
+  "scaffold": {
+    "source": "STRING v12.0 human, threshold >=700, LCC free = 15,882 nodes",
+    "intersect_atlas_LCC_nodes": 11353
+  },
+  "kernel": "scipy.stats.kendalltau (variant=b)",
+  "per_tier_n": {
+    "1": {
+      "n_cells": 8625,
+      "labels_included": [
+        "Enteriendocrine",
+        "Enterocyte",
+        "Goblet",
+        "Paneth-like"
+      ]
+    },
+    "3": {
+      "n_cells": 5252,
+      "labels_included": [
+        "Progenitor",
+        "TA"
+      ]
+    },
+    "4": {
+      "n_cells": 660,
+      "labels_included": [
+        "Stem Cell"
+      ]
+    },
+    "UNRANKED": {
+      "n_cells": 0,
+      "labels_included": []
+    }
+  },
+  "per_population_depth": {
+    "Enterocyte": {
+      "n_cells": 5719,
+      "median_library_size": 7679.0,
+      "median_gene_count": 1862.0
+    },
+    "Goblet": {
+      "n_cells": 2019,
+      "median_library_size": 8203.0,
+      "median_gene_count": 1960.0
+    },
+    "Paneth-like": {
+      "n_cells": 759,
+      "median_library_size": 14488.0,
+      "median_gene_count": 3038.0
+    },
+    "Enteriendocrine": {
+      "n_cells": 128,
+      "median_library_size": 7628.0,
+      "median_gene_count": 2320.5
+    },
+    "Progenitor": {
+      "n_cells": 4156,
+      "median_library_size": 16666.0,
+      "median_gene_count": 3248.5
+    },
+    "TA": {
+      "n_cells": 1096,
+      "median_library_size": 23468.5,
+      "median_gene_count": 4111.5
+    },
+    "Stem Cell": {
+      "n_cells": 660,
+      "median_library_size": 18101.5,
+      "median_gene_count": 3263.0
+    }
+  },
+  "per_score": {
+    "CT": {
+      "n_ranked_cells": 14537,
+      "skill_score": 0.5467583156303074,
+      "skill_score_CI95": [
+        0.5401347368981593,
+        0.5529138073061206
+      ],
+      "skill_primitive": 0.44112607078432514,
+      "skill_primitive_CI95": [
+        0.43148551254777573,
+        0.4509983852053604
+      ],
+      "marginal_delta": 0.10563224484598227,
+      "marginal_delta_CI95": [
+        0.09766716963620636,
+        0.11317886541520861
+      ],
+      "conditional_skill": 0.3432781104388922,
+      "conditional_skill_CI95": [
+        0.33420849517592544,
+        0.352430786874623
+      ],
+      "AUROC_score_top_vs_bot": 0.9280414580588495,
+      "AUROC_primitive_top_vs_bot": 0.7979776899429074,
+      "verdict": "SCORE-BEATS-PRIMITIVE"
+    },
+    "SR": {
+      "n_ranked_cells": 14537,
+      "skill_score": 0.45254714009293573,
+      "skill_score_CI95": [
+        0.4432751752301629,
+        0.46135386602294737
+      ],
+      "skill_primitive": 0.5205533801591332,
+      "skill_primitive_CI95": [
+        0.5124834643205237,
+        0.5291091731940843
+      ],
+      "marginal_delta": -0.06800624006619749,
+      "marginal_delta_CI95": [
+        -0.07494921011722436,
+        -0.06139932587532143
+      ],
+      "conditional_skill": 0.053085282243947096,
+      "conditional_skill_CI95": [
+        0.04234980530034948,
+        0.06333512992542495
+      ],
+      "AUROC_score_top_vs_bot": 0.8643989459815546,
+      "AUROC_primitive_top_vs_bot": 0.9595745278875715,
+      "verdict": "inconclusive"
+    },
+    "CCAT": {
+      "n_ranked_cells": 14537,
+      "skill_score": 0.5516738207105097,
+      "skill_score_CI95": [
+        0.5449336253113938,
+        0.5585473415072567
+      ],
+      "skill_primitive": 0.5063356242190519,
+      "skill_primitive_CI95": [
+        0.4983431762200252,
+        0.5144501972009773
+      ],
+      "marginal_delta": 0.04533819649145787,
+      "marginal_delta_CI95": [
+        0.04134018451832086,
+        0.04961966604362376
+      ],
+      "conditional_skill": 0.25060250949528273,
+      "conditional_skill_CI95": [
+        0.239806220007206,
+        0.26088025890933353
+      ],
+      "AUROC_score_top_vs_bot": 0.9476129995608257,
+      "AUROC_primitive_top_vs_bot": 0.9125963987703118,
+      "verdict": "TAUTOLOG"
+    }
+  },
+  "top_tier": 4,
+  "bottom_tier": 1,
+  "elapsed_seconds": 38.7
+}

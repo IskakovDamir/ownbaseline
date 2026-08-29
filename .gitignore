@@ -25,6 +25,10 @@ data/*/
 data/runs/
 data/scratch/
 
+# the frozen run artefacts the figures read — evidence, not a build artefact
+!data/run_record/
+!data/run_record/**
+
 # reproduction outputs
 reproduction/
 

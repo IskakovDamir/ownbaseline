@@ -1,0 +1,438 @@
+{
+  "n_cells_full": 39505,
+  "seed": 42,
+  "n_boot": {
+    "scipy_weightedtau": 300,
+    "kang_wdm_taub": 1000
+  },
+  "kernels": [
+    "scipy.stats.weightedtau",
+    "Kang wdm uniform == Kendall tau-b (scipy.stats.kendalltau)"
+  ],
+  "score_provenance": {
+    "CytoTRACE_v1": "full R-faithful port (MVG\u2192GCS\u2192NNLS\u2192Markov diffusion), verbatim Gulati 2020 core fns",
+    "SR": "vectorized verbatim-SCENT algorithm; == SCENT R on 500-cell subsample (Spearman 1.000, max|\u0394|<1e-13)",
+    "CCAT": "vectorized verbatim-SCENT algorithm; == SCENT R on 500-cell subsample (Spearman 1.000, max|\u0394|<1e-13)",
+    "ORIGINS": "vectorized x^T A x on ORIGINS native diff-network; == ORIGINS::activity R on 500-cell subsample (Spearman 1.000)",
+    "SLICE": "real SLICE::getEntropy (GO kappa-sim, bootstrap scEntropy)",
+    "dpath": "real dpath wp-NMF metagene entropy (K=5), entropy2(t(V))"
+  },
+  "conditional_skill": {
+    "CytoTRACE_v1 | gene_count": {
+      "scipy_weightedtau": {
+        "tau": 0.7900978037695467,
+        "CI95": [
+          0.7671790981541142,
+          0.8067453824402133
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.6530681030073291,
+        "CI95": [
+          0.6479361189145809,
+          0.6578909422465541
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND",
+      "unit": "CytoTRACE_v1 | gene_count"
+    },
+    "SR | PCC(x,degree)": {
+      "scipy_weightedtau": {
+        "tau": 0.73663547262525,
+        "CI95": [
+          0.7173613948598369,
+          0.7611006267149548
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.4299684120579581,
+        "CI95": [
+          0.4248333182971235,
+          0.43499266719511614
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND",
+      "unit": "SR | PCC(x,degree)"
+    },
+    "SR | CCAT": {
+      "scipy_weightedtau": {
+        "tau": 0.7521601943129006,
+        "CI95": [
+          0.7347283382395331,
+          0.7765923352547697
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.46779685415197825,
+        "CI95": [
+          0.4626340677703079,
+          0.4727465758705525
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND",
+      "unit": "SR | CCAT"
+    },
+    "CCAT | PCC(x,degree)": {
+      "scipy_weightedtau": {
+        "tau": 0.17161491258473388,
+        "CI95": [
+          0.11858281848096533,
+          0.21042721767607572
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": -0.22089922162381936,
+        "CI95": [
+          -0.22674002852176528,
+          -0.21506133815121636
+        ],
+        "n_boot": 1000,
+        "verdict": "SIGN-FLIPPED"
+      },
+      "kernels_agree": false,
+      "combined_verdict": "INCONCLUSIVE-kernel-disagree",
+      "unit": "CCAT | PCC(x,degree)"
+    },
+    "ORIGINS | gene_count": {
+      "scipy_weightedtau": {
+        "tau": 0.47718669554739435,
+        "CI95": [
+          0.41429613704158014,
+          0.5194551394389355
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.4546005550754452,
+        "CI95": [
+          0.44935303674470295,
+          0.4599320111397413
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND",
+      "unit": "ORIGINS | gene_count"
+    },
+    "ORIGINS | PCC(x,degree)": {
+      "scipy_weightedtau": {
+        "tau": 0.5272212501175606,
+        "CI95": [
+          0.4913255989983062,
+          0.5564218779316311
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.40187689819718914,
+        "CI95": [
+          0.3966610766104692,
+          0.4068400233100355
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND",
+      "unit": "ORIGINS | PCC(x,degree)"
+    },
+    "SLICE | Shannon_H": {
+      "scipy_weightedtau": {
+        "tau": -0.05219389261146182,
+        "CI95": [
+          -0.08419622798414832,
+          0.004057841701585558
+        ],
+        "n_boot": 300,
+        "verdict": "TAUTOLOG"
+      },
+      "kang_wdm_taub": {
+        "tau": -0.11316582940860277,
+        "CI95": [
+          -0.1351727585411509,
+          -0.09146017886964795
+        ],
+        "n_boot": 1000,
+        "verdict": "SIGN-FLIPPED"
+      },
+      "kernels_agree": false,
+      "combined_verdict": "INCONCLUSIVE-kernel-disagree",
+      "unit": "SLICE | Shannon_H [n=3000 subsample]"
+    },
+    "dpath | Shannon_H": {
+      "scipy_weightedtau": {
+        "tau": 0.1913945456069365,
+        "CI95": [
+          0.15864270469329253,
+          0.2354030269485347
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.12019121925106047,
+        "CI95": [
+          0.09487357368217775,
+          0.1456444173717934
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND",
+      "unit": "dpath | Shannon_H [n=3000 subsample]"
+    }
+  },
+  "depth_robustness_cond_given_primitive_AND_loglib": {
+    "CytoTRACE_v1 | gene_count + log10(lib)": {
+      "scipy_weightedtau": {
+        "tau": 0.7397798702861642,
+        "CI95": [
+          0.7300639486910001,
+          0.7601922907934288
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.45739104764325,
+        "CI95": [
+          0.4524150516383165,
+          0.46246073619611217
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND"
+    },
+    "SR | PCC(x,degree) + log10(lib)": {
+      "scipy_weightedtau": {
+        "tau": 0.6575188435109866,
+        "CI95": [
+          0.6296270143046132,
+          0.685768648332336
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.2340365968149264,
+        "CI95": [
+          0.22877359049034923,
+          0.2390979892746539
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND"
+    },
+    "SR | CCAT + log10(lib)": {
+      "scipy_weightedtau": {
+        "tau": 0.6618077625142937,
+        "CI95": [
+          0.6323257276796868,
+          0.6950887614439157
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.25330858395678835,
+        "CI95": [
+          0.24791053880350664,
+          0.25842863758033274
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND"
+    },
+    "CCAT | PCC(x,degree) + log10(lib)": {
+      "scipy_weightedtau": {
+        "tau": 0.38370199222049706,
+        "CI95": [
+          0.3428321824928078,
+          0.42384400301479075
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": -0.060964320369019186,
+        "CI95": [
+          -0.06509068587830345,
+          -0.056760596997018305
+        ],
+        "n_boot": 1000,
+        "verdict": "SIGN-FLIPPED"
+      },
+      "kernels_agree": false,
+      "combined_verdict": "INCONCLUSIVE-kernel-disagree"
+    },
+    "ORIGINS | gene_count + log10(lib)": {
+      "scipy_weightedtau": {
+        "tau": 0.36707413599688465,
+        "CI95": [
+          0.3206763118139724,
+          0.4556047391800587
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.2994708448882959,
+        "CI95": [
+          0.2943648998796017,
+          0.3044838239936768
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND"
+    },
+    "ORIGINS | PCC(x,degree) + log10(lib)": {
+      "scipy_weightedtau": {
+        "tau": 0.3318915400279404,
+        "CI95": [
+          0.25604987165059195,
+          0.36529236040096214
+        ],
+        "n_boot": 300,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kang_wdm_taub": {
+        "tau": 0.20114568893962584,
+        "CI95": [
+          0.1955282110321927,
+          0.20659236915624235
+        ],
+        "n_boot": 1000,
+        "verdict": "ADDS-BEYOND"
+      },
+      "kernels_agree": true,
+      "combined_verdict": "ADDS-BEYOND"
+    }
+  },
+  "conditional_skill_shield_sensitivity_pointest": {
+    "CytoTRACE_v1 | gene_count": {
+      "scipy_weightedtau": 0.7644670808370498,
+      "kang_wdm_taub": 0.5931702247398992
+    },
+    "SR | PCC(x,degree)": {
+      "scipy_weightedtau": 0.7163336275788064,
+      "kang_wdm_taub": 0.40190148209828447
+    },
+    "SR | CCAT": {
+      "scipy_weightedtau": 0.7320755892212307,
+      "kang_wdm_taub": 0.4371484662166923
+    },
+    "CCAT | PCC(x,degree)": {
+      "scipy_weightedtau": 0.17311260750993251,
+      "kang_wdm_taub": -0.2081532656572599
+    },
+    "ORIGINS | gene_count": {
+      "scipy_weightedtau": 0.45669962015981136,
+      "kang_wdm_taub": 0.41862053771123425
+    },
+    "ORIGINS | PCC(x,degree)": {
+      "scipy_weightedtau": 0.5199543361100821,
+      "kang_wdm_taub": 0.3983360966158021
+    },
+    "SLICE | Shannon_H": {
+      "scipy_weightedtau": -0.04872077190476615,
+      "kang_wdm_taub": -0.09836070952993385
+    },
+    "dpath | Shannon_H": {
+      "scipy_weightedtau": 0.20190166160561063,
+      "kang_wdm_taub": 0.1590301906193196
+    }
+  },
+  "marginal_skill": {
+    "gene_count": {
+      "scipy_weightedtau": -0.2167841843333166,
+      "kang_wdm_taub": -0.330824325825792,
+      "spearman_vs_ordinal": -0.4544217981352392
+    },
+    "PCC(x,degree)": {
+      "scipy_weightedtau": 0.589513174572956,
+      "kang_wdm_taub": 0.38267833306838844,
+      "spearman_vs_ordinal": 0.516418478241046
+    },
+    "Shannon_H": {
+      "scipy_weightedtau": -0.34152483312006227,
+      "kang_wdm_taub": -0.47720915840022476,
+      "spearman_vs_ordinal": -0.6287553353444192
+    },
+    "CytoTRACE_v1": {
+      "scipy_weightedtau": -0.6308399471001976,
+      "kang_wdm_taub": -0.8092852744922946,
+      "spearman_vs_ordinal": -0.9328459390006424
+    },
+    "SR": {
+      "scipy_weightedtau": 0.7061497504731917,
+      "kang_wdm_taub": 0.5323773171872959,
+      "spearman_vs_ordinal": 0.6916631342483601
+    },
+    "CCAT": {
+      "scipy_weightedtau": 0.5848254192546712,
+      "kang_wdm_taub": 0.3664259017676799,
+      "spearman_vs_ordinal": 0.4958984578523619
+    },
+    "ORIGINS": {
+      "scipy_weightedtau": 0.6880691948462165,
+      "kang_wdm_taub": 0.5534228507833244,
+      "spearman_vs_ordinal": 0.7118702713704558
+    },
+    "SLICE": {
+      "scipy_weightedtau": -0.288797612207121,
+      "kang_wdm_taub": -0.38427808219613246,
+      "spearman_vs_ordinal": -0.5249248037976922,
+      "n": 3000
+    },
+    "dpath": {
+      "scipy_weightedtau": -0.3859186330270483,
+      "kang_wdm_taub": -0.32965239383632006,
+      "spearman_vs_ordinal": -0.4439860046915971,
+      "n": 3000
+    }
+  },
+  "spearman_score_vs_primitive": {
+    "CytoTRACE_v1 | gene_count": 0.48435464052856564,
+    "SR | PCC(x,degree)": 0.9305466517130603,
+    "SR | CCAT": 0.9267398922545719,
+    "CCAT | PCC(x,degree)": 0.9981774880514592,
+    "ORIGINS | gene_count": -0.35760084853386037,
+    "ORIGINS | PCC(x,degree)": 0.433862186232707,
+    "SLICE | Shannon_H": 0.931739642637738,
+    "dpath | Shannon_H": 0.4769372498819166
+  },
+  "K2_equivalence_check": {
+    "kendalltau": 0.6530681030073291,
+    "wdm_tau_b_bit_uniform": 0.6530681030073291,
+    "abs_diff": 0.0
+  }
+}

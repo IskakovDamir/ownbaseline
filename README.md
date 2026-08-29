@@ -177,8 +177,11 @@ from computing them. The published check — Spearman 1.000, max |Δ| < 1e-13 on
 that the cross-check was **skipped**.
 
 `reproduce.py` writes `reproduction/table.md`, `reproduction/table.json` and a
-regenerated Figure 2 carrying the bootstrap intervals. It does **not** rewrite
-`figures/make_paper_a_figures.py`; see the next section.
+regenerated Figure 2 carrying the bootstrap intervals, computed from the raw
+data. `figures/make_paper_a_figures.py` is a separate path to the same numbers:
+it reads the frozen run artefacts in `data/run_record/` and does not recompute
+anything. The two agree where both can run; `make_paper_a_figures.py
+--crosscheck` prints the comparison.
 
 ## What the audit found
 
@@ -247,12 +250,17 @@ detail in the commit messages and in `tests/test_estimator.py`.
   The kernels then disagree. Both residual implementations in this repository
   have it. Recorded by a strict expected-failure test:
   `test_exact_monotone_function_of_primitive_has_zero_conditional_skill`.
-- **`figures/make_paper_a_figures.py` contains no data.** Every number in it is
-  a hard-coded literal; it has no `errorbar` call despite the caption promising
-  bootstrap intervals; it plots StemID and cmEntropy at ρ 0.990 / 1.000 and
-  skill 0.000 as though measured, and NCG as pending. It is left exactly as it
-  is, because those literals are what the manuscript was traced against.
-  `reproduce.py` writes a separate, data-derived figure instead.
+- **`figures/make_paper_a_figures.py` contained no data — fixed 2026-08-29.**
+  Every number in it was a hard-coded literal; it had no `errorbar` call despite
+  the caption promising bootstrap intervals; it plotted StemID and cmEntropy at
+  ρ 0.990 / 1.000 and skill 0.000 as though measured, and NCG as pending
+  although the fix-1 run had measured it at τ_b +0.402. The script now reads
+  every value from `data/run_record/` and the null-calibration grid, draws each
+  score against its own measured null floor, and emits its caption and a
+  `fig2_values.json` from what it actually drew. The old script is kept at
+  `figures/deprecated/make_paper_a_figures.py` because its literals are what the
+  pre-2026-08 manuscript was traced against. The full before/after is
+  `04-experiments/2026-08-29-figure2-provenance.md` in the vault.
 - **Two residual implementations, not merged.** `rank_resid_multi` (the
   track-2 estimator) fits by least squares with an intercept and takes any
   number of covariates. `rank_residual` / `_rank_residual` in `experiments/w4`,
@@ -276,10 +284,13 @@ scores/                score implementations used in the audit
   cytotrace_full.py    R-faithful CytoTRACE v1 port
   run_*.R              wrappers calling the real R packages
 experiments/           every run script, verbatim, organized as it was run
-figures/               the manuscript's figures (hard-coded literals — see above)
+figures/               the manuscript's figures, each value read from a run artefact
+  make_paper_a_figures.py  reads data/run_record/ + the null-calibration grid
+  deprecated/          the pre-2026-08-29 literal-only script, kept for tracing
 tests/                 known-answer tests
 reproduce.py           the reproduction entry point
 data/README.md         accessions and how to fetch them; no data is stored here
+data/run_record/       the run JSONs the figures read, committed verbatim
 ```
 
 `experiments/` is a run record, not a library. Those scripts are kept as they

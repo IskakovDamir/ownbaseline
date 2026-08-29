@@ -1,0 +1,62 @@
+{
+  "seed": 42,
+  "n_boot": {
+    "scipy_weightedtau": 300,
+    "kang_wdm_taub": 1000
+  },
+  "declared_primitive": "PCC(x,degree) STRING v12 LCC",
+  "scores": {
+    "NCG": {
+      "n": 3000,
+      "spearman_score_vs_PCC": 0.3777834606426067,
+      "spearman_score_vs_ordinal": -0.31057815434133124,
+      "conditional_skill_vs_PCC": {
+        "scipy_weightedtau": {
+          "tau": 0.7198677433629622,
+          "CI95": [
+            0.6926126298893291,
+            0.7407035609927431
+          ],
+          "n_boot": 300,
+          "verdict": "ADDS-BEYOND"
+        },
+        "kang_wdm_taub": {
+          "tau": 0.40154244659253835,
+          "CI95": [
+            0.3824497247644574,
+            0.42123482655350586
+          ],
+          "n_boot": 1000,
+          "verdict": "ADDS-BEYOND"
+        },
+        "kernels_agree": true,
+        "combined_verdict": "ADDS-BEYOND"
+      },
+      "conditional_skill_vs_PCC_plus_loglib": {
+        "scipy_weightedtau": {
+          "tau": 0.4009237525868111,
+          "CI95": [
+            0.24202890139419767,
+            0.47905248674306866
+          ],
+          "n_boot": 300,
+          "verdict": "ADDS-BEYOND"
+        },
+        "kang_wdm_taub": {
+          "tau": 0.1741709441411586,
+          "CI95": [
+            0.1575711028546901,
+            0.19066321624939586
+          ],
+          "n_boot": 1000,
+          "verdict": "ADDS-BEYOND"
+        },
+        "kernels_agree": true,
+        "combined_verdict": "ADDS-BEYOND"
+      }
+    },
+    "MCE": {
+      "status": "INCONCLUSIVE-infra (no real implementation ran in-session)"
+    }
+  }
+}

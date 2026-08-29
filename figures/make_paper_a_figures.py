@@ -164,22 +164,22 @@ class NullGrid:
 
     def floor(self, n: int, rho: float, kernel: str = "kendalltau"):
         """
-        Returns (mean, p97.5, cell description, source files) for the null cell
-        this value is placed against, or (None, None, reason, None).
+        Returns (mean, p97.5, cell description, source files, (n, rho) grid point)
+        for the null cell this value is placed against, or Nones with a reason.
         """
         if self.missing:
-            return None, None, f"null grid incomplete, missing {self.missing}", None
+            return None, None, f"null grid incomplete, missing {self.missing}", None, None
         ng, rg = _nearest(n, self.n_grid), _nearest(abs(rho), self.rho_grid)
         cells = [r for r in self.rows
                  if r["null"] == "B" and int(r["n"]) == ng and r["kernel"] == kernel
                  and abs(float(r["rho_target"]) - rg) < 1e-9 and int(r["align"]) == 1]
         if not cells:
-            return None, None, f"no null cell at n={ng}, rho={rg}, kernel={kernel}", None
+            return None, None, f"no null cell at n={ng}, rho={rg}, kernel={kernel}", None, None
         mean = sum(float(c["mean"]) for c in cells) / len(cells)
         p975 = max(float(c["p97.5"]) for c in cells)
         desc = (f"Null B, align on, 12 levels, n={ng:,}, rho={rg}, {kernel}, "
                 f"{len(cells)} coupling strengths, 200 seeds each")
-        return mean, p975, desc, sorted({c["_file"] for c in cells})
+        return mean, p975, desc, sorted({c["_file"] for c in cells}), (ng, rg)
 
 
 # ------------------------------------------------------- what to plot, and why
@@ -335,7 +335,7 @@ class Row:
         self.primitive = primitive
         self.tau = self.lo = self.hi = self.rho = self.n = None
         self.floor = self.floor_mean = None
-        self.floor_cell = self.floor_files = None
+        self.floor_cell = self.floor_files = self.floor_at = None
         self.subsample = False
         self.reason = None                # why blocked, or why not a measurement
         self.sources = {}                 # field -> "path:field"
@@ -376,8 +376,9 @@ def build_rows(grid: NullGrid):
         row.lo, row.hi = (float(fetched["ci"][0]), float(fetched["ci"][1]))
         row.rho = float(fetched["rho"])
         row.n = int(fetched["n"])
-        mean, p975, cell, files = grid.floor(row.n, row.rho)
-        row.floor_mean, row.floor, row.floor_cell, row.floor_files = mean, p975, cell, files
+        mean, p975, cell, files, at = grid.floor(row.n, row.rho)
+        row.floor_mean, row.floor, row.floor_cell = mean, p975, cell
+        row.floor_files, row.floor_at = files, at
         if p975 is None:
             notes.append(f"{spec['score']}: no null floor — {cell}")
         rows.append(row)
@@ -442,6 +443,22 @@ def check_floors(rows):
 
 # ----------------------------------------------------------------- caption
 
+def subsample_penalty(rows):
+    """
+    How much smaller n costs a row, measured rather than asserted: each
+    subsample row's floor over the floor at the same rho grid point at the
+    largest n on the figure. Returns (lo, hi, n_ref) or None.
+    """
+    meas = [r for r in rows if r.kind == "measured" and r.floor_at]
+    if not meas:
+        return None
+    n_ref = max(r.floor_at[0] for r in meas)
+    ref = {r.floor_at[1]: r.floor for r in meas if r.floor_at[0] == n_ref}
+    ratios = [r.floor / ref[r.floor_at[1]] for r in meas
+              if r.subsample and r.floor_at[1] in ref]
+    return (min(ratios), max(ratios), n_ref) if ratios else None
+
+
 def caption(rows) -> str:
     """
     Built from the rows that were actually drawn, so the caption cannot drift
@@ -457,6 +474,7 @@ def caption(rows) -> str:
     sub = [r.score for r in meas if r.subsample]
     floors = [r.floor for r in meas if r.floor is not None]
     negative = [r.score for r in fail if r.tau is not None and r.tau <= 0]
+    pen = subsample_penalty(rows)
 
     def names(rs):
         rs = [r.score if isinstance(r, Row) else r for r in rs]
@@ -486,10 +504,13 @@ def caption(rows) -> str:
         f"Floors are per-row and not comparable across rows "
         f"{floor_span}because they rise as n falls and vary "
         f"with rho; there is no single threshold line. "
-        f"{names(sub)} were measured on the shared seed-42 3,000-cell subsample and so face "
-        f"floors roughly twice those of the {max(ns):,}-cell rows. "
-        f"{names(clear)} exceed their own floors. "
-        f"{names(fail)} do not"
+        + (f"{names(sub)} were measured on the shared seed-42 {min(ns):,}-cell subsample, which "
+           f"raises their floors to {pen[0]:.2f}-{pen[1]:.2f} times the {pen[2]:,}-cell floor at "
+           f"the same rho. " if pen else
+           f"{names(sub)} were measured on a {min(ns):,}-cell subsample. ")
+        + f"{names(clear)} exceed their own floors. "
+        + (
+        f"{names(fail)} do not")
         + (f"; {names(negative)} are negative, and a negative value does not exceed a positive "
            f"threshold — that is where the value sits, not a failed test" if negative else "")
         + f". {names(blocked)} are blocked and carry no value: the reason is printed on the row. "
@@ -643,10 +664,14 @@ def make_fig2(rows):
              f"{n_off} measured on another ordinal, {len(band)} never measured",
              fontsize=7.6, ha="left", va="top", color="#555", linespacing=1.5)
 
+    pen = subsample_penalty(rows)
     if has_sub:
+        n_sub = min(r.n for r in meas if r.subsample)
+        detail = (f"{pen[0]:.2f}\u2013{pen[1]:.2f}\u00d7 the {pen[2]:,}-cell floor at the same rho"
+                  if pen else "a higher floor")
         fig.text(0.215, 0.115,
-                 "\u2021 measured on the shared seed-42 3,000-cell subsample; a smaller n "
-                 "raises the floor, so these rows face roughly twice the 39,505-cell floor",
+                 f"\u2021 measured on the shared seed-42 {n_sub:,}-cell subsample; a smaller n "
+                 f"raises the floor, so these rows face {detail}",
                  fontsize=6.2, color=FLOORC, style="italic", ha="left")
 
     handles = [

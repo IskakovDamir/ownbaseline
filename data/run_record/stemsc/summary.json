@@ -1,0 +1,42 @@
+{
+  "C1_GSE117498": {
+    "StemSC": {
+      "skill_score": 0.273575516347566,
+      "skill_primitive": 0.0919931692688934,
+      "marginal_delta": 0.1815823470786726,
+      "marginal_delta_CI95": [
+        0.08888421623430372,
+        0.2751170789173655
+      ],
+      "conditional_skill": 0.3343568330508691,
+      "conditional_skill_CI95": [
+        0.266385052791175,
+        0.37648943318274714
+      ],
+      "AUROC_score_top_vs_bot": 0.5006223623722924,
+      "AUROC_primitive_top_vs_bot": 0.35097427698173644,
+      "verdict": "SCORE-BEATS-PRIMITIVE",
+      "ref_pairs_present_pct": 0.9276031492334103
+    }
+  },
+  "C2_GSE125970": {
+    "StemSC": {
+      "skill_score": 0.44925581311404617,
+      "skill_primitive": 0.6622767481964911,
+      "marginal_delta": -0.2130209350824449,
+      "marginal_delta_CI95": [
+        -0.3066169956963773,
+        -0.14270714364676126
+      ],
+      "conditional_skill": 0.09327952110370988,
+      "conditional_skill_CI95": [
+        0.05566011897076366,
+        0.1813936189540579
+      ],
+      "AUROC_score_top_vs_bot": 0.6588905577514274,
+      "AUROC_primitive_top_vs_bot": 0.8756194993412385,
+      "verdict": "SIGN-FLIPPED SCAFFOLD",
+      "ref_pairs_present_pct": 0.7810335641981886
+    }
+  }
+}

@@ -6,6 +6,7 @@
   "artefacts": {
     "track2/gate2_conditional_skill.json": "1ad8f5eb3523939128b27bd06f03f8e762fb39089a0858ca34b64e2e2af3e852",
     "track4/fix1_mce_ncg_skill.json": "885bbc365204f2e5a09a14ca9014310962798138f904d284307dbbb9518896ff",
+    "stemsc/summary.json": "568fa45ed0384e3ca5cc590e125b6960a17318693791e9d409e0adf5138e67c8",
     "w4/c1_gse117498_results.json": "1fc503e5ab8fc45ed93b4e63d4b3bf06efa841fb5dabe7cdba9ba8a333f6d6ec",
     "w4/c2_gse125970_results.json": "d7f03f7200799e5a15ba4920590e146b2f60a794c1895fe66e76f6de14961f5f"
   },
@@ -238,6 +239,44 @@
       }
     },
     {
+      "kind": "blocked",
+      "score": "scEnergy",
+      "primitive": "no fixed primitive",
+      "tau": null,
+      "ci95": null,
+      "n": null,
+      "rho": null,
+      "null_mean": null,
+      "null_p97_5": null,
+      "null_cell": null,
+      "null_files": null,
+      "clears_own_floor": null,
+      "subsample_3000": false,
+      "reason": "needs a MATLAB/Octave environment; no implementation ran. Its scaffold is a data-built co-expression graph, so it does not reduce to a fixed low-order statistic either",
+      "sources": {
+        "status": "04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md, frozen-benchmark table"
+      }
+    },
+    {
+      "kind": "off-ordinal",
+      "score": "StemSC",
+      "primitive": "gene count",
+      "tau": null,
+      "ci95": null,
+      "n": null,
+      "rho": null,
+      "null_mean": null,
+      "null_p97_5": null,
+      "null_cell": null,
+      "null_files": null,
+      "clears_own_floor": null,
+      "subsample_3000": false,
+      "reason": "measured on the sorted atlases (GSE117498, GSE125970), not on this 12-stage ordinal; those runs use a different estimator and a heavily-tied ordering and are not comparable to this axis",
+      "sources": {
+        "status": "stemsc/summary.json:C1_GSE117498/StemSC/conditional_skill"
+      }
+    },
+    {
       "kind": "by-construction",
       "score": "StemID",
       "primitive": "Shannon H",
@@ -276,5 +315,5 @@
       }
     }
   ],
-  "caption": "Figure 2 | Field audit on a clean fine ordinal: 5 of 7 measured scores carry ordering skill beyond their own declared primitive. Conditional skill of each score after rank-residualizing on the primitive its authors declare, against the 12-stage Kimmel ordinal of GSE106474 (zebrafish whole embryos), Kendall tau_b, seed 42. Bars are point estimates; black whiskers are 95% bootstrap intervals and measure sampling precision of the point estimate, not the verdict. The dashed marker on each bar is that score's own decision floor: the 97.5th percentile of the estimator's measured null at that value's own n and its own score-primitive rank correlation rho, from the 200-seed null grid. Floors are per-row and not comparable across rows (+0.0115 to +0.0479 here) because they rise as n falls and vary with rho; there is no single threshold line. NCG, dpath and SLICE were measured on the shared seed-42 3,000-cell subsample and so face floors roughly twice those of the 39,505-cell rows. CytoTRACE v1, SCENT SR, ORIGINS, NCG and dpath exceed their own floors. SLICE and CCAT do not; SLICE and CCAT are negative, and a negative value does not exceed a positive threshold \u2014 that is where the value sits, not a failed test. MCE and SPIDE are blocked and carry no value: the reason is printed on the row. StemID and cmEntropy are not measurements \u2014 each equals a transcriptome-entropy primitive by construction, no run produces a number for them, and they appear only in the shaded band at the foot of the plot, which carries no scale. Values: CytoTRACE v1 +0.6531 [+0.6479, +0.6579] vs floor +0.0247 at n=39,505, rho=+0.4844; SCENT SR +0.4300 [+0.4248, +0.4350] vs floor +0.0311 at n=39,505, rho=+0.9305; ORIGINS +0.4019 [+0.3967, +0.4068] vs floor +0.0247 at n=39,505, rho=+0.4339; NCG +0.4015 [+0.3824, +0.4212] vs floor +0.0411 at n=3,000, rho=+0.3778; dpath +0.1202 [+0.0949, +0.1456] vs floor +0.0411 at n=3,000, rho=+0.4769; SLICE -0.1132 [-0.1352, -0.0915] vs floor +0.0479 at n=3,000, rho=+0.9317; CCAT -0.2209 [-0.2267, -0.2151] vs floor +0.0115 at n=39,505, rho=+0.9982."
+  "caption": "Figure 2 | Field audit on a clean fine ordinal: 5 of 7 measured scores carry ordering skill beyond their own declared primitive. Conditional skill of each score after rank-residualizing on the primitive its authors declare, against the 12-stage Kimmel ordinal of GSE106474 (zebrafish whole embryos), Kendall tau_b, seed 42. Bars are point estimates; black whiskers are 95% bootstrap intervals and measure sampling precision of the point estimate, not the verdict. The dashed marker on each bar is that score's own decision floor: the 97.5th percentile of the estimator's measured null at that value's own n and its own score-primitive rank correlation rho, from the 200-seed null grid. Floors are per-row and not comparable across rows (+0.0115 to +0.0479 here) because they rise as n falls and vary with rho; there is no single threshold line. NCG, dpath and SLICE were measured on the shared seed-42 3,000-cell subsample and so face floors roughly twice those of the 39,505-cell rows. CytoTRACE v1, SCENT SR, ORIGINS, NCG and dpath exceed their own floors. SLICE and CCAT do not; SLICE and CCAT are negative, and a negative value does not exceed a positive threshold \u2014 that is where the value sits, not a failed test. MCE, SPIDE and scEnergy are blocked and carry no value: the reason is printed on the row. StemSC was measured, but on the sorted atlases rather than this ordinal, so it has a row and no bar. StemID and cmEntropy are not measurements \u2014 each equals a transcriptome-entropy primitive by construction, no run produces a number for them, and they appear only in the shaded band at the foot of the plot, which carries no scale. Values: CytoTRACE v1 +0.6531 [+0.6479, +0.6579] vs floor +0.0247 at n=39,505, rho=+0.4844; SCENT SR +0.4300 [+0.4248, +0.4350] vs floor +0.0311 at n=39,505, rho=+0.9305; ORIGINS +0.4019 [+0.3967, +0.4068] vs floor +0.0247 at n=39,505, rho=+0.4339; NCG +0.4015 [+0.3824, +0.4212] vs floor +0.0411 at n=3,000, rho=+0.3778; dpath +0.1202 [+0.0949, +0.1456] vs floor +0.0411 at n=3,000, rho=+0.4769; SLICE -0.1132 [-0.1352, -0.0915] vs floor +0.0479 at n=3,000, rho=+0.9317; CCAT -0.2209 [-0.2267, -0.2151] vs floor +0.0115 at n=39,505, rho=+0.9982."
 }

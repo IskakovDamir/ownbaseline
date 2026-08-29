@@ -246,6 +246,23 @@ BLOCKED = [
                 "primitive cannot be derived and no own-baseline can be defined",
          source="04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md, "
                 "final-2-reductions section"),
+    dict(score="scEnergy", primitive="no fixed primitive",
+         reason="needs a MATLAB/Octave environment; no implementation ran. Its "
+                "scaffold is a data-built co-expression graph, so it does not "
+                "reduce to a fixed low-order statistic either",
+         source="04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md, "
+                "frozen-benchmark table"),
+]
+
+# Measured, but on a different ordinal. Showing it as blank on this axis would
+# be as wrong as showing it as zero, so it gets its own row and says where its
+# numbers live.
+OFF_ORDINAL = [
+    dict(score="StemSC", primitive="gene count",
+         art="stemsc/summary.json", probe="C1_GSE117498/StemSC/conditional_skill",
+         reason="measured on the sorted atlases (GSE117498, GSE125970), not on this "
+                "12-stage ordinal; those runs use a different estimator and a "
+                "heavily-tied ordering and are not comparable to this axis"),
 ]
 
 # Not measurements. No point, no bar, no zero. They sit in their own band.
@@ -377,6 +394,15 @@ def build_rows(grid: NullGrid):
             row.sources["status"] = spec["source"]
         rows.append(row)
 
+    for spec in OFF_ORDINAL:
+        row = Row("off-ordinal", spec["score"], spec["primitive"])
+        row.artefact = spec["art"]
+        probe, err = value_of(spec["art"], spec["probe"])
+        row.sources["status"] = f"{spec['art']}:{spec['probe']}"
+        row.reason = (spec["reason"] if err is None
+                      else f"{spec['reason']} — and that run is not in this checkout: {err}")
+        rows.append(row)
+
     for spec in BY_CONSTRUCTION:
         row = Row("by-construction", spec["score"], spec["primitive"])
         row.reason = spec["reason"]
@@ -385,8 +411,10 @@ def build_rows(grid: NullGrid):
 
     measured = [r for r in rows if r.kind == "measured"]
     measured.sort(key=lambda r: -r.tau)
-    ordered = measured + [r for r in rows if r.kind == "blocked"] \
-                       + [r for r in rows if r.kind == "by-construction"]
+    ordered = (measured
+               + [r for r in rows if r.kind == "blocked"]
+               + [r for r in rows if r.kind == "off-ordinal"]
+               + [r for r in rows if r.kind == "by-construction"])
     return ordered, notes
 
 
@@ -423,6 +451,7 @@ def caption(rows) -> str:
     clear = [r for r in meas if r.clears]
     fail = [r for r in meas if r.clears is False]
     blocked = [r for r in rows if r.kind == "blocked"]
+    off = [r for r in rows if r.kind == "off-ordinal"]
     band = [r for r in rows if r.kind == "by-construction"]
     ns = sorted({r.n for r in meas}, reverse=True)
     sub = [r.score for r in meas if r.subsample]
@@ -437,6 +466,7 @@ def caption(rows) -> str:
         return (
             "Figure 2 | Field audit on a clean fine ordinal. No score could be placed: every row "
             f"is blocked and prints its reason. Blocked: {names(blocked)}. "
+            f"Measured on another ordinal: {names(off)}. "
             f"Not measurements, shown in their own band with no value: {names(band)}. "
             "Nothing on this figure is a number typed by hand, so with no run artefact there is "
             "nothing to draw.")
@@ -463,6 +493,8 @@ def caption(rows) -> str:
         + (f"; {names(negative)} are negative, and a negative value does not exceed a positive "
            f"threshold — that is where the value sits, not a failed test" if negative else "")
         + f". {names(blocked)} are blocked and carry no value: the reason is printed on the row. "
+        f"{names(off)} was measured, but on the sorted atlases rather than this ordinal, so it has "
+        f"a row and no bar. "
         f"{names(band)} are not measurements — each equals a transcriptome-entropy primitive by "
         f"construction, no run produces a number for them, and they appear only in the shaded "
         f"band at the foot of the plot, which carries no scale. "
@@ -477,6 +509,7 @@ FAILS = "#8a8a8a"
 FLOORC = "#b00000"
 BLOCKC = "#b08900"
 BANDC = "#9141ac"
+OFFC = "#3a6ea5"
 
 
 def make_fig2(rows):
@@ -494,7 +527,7 @@ def make_fig2(rows):
 
     fig = plt.figure(figsize=(10.2, 0.50 * n_rows + 2.6))
     gs = fig.add_gridspec(1, 2, width_ratios=[2.35, 1.0], wspace=0.03,
-                          left=0.215, right=0.995, bottom=0.245, top=0.855)
+                          left=0.215, right=0.995, bottom=0.245, top=0.840)
     ax = fig.add_subplot(gs[0, 0])
     axt = fig.add_subplot(gs[0, 1], sharey=ax)
 
@@ -508,12 +541,14 @@ def make_fig2(rows):
             ax.add_patch(mp.Rectangle((xlo, yi - 0.5), xhi - xlo, 1.0,
                                       facecolor="#f2ecf7", edgecolor="none", zorder=0))
             continue
-        if r.kind == "blocked":
-            ax.barh(yi, 0.016, height=0.62, color="none", edgecolor=BLOCKC,
-                    hatch="///", lw=0.9, zorder=3)
-            txt = textwrap.fill(f"blocked, no value drawn — {r.reason}", 74)
-            ax.text(0.034, yi, txt, va="center", fontsize=5.8,
-                    color=BLOCKC, style="italic", linespacing=1.25)
+        if r.kind in ("blocked", "off-ordinal"):
+            c = BLOCKC if r.kind == "blocked" else OFFC
+            lead = ("blocked, no value drawn" if r.kind == "blocked"
+                    else "not on this ordinal, no value drawn")
+            ax.barh(yi, 0.016, height=0.62, color="none", edgecolor=c,
+                    hatch="///" if r.kind == "blocked" else "\\\\", lw=0.9, zorder=3)
+            ax.text(0.034, yi, textwrap.fill(f"{lead} — {r.reason}", 74), va="center",
+                    fontsize=5.8, color=c, style="italic", linespacing=1.25)
             continue
 
         col = CLEARS if r.clears else FAILS
@@ -548,6 +583,8 @@ def make_fig2(rows):
             tick.set_fontstyle("italic")
         elif r.kind == "blocked":
             tick.set_color(BLOCKC)
+        elif r.kind == "off-ordinal":
+            tick.set_color(OFFC)
     ax.set_ylim(-0.70, n_rows - 0.30)
     ax.set_xlim(xlo, xhi)
     ax.set_xlabel("conditional skill beyond the declared primitive   (Kendall tau_b)",
@@ -577,6 +614,10 @@ def make_fig2(rows):
             axt.text(0.03, yi, "—", fontsize=6.6, va="center", color=BLOCKC)
             axt.text(0.48, yi, "not measured", fontsize=6.9, va="center",
                      ha="left", color=BLOCKC, style="italic")
+        elif r.kind == "off-ordinal":
+            axt.text(0.03, yi, "—", fontsize=6.6, va="center", color=OFFC)
+            axt.text(0.48, yi, "measured elsewhere", fontsize=6.9, va="center",
+                     ha="left", color=OFFC, style="italic")
         else:
             axt.text(0.03, yi, "—", fontsize=6.6, va="center", color=BANDC)
             axt.text(0.48, yi, "not a measurement", fontsize=6.9, va="center",
@@ -594,11 +635,13 @@ def make_fig2(rows):
     fig.text(0.215, 0.955,
              f"Field audit on a clean fine ordinal (zebrafish GSE106474, 12 stages)",
              fontsize=10.0, ha="left", va="top")
+    n_blocked = len([r for r in rows if r.kind == "blocked"])
+    n_off = len([r for r in rows if r.kind == "off-ordinal"])
     fig.text(0.215, 0.915,
-             f"{n_clear} of {len(meas)} measured scores exceed their own measured null floor; "
-             f"{len([r for r in rows if r.kind == 'blocked'])} blocked, "
-             f"{len(band)} never measured",
-             fontsize=7.6, ha="left", va="top", color="#555")
+             f"{n_clear} of {len(meas)} measured scores exceed their own measured null floor\n"
+             f"every audited score has a row: {n_blocked} blocked, "
+             f"{n_off} measured on another ordinal, {len(band)} never measured",
+             fontsize=7.6, ha="left", va="top", color="#555", linespacing=1.5)
 
     if has_sub:
         fig.text(0.215, 0.115,
@@ -618,6 +661,8 @@ def make_fig2(rows):
                    label="95% bootstrap interval — sampling precision, not the verdict"),
         mp.Patch(facecolor="none", edgecolor=BLOCKC, hatch="///",
                  label="blocked — no run artefact; reason on the row"),
+        mp.Patch(facecolor="none", edgecolor=OFFC, hatch="\\\\",
+                 label="measured, but on another ordinal — not comparable here"),
         mp.Patch(facecolor="#f2ecf7", edgecolor="none",
                  label="by construction, never measured — no value"),
     ]
@@ -871,11 +916,14 @@ def provenance(rows, grid) -> str:
               f"| `{r.floor:+.4f}` | {r.floor_cell}<br>`experiments/null_calibration/results/"
               f"{{{files}}}` | **{'yes' if r.clears else 'no'}**"
               f"{'  (value is negative; the threshold is positive)' if r.tau <= 0 else ''} |")
-        elif r.kind == "blocked":
+        elif r.kind in ("blocked", "off-ordinal"):
             # a row demoted from measured keeps the field path it tried to read
             src = r.sources.get("status") or r.sources.get("tau", "—")
-            A(f"| {i} | `{_md(r.label)}` | *blocked, no value drawn* "
-              f"| `{_md(src)}` | — | — | — | — | not measured |")
+            what = ("*blocked, no value drawn*" if r.kind == "blocked"
+                    else "*measured on another ordinal, no value drawn here*")
+            verdict = "not measured" if r.kind == "blocked" else "measured elsewhere"
+            A(f"| {i} | `{_md(r.label)}` | {what} "
+              f"| `{_md(src)}` | — | — | — | — | {verdict} |")
         else:
             A(f"| {i} | `{_md(r.label)}` | *no value drawn — band only* "
               f"| {_md(r.sources['status'])} | — | — | — | — | not a measurement |")
@@ -883,7 +931,7 @@ def provenance(rows, grid) -> str:
     A("Blocked and by-construction reasons, verbatim:")
     A("")
     for r in rows:
-        if r.kind in ("blocked", "by-construction"):
+        if r.kind in ("blocked", "off-ordinal", "by-construction"):
             A(f"- **{r.score}** — {r.reason}")
     A("")
     A("Artefact digests:")

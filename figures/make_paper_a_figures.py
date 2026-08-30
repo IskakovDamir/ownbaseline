@@ -35,10 +35,18 @@ would be wrong.
 
 KERNEL
 ------
-Kendall tau_b throughout. Weighted tau appears nowhere in these figures: the
-null calibration showed the weighted-tau floor is high enough to swallow several
+Kendall tau_b throughout. Nothing is plotted under weighted tau: the null
+calibration showed the weighted-tau floor is high enough to swallow several
 weighted-tau values whole, so the two kernels are not interchangeable and the
 manuscript's tau_b column is the one that is read here.
+
+That makes the figure's verdicts one-kernel verdicts, so the caption says which
+of them the other kernel would not return. Any row clearing its tau_b floor but
+not its weighted-tau floor is named in one sentence, with the count a both-kernel
+rule would give. Both numbers are read from the wtau block of the same
+report.txt the tau_b floors are checked against; if that block is missing, or a
+row is absent from it, this file raises rather than writing a caption whose
+verdict list is silently one-kernel.
 
 RULES THIS FILE ENFORCES
 ------------------------
@@ -194,42 +202,49 @@ MEASURED = [
     dict(score="CytoTRACE v1", primitive="gene count",
          art="track2/gate2_conditional_skill.json",
          tau="conditional_skill/CytoTRACE_v1 | gene_count/kang_wdm_taub/tau",
+         report_row="CytoTRACE_v1 | gene_count",
          ci="conditional_skill/CytoTRACE_v1 | gene_count/kang_wdm_taub/CI95",
          rho="spearman_score_vs_primitive/CytoTRACE_v1 | gene_count",
          n="n_cells_full", subsample=False),
     dict(score="SCENT SR", primitive="PCC(x, degree)",
          art="track2/gate2_conditional_skill.json",
          tau="conditional_skill/SR | PCC(x,degree)/kang_wdm_taub/tau",
+         report_row="SR | PCC(x,degree)",
          ci="conditional_skill/SR | PCC(x,degree)/kang_wdm_taub/CI95",
          rho="spearman_score_vs_primitive/SR | PCC(x,degree)",
          n="n_cells_full", subsample=False),
     dict(score="ORIGINS", primitive="PCC(x, degree)",
          art="track2/gate2_conditional_skill.json",
          tau="conditional_skill/ORIGINS | PCC(x,degree)/kang_wdm_taub/tau",
+         report_row="ORIGINS | PCC(x,degree)",
          ci="conditional_skill/ORIGINS | PCC(x,degree)/kang_wdm_taub/CI95",
          rho="spearman_score_vs_primitive/ORIGINS | PCC(x,degree)",
          n="n_cells_full", subsample=False),
     dict(score="NCG", primitive="PCC(x, degree)",
          art="track4/fix1_mce_ncg_skill.json",
          tau="scores/NCG/conditional_skill_vs_PCC/kang_wdm_taub/tau",
+         report_row="NCG | PCC(x,degree)",
          ci="scores/NCG/conditional_skill_vs_PCC/kang_wdm_taub/CI95",
          rho="scores/NCG/spearman_score_vs_PCC",
          n="scores/NCG/n", subsample=True),
     dict(score="dpath", primitive="Shannon H",
          art="track2/gate2_conditional_skill.json",
          tau="conditional_skill/dpath | Shannon_H/kang_wdm_taub/tau",
+         report_row="dpath | Shannon_H",
          ci="conditional_skill/dpath | Shannon_H/kang_wdm_taub/CI95",
          rho="spearman_score_vs_primitive/dpath | Shannon_H",
          n="marginal_skill/dpath/n", subsample=True),
     dict(score="SLICE", primitive="Shannon H",
          art="track2/gate2_conditional_skill.json",
          tau="conditional_skill/SLICE | Shannon_H/kang_wdm_taub/tau",
+         report_row="SLICE | Shannon_H",
          ci="conditional_skill/SLICE | Shannon_H/kang_wdm_taub/CI95",
          rho="spearman_score_vs_primitive/SLICE | Shannon_H",
          n="marginal_skill/SLICE/n", subsample=True),
     dict(score="CCAT", primitive="PCC(x, degree)",
          art="track2/gate2_conditional_skill.json",
          tau="conditional_skill/CCAT | PCC(x,degree)/kang_wdm_taub/tau",
+         report_row="CCAT | PCC(x,degree)",
          ci="conditional_skill/CCAT | PCC(x,degree)/kang_wdm_taub/CI95",
          rho="spearman_score_vs_primitive/CCAT | PCC(x,degree)",
          n="n_cells_full", subsample=False),
@@ -317,6 +332,47 @@ _TAUB_ROW = re.compile(
     r"(?P<cell>Null B|covariate arm)")
 
 
+class WtauMissing(RuntimeError):
+    """
+    The weighted-tau qualifier could not be derived. Raised rather than swallowed:
+    a caption that lists five clearing scores without saying one of them clears on
+    a single kernel is exactly the incomplete claim this qualifier exists to fix.
+    """
+
+
+_WTAU_ROW = re.compile(
+    r"^\s{2}(?P<row>\S.*?)\s{2,}(?P<atlas>\S+)\s+(?P<n>\d+)\s+(?P<rho>[+-]\d\.\d+)\s+"
+    r"(?P<k>\d+)\s+(?P<value>[+-]\d\.\d+)\s+(?P<mean>[+-]\d\.\d+)\s+"
+    r"(?P<p975>[+-]\d\.\d+)\s+(?P<cell>Null B|covariate arm)")
+
+
+def wtau_table(atlas: str = "zebrafish", k: int = 1):
+    """
+    row label -> (value, null mean, null 97.5th) from the wtau block of the run's
+    own deliverable table, for one atlas and one covariate count. The figure is
+    tau_b, so this is read only to say which of its verdicts the other kernel
+    would not return. Raises if the file or the block is not in the checkout,
+    because the alternative is a caption that quietly overstates its own scope.
+    """
+    if not REPORT_TXT.is_file():
+        raise WtauMissing(f"{REPORT_TXT} not in this checkout, so the weighted-tau "
+                          f"floors the caption qualifier needs cannot be read")
+    txt = REPORT_TXT.read_text()
+    if "--- wtau" not in txt:
+        raise WtauMissing(f"no '--- wtau' block in {REPORT_TXT.name}; the qualifier "
+                          f"naming one-kernel verdicts cannot be derived")
+    block = txt.split("--- wtau")[1].split("\n--- ")[0]
+    out = {}
+    for line in block.splitlines():
+        m = _WTAU_ROW.match(line)
+        if m and m["atlas"] == atlas and int(m["k"]) == k:
+            out[m["row"]] = (float(m["value"]), float(m["mean"]), float(m["p975"]))
+    if not out:
+        raise WtauMissing(f"the wtau block of {REPORT_TXT.name} has no {atlas} k={k} "
+                          f"rows; the caption qualifier cannot be derived")
+    return out
+
+
 def published_floors():
     """
     (n, rho, k) -> 97.5th percentile, from the tau_b block of the run's own
@@ -348,11 +404,20 @@ class Row:
         self.primitive = primitive
         self.tau = self.lo = self.hi = self.rho = self.n = None
         self.floor = self.floor_mean = None
+        # the other kernel, read only to qualify this one's verdict, never plotted
+        self.wtau = self.wtau_mean = self.wtau_floor = None
         self.floor_cell = self.floor_files = self.floor_at = None
         self.subsample = False
         self.reason = None                # why blocked, or why not a measurement
         self.sources = {}                 # field -> "path:field"
         self.artefact = None
+
+    @property
+    def clears_wtau(self):
+        """Same rule, the other kernel. None when this row carries no weighted-tau pair."""
+        if self.wtau is None or self.wtau_floor is None:
+            return None
+        return self.wtau > self.wtau_floor
 
     @property
     def clears(self):
@@ -367,6 +432,7 @@ class Row:
 
 def build_rows(grid: NullGrid):
     rows, notes = [], []
+    wtau = wtau_table()          # raises if the other kernel's table is not here
 
     for spec in MEASURED:
         row = Row("measured", spec["score"], spec["primitive"])
@@ -394,6 +460,17 @@ def build_rows(grid: NullGrid):
         row.floor_files, row.floor_at = files, at
         if p975 is None:
             notes.append(f"{spec['score']}: no null floor — {cell}")
+        # The other kernel's value and floor for the same row, so the caption can
+        # say which tau_b verdicts a both-kernel rule would not return. Absent is
+        # a hard error: see WtauMissing.
+        label = spec["report_row"]
+        if label not in wtau:
+            raise WtauMissing(
+                f"{spec['score']}: no row {label!r} in the wtau block of "
+                f"{REPORT_TXT.name}. The caption cannot state whether this "
+                f"verdict holds under both kernels, and must not omit the "
+                f"question. Known rows: {sorted(wtau)}")
+        row.wtau, row.wtau_mean, row.wtau_floor = wtau[label]
         rows.append(row)
 
     for spec in BLOCKED:
@@ -500,6 +577,9 @@ def caption(rows) -> str:
     meas = [r for r in rows if r.kind == "measured"]
     clear = [r for r in meas if r.clears]
     fail = [r for r in meas if r.clears is False]
+    # rows this figure calls clear that the other kernel would not: the figure is
+    # tau_b, so its verdict list is a one-kernel list and has to say so.
+    split = [r for r in clear if r.clears_wtau is False]
     blocked = [r for r in rows if r.kind == "blocked"]
     off = [r for r in rows if r.kind == "off-ordinal"]
     out = [r for r in rows if r.kind == "out-of-class"]
@@ -544,6 +624,14 @@ def caption(rows) -> str:
            f"the same rho. " if pen else
            f"{names(sub)} were measured on a {min(ns):,}-cell subsample. ")
         + f"{names(clear)} exceed their own floors. "
+        + (f"{names(split)} {'clears' if len(split) == 1 else 'clear'} under tau_b only: "
+           f"{'its' if len(split) == 1 else 'their'} weighted-tau "
+           f"{'value' if len(split) == 1 else 'values'} of "
+           f"{', '.join(f'{r.wtau:+.4f}' for r in split)} "
+           f"{'sits' if len(split) == 1 else 'sit'} below that kernel's own floor of "
+           f"{', '.join(f'{r.wtau_floor:+.4f}' for r in split)} at the same cell, so a rule "
+           f"requiring both kernels would read {len(clear) - len(split)} of {len(meas)} here "
+           f"rather than {len(clear)} of {len(meas)}. " if split else "")
         + (
         f"{names(fail)} do not")
         + (f"; {names(negative)} are negative, and a negative value does not exceed a positive "
@@ -1131,6 +1219,10 @@ def main():
 
     (OUT / "fig2_values.json").write_text(json.dumps({
         "kernel": "Kendall tau_b",
+        "wtau_note": "weighted tau (rank=True) is never plotted; its value and floor are "
+                     "carried per row only so the caption can name the tau_b verdicts a "
+                     "both-kernel rule would not return. Source: the wtau block of "
+                     + REPORT_TXT.name,
         "decision_rule": "value > 97.5th percentile of the estimator's measured null at "
                          "the value's own n and its own score-primitive rank correlation",
         "run_record": _rel(run_record()),
@@ -1140,6 +1232,8 @@ def main():
                       ci95=[r.lo, r.hi] if r.lo is not None else None, n=r.n, rho=r.rho,
                       null_mean=r.floor_mean, null_p97_5=r.floor, null_cell=r.floor_cell,
                       null_files=r.floor_files, clears_own_floor=r.clears,
+                      wtau=r.wtau, wtau_null_mean=r.wtau_mean, wtau_null_p97_5=r.wtau_floor,
+                      clears_own_wtau_floor=r.clears_wtau,
                       subsample_3000=r.subsample, reason=r.reason, sources=r.sources)
                  for r in rows],
         "caption": cap,

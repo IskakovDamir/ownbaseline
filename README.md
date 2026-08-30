@@ -261,6 +261,20 @@ detail in the commit messages and in `tests/test_estimator.py`.
   `figures/deprecated/make_paper_a_figures.py` because its literals are what the
   pre-2026-08 manuscript was traced against. The full before/after is
   `04-experiments/2026-08-29-figure2-provenance.md` in the vault.
+- **The figures were drawn to no page in particular — retargeted 2026-08-30.**
+  Figure 2 was emitted at 10.2 in wide, 1.6× the ML4H text block and 3.2× a
+  column, with a side table set in 6.6pt type. Nothing about it survived
+  reduction to a 3.18 in column. Figure 2 is now two variants built from the
+  same rows: `fig2_body.pdf` at 3.18 in (`\begin{figure}`) carrying only the
+  seven scores measured on the ordinal, and `fig2_appendix.pdf` at 6.50 in
+  (`\begin{figure*}`) carrying all fourteen rows, the n / floor / verdict table
+  and the by-construction band. Figure 3 is 6.50 in for a reason the script
+  measures and prints on every run: side by side in one column each panel gets
+  1.03 in of plotting width, against 2.06 in for its own title and 1.38 in for
+  its two x tick labels at 7pt. Nothing on a retargeted figure is set below 7pt
+  at final size — `FontLedger.enforce()` raises rather than shrinking type —
+  and each run reads the rendered width back out of the written PDF's MediaBox
+  instead of trusting the `figsize` it asked for.
 - **Two residual implementations, not merged.** `rank_resid_multi` (the
   track-2 estimator) fits by least squares with an intercept and takes any
   number of covariates. `rank_residual` / `_rank_residual` in `experiments/w4`,
@@ -286,6 +300,10 @@ scores/                score implementations used in the audit
 experiments/           every run script, verbatim, organized as it was run
 figures/               the manuscript's figures, each value read from a run artefact
   make_paper_a_figures.py  reads data/run_record/ + the null-calibration grid
+  fig2_body.pdf        3.18 in, figure  — the 7 rows measured on the ordinal
+  fig2_appendix.pdf    6.50 in, figure* — all 14 rows, side table, band
+  fig3.pdf             6.50 in, figure* — the depth confound, two panels
+  fig2_*_caption.txt   the caption generated for each variant
   deprecated/          the pre-2026-08-29 literal-only script, kept for tracing
 tests/                 known-answer tests
 reproduce.py           the reproduction entry point

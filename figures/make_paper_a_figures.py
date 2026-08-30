@@ -2,9 +2,34 @@
 """
 Paper A figures. Every plotted value is read from a run artefact.
 
-    python3 figures/make_paper_a_figures.py            # write figures/fig{1..4}.{png,pdf}
+    python3 figures/make_paper_a_figures.py            # write the figures and captions
     python3 figures/make_paper_a_figures.py --provenance  # + the provenance table
     python3 figures/make_paper_a_figures.py --crosscheck  # + compare to $OWNBASELINE_DATA_ROOT
+
+OUTPUTS
+-------
+    figures/fig2_body.pdf       3.18 in, \begin{figure}  — the 7 measured rows
+    figures/fig2_appendix.pdf   6.50 in, \begin{figure*} — all 14 rows + side table
+    figures/fig3.pdf            6.50 in, \begin{figure*} — the depth confound
+    figures/fig1.{png,pdf}, figures/fig4.{png,pdf}
+    figures/fig2_body_caption.txt, figures/fig2_appendix_caption.txt
+    figures/fig2_values.json
+
+PAGE GEOMETRY
+-------------
+ML4H 2026 is jmlr.cls with pmlr, twocolumn, 10pt: a 229.87749pt column and a
+469.75499pt text block, i.e. 3.18 in and 6.50 in, over 10pt body text. The
+retargeted figures are emitted at exactly those widths, so \\includegraphics
+needs no scale factor and nothing on them is set below 7pt at final size. Both
+are enforced rather than claimed: FontLedger.enforce() raises on type below the
+floor, and each run reads the width back out of the written PDF's own MediaBox.
+
+Figure 2 comes in two variants from one `rows` object. The body variant carries
+only the scores measured on the ordinal, because a fourteen-row audit with a
+reason on each row cannot be read at 3.18 in; the n / floor / verdict side table
+it has no width for moves into its caption. The appendix variant is the full
+audit and is where the rows that carry no value live. Figure 3 is a figure* for
+a measured reason, printed by fig3_column_fit() on every run.
 
 WHY THIS FILE WAS REWRITTEN
 ---------------------------
@@ -81,6 +106,97 @@ NULL_RESULTS = REPO / "experiments" / "null_calibration" / "results"
 def run_record() -> Path:
     override = os.environ.get("OWNBASELINE_RUN_RECORD")
     return Path(override).expanduser().resolve() if override else REPO / "data" / "run_record"
+
+
+# --------------------------------------------------------------- page geometry
+#
+# ML4H 2026 is jmlr.cls with the pmlr, twocolumn, 10pt options. That template's
+# own \the\columnwidth and \the\textwidth are 229.87749pt and 469.75499pt in TeX
+# points (1/72.27 in), i.e. 3.1808 in and 6.5000 in, over 10pt body text.
+#
+# Every retargeted figure is emitted at exactly the width it will occupy, so
+# \includegraphics carries no scale factor and the point sizes requested below
+# are the point sizes on the printed page. COLUMN_W_IN is 3.18 rather than the
+# full 3.1808: 0.0008 in (0.06pt) inside the measured column, so a body figure
+# cannot overfull it.
+TEX_PT_PER_IN = 72.27
+COLUMN_W_PT = 229.87749
+TEXT_W_PT = 469.75499
+COLUMN_W_IN = 3.18                     # \columnwidth, \begin{figure}
+TEXT_W_IN = 6.50                       # \textwidth,   \begin{figure*}
+MIN_PT = 7.0                           # nothing smaller survives next to 10pt body text
+
+
+class TypographyTooSmall(RuntimeError):
+    """
+    A retargeted figure asked for type below MIN_PT at final size. Raised rather
+    than warned: shrinking the font is the one way of fitting a figure into a
+    column that costs the reader the figure.
+    """
+
+
+class FontLedger:
+    """
+    Every font size on a retargeted figure is requested through one of these, so
+    the smallest size actually used is measured and enforced rather than claimed.
+    The figure is emitted at its final width and LaTeX rescales nothing, so the
+    number recorded here is the number on the page.
+    """
+
+    def __init__(self, name, floor_pt=MIN_PT):
+        self.name = name
+        self.floor_pt = floor_pt
+        self.used = {}                 # pt -> {what it is used for}
+
+    def __call__(self, pt, what):
+        pt = round(float(pt), 2)
+        self.used.setdefault(pt, set()).add(what)
+        return pt
+
+    @property
+    def smallest(self):
+        return min(self.used) if self.used else None
+
+    def enforce(self):
+        below = {pt: sorted(w) for pt, w in self.used.items()
+                 if self.floor_pt is not None and pt < self.floor_pt - 1e-9}
+        if below:
+            raise TypographyTooSmall(f"{self.name}: {below} below the "
+                                     f"{self.floor_pt:g}pt floor at final size")
+
+    def report(self):
+        s = self.smallest
+        return (f"{self.name}: smallest type {s:.1f}pt at final size "
+                f"({'; '.join(sorted(self.used[s]))})")
+
+
+_MEDIABOX = re.compile(rb"/MediaBox\s*\[\s*([\d.eE+-]+)\s+([\d.eE+-]+)\s+"
+                       rb"([\d.eE+-]+)\s+([\d.eE+-]+)\s*\]")
+
+
+def pdf_size_inches(path):
+    """
+    (width, height) in inches read back out of the written PDF's own MediaBox,
+    so the width reported is the width of the file rather than the width that
+    was asked for. PDF user space is 1/72 in, which is what \\includegraphics
+    assumes when no scale is given.
+    """
+    m = _MEDIABOX.search(Path(path).read_bytes())
+    if not m:                                           # pragma: no cover
+        raise RuntimeError(f"no /MediaBox in {path}: its width cannot be verified")
+    x0, y0, x1, y1 = (float(g) for g in m.groups())
+    return (x1 - x0) / 72.0, (y1 - y0) / 72.0
+
+
+def report_width(path, target_in, ledger=None):
+    """One line per emitted figure: the width of the file, against its target."""
+    w, h = pdf_size_inches(path)
+    flag = "ok" if abs(w - target_in) <= 0.005 else "MISMATCH"
+    line = (f"  {Path(path).name:22} {w:.4f} x {h:.4f} in   "
+            f"(target width {target_in:.2f} in) {flag}")
+    if ledger is not None:
+        line += f"\n  {'':22} {ledger.report()}"
+    return line
 
 
 # ---------------------------------------------------------------- artefacts
@@ -569,11 +685,21 @@ def subsample_penalty(rows):
     return (min(ratios), max(ratios), n_ref) if ratios else None
 
 
-def caption(rows) -> str:
+def caption(rows, variant="appendix") -> str:
     """
     Built from the rows that were actually drawn, so the caption cannot drift
     away from the figure the way the deprecated one did.
+
+    variant="appendix"  the figure that carries every row: the caption this file
+                        has always generated, relabelled, plus one sentence
+                        saying which rows the body figure does not draw.
+    variant="body"      the column-width figure: the same decision rule and the
+                        same numbers for the measured rows, carrying the n, floor
+                        and verdict that the dropped side table used to hold, and
+                        naming the appendix figure the rest of the audit is in.
     """
+    if variant not in ("body", "appendix"):                      # pragma: no cover
+        raise ValueError(f"unknown caption variant {variant!r}")
     meas = [r for r in rows if r.kind == "measured"]
     clear = [r for r in meas if r.clears]
     fail = [r for r in meas if r.clears is False]
@@ -584,11 +710,13 @@ def caption(rows) -> str:
     off = [r for r in rows if r.kind == "off-ordinal"]
     out = [r for r in rows if r.kind == "out-of-class"]
     band = [r for r in rows if r.kind == "by-construction"]
+    valueless = blocked + off + out + band
     ns = sorted({r.n for r in meas}, reverse=True)
     sub = [r.score for r in meas if r.subsample]
     floors = [r.floor for r in meas if r.floor is not None]
     negative = [r.score for r in fail if r.tau is not None and r.tau <= 0]
     pen = subsample_penalty(rows)
+    label = "Figure 2" if variant == "body" else APPENDIX_FIG
 
     def names(rs):
         rs = [r.score if isinstance(r, Row) else r for r in rs]
@@ -596,7 +724,7 @@ def caption(rows) -> str:
 
     if not meas:
         return (
-            "Figure 2 | Field audit on a clean fine ordinal. No score could be placed: every row "
+            f"{label} | Field audit on a clean fine ordinal. No score could be placed: every row "
             f"is blocked and prints its reason. Blocked: {names(blocked)}. "
             f"Measured on another ordinal: {names(off)}. "
             f"Outside the audited class: {names(out)}. "
@@ -605,9 +733,9 @@ def caption(rows) -> str:
             "nothing to draw.")
 
     floor_span = (f"({min(floors):+.4f} to {max(floors):+.4f} here) " if floors else "")
-    return (
-        f"Figure 2 | Field audit on a clean fine ordinal: {len(clear)} of {len(meas)} measured "
-        f"scores carry ordering skill beyond their own declared primitive. "
+
+    # ---- the part both variants share: the rule, the floors, the verdicts
+    shared_rule = (
         f"Conditional skill of each score after rank-residualizing on the primitive its authors "
         f"declare, against the 12-stage Kimmel ordinal of GSE106474 (zebrafish whole embryos), "
         f"Kendall tau_b, seed 42. "
@@ -622,8 +750,10 @@ def caption(rows) -> str:
         + (f"{names(sub)} were measured on the shared seed-42 {min(ns):,}-cell subsample, which "
            f"raises their floors to {pen[0]:.2f}-{pen[1]:.2f} times the {pen[2]:,}-cell floor at "
            f"the same rho. " if pen else
-           f"{names(sub)} were measured on a {min(ns):,}-cell subsample. ")
-        + f"{names(clear)} exceed their own floors. "
+           f"{names(sub)} were measured on a {min(ns):,}-cell subsample. "))
+
+    shared_verdicts = (
+        f"{names(clear)} exceed their own floors. "
         + (f"{names(split)} {'clears' if len(split) == 1 else 'clear'} under tau_b only: "
            f"{'its' if len(split) == 1 else 'their'} weighted-tau "
            f"{'value' if len(split) == 1 else 'values'} of "
@@ -632,23 +762,75 @@ def caption(rows) -> str:
            f"{', '.join(f'{r.wtau_floor:+.4f}' for r in split)} at the same cell, so a rule "
            f"requiring both kernels would read {len(clear) - len(split)} of {len(meas)} here "
            f"rather than {len(clear)} of {len(meas)}. " if split else "")
-        + (
-        f"{names(fail)} do not")
+        + f"{names(fail)} do not"
         + (f"; {names(negative)} are negative, and a negative value does not exceed a positive "
            f"threshold — that is where the value sits, not a failed test" if negative else "")
-        + f". {names(blocked)} are blocked and carry no value: the reason is printed on the row. "
-        f"{names(off)} was measured, but on the sorted atlases rather than this ordinal, so it has "
-        f"a row and no bar. "
-        f"{names(out)} is supervised and so sits outside the unsupervised class audited here; it "
-        f"has a row and no bar for the same reason. "
-        f"{names(band)} are not measurements — each equals a transcriptome-entropy primitive by "
-        f"construction, no run produces a number for them, and they appear only in the shaded "
-        f"band at the foot of the plot, which carries no scale. "
-        f"Values: {'; '.join(f'{r.score} {r.tau:+.4f} [{r.lo:+.4f}, {r.hi:+.4f}] vs floor {r.floor:+.4f} at n={r.n:,}, rho={r.rho:+.4f}' for r in meas)}."
-    )
+        + ". ")
+
+    headline = (
+        f"{label} | Field audit on a clean fine ordinal: {len(clear)} of {len(meas)} measured "
+        f"scores carry ordering skill beyond their own declared primitive. ")
+
+    if variant == "body":
+        # The side table this variant has no column width for, printed per row.
+        table = "; ".join(
+            f"{r.score} {r.tau:+.4f} [{r.lo:+.4f}, {r.hi:+.4f}] vs its own floor "
+            f"{r.floor:+.4f} at n={r.n:,}, rho={r.rho:+.4f}, "
+            f"{'clears' if r.clears else 'does not clear'}"
+            for r in meas)
+        return (
+            headline
+            + f"Only the {len(meas)} scores measured on this ordinal are drawn here. The full "
+              f"{len(rows)}-row audit, which adds the {len(valueless)} rows that carry no value "
+              f"and prints the reason on each, is {APPENDIX_FIG}. "
+            + shared_rule
+            + shared_verdicts
+            + f"The rows not drawn here are in {APPENDIX_FIG}: {names(blocked)} blocked with no "
+              f"run artefact; {names(off)} measured, but on the sorted atlases rather than this "
+              f"ordinal; {names(out)} supervised and so outside the unsupervised class audited "
+              f"here; {names(band)} not measurements at all, each equal to a "
+              f"transcriptome-entropy primitive by construction. "
+            + f"Value, 95% interval, own floor, n, rho and verdict per row: {table}.")
+
+    return (
+        headline
+        + f"This is the full audit behind Figure 2, which draws the {len(meas)} measured rows "
+          f"only; the {len(valueless)} rows that carry no value are here, each with its reason. "
+        + shared_rule
+        + shared_verdicts
+        + f"{names(blocked)} are blocked and carry no value: the reason is printed on the row. "
+          f"{names(off)} was measured, but on the sorted atlases rather than this ordinal, so it "
+          f"has a row and no bar. "
+          f"{names(out)} is supervised and so sits outside the unsupervised class audited here; it "
+          f"has a row and no bar for the same reason. "
+          f"{names(band)} are not measurements — each equals a transcriptome-entropy primitive by "
+          f"construction, no run produces a number for them, and they appear only in the shaded "
+          f"band at the foot of the plot, which carries no scale. "
+        + f"Values: {'; '.join(f'{r.score} {r.tau:+.4f} [{r.lo:+.4f}, {r.hi:+.4f}] vs floor {r.floor:+.4f} at n={r.n:,}, rho={r.rho:+.4f}' for r in meas)}.")
 
 
 # ---------------------------------------------------------------- Figure 2
+#
+# Two variants of one audit, built from the same `rows`, so neither can carry a
+# number the other does not and neither can be regenerated without the other.
+#
+#   fig2_body.pdf      COLUMN_W_IN wide, \begin{figure}. Only the rows measured
+#                      on the ordinal. The n / floor / verdict side table is
+#                      dropped for want of column width; its content is in this
+#                      variant's caption and drawn in full in the appendix one.
+#   fig2_appendix.pdf  TEXT_W_IN wide, \begin{figure*}. Every row, the side
+#                      table, and the by-construction band. The rows that carry
+#                      no value belong here, where there is room to print why.
+#
+# Both lay out in inches: one data unit on y is one inch down the axes, so a row
+# is exactly as tall as its own wrapped text needs and no row is squeezed to fit
+# another. Row heights therefore differ inside the appendix variant, which is
+# what lets fourteen rows and their reasons fit on a page.
+#
+# Every block of running text is wrapped and every column is placed from a
+# measurement of the text itself, taken on a throwaway figure of the target
+# width before the real one is opened. A width guessed at 10.2 in is a width
+# that silently runs off the page at 3.18 in.
 
 CLEARS = "#1a7f37"
 FAILS = "#8a8a8a"
@@ -658,190 +840,460 @@ BANDC = "#9141ac"
 OFFC = "#3a6ea5"
 OUTC = "#4a4a4a"
 
+APPENDIX_FIG = "Figure A1"          # what the body caption calls the fourteen-row audit
 
-def make_fig2(rows):
-    import textwrap
+_KIND_COLOR = {"blocked": BLOCKC, "off-ordinal": OFFC, "out-of-class": OUTC,
+               "by-construction": BANDC}
+_KIND_LEAD = {"blocked": "blocked, no value drawn",
+              "off-ordinal": "not on this ordinal, no value drawn",
+              "out-of-class": "not in this figure's class, no value drawn"}
+_KIND_HATCH = {"blocked": "///", "off-ordinal": "\\\\", "out-of-class": "..."}
+_KIND_VERDICT = {"blocked": "not measured", "off-ordinal": "measured elsewhere",
+                 "out-of-class": "outside the class", "by-construction": "not a measurement"}
 
+
+class FloorMismatch(RuntimeError):
+    """
+    A floor about to be drawn disagrees with the floor the null-calibration run
+    itself printed for the same cell. Both variants refuse to be written in that
+    state: the floor markers are the argument, and a wrong one is worse than a
+    missing figure.
+    """
+
+
+def _floors_checked(rows):
+    """The existing cross-check, made a precondition of drawing either variant."""
+    bad, checked = check_floors(rows)
+    if bad:
+        raise FloorMismatch("; ".join(bad))
+    return checked
+
+
+class _TextMetrics:
+    """
+    Text extents in inches, in the figure font, for layout arithmetic.
+
+    Measured on a private canvas at DPI, not on the figure being laid out. At
+    the default 100 dpi the Agg renderer rounds every glyph advance to a whole
+    pixel and reports a string up to 7% narrower than the PDF backend will
+    actually set it — which is the difference between a wrapped line that fits
+    the page and one that runs off the right edge of it. At 1200 dpi the
+    reported width agrees with the width in the written PDF to about 0.05%.
+    """
+
+    DPI = 1200
+
+    def __init__(self):
+        import matplotlib.pyplot as plt
+        self._plt = plt
+        self._fig = plt.figure(figsize=(1.0, 1.0), dpi=self.DPI)
+        self._renderer = self._fig.canvas.get_renderer()
+        self._probe = self._fig.text(0, 0, "", fontsize=10)
+
+    def width(self, text, pt):
+        widest = 0.0
+        for line in str(text).split("\n"):
+            self._probe.set_text(line)
+            self._probe.set_fontsize(pt)
+            widest = max(widest, self._probe.get_window_extent(
+                renderer=self._renderer).width / self.DPI)
+        return widest
+
+    def wrap(self, text, width_in, pt):
+        """Greedy wrap to width_in inches. Explicit newlines are kept as breaks."""
+        out = []
+        for para in str(text).split("\n"):
+            cur = ""
+            for word in para.split():
+                trial = f"{cur} {word}".strip()
+                if cur and self.width(trial, pt) > width_in:
+                    out.append(cur)
+                    cur = word
+                else:
+                    cur = trial
+            out.append(cur)
+        return out
+
+    def close(self):
+        self._plt.close(self._fig)
+
+
+def _ylabel(r, dagger=False):
+    """Two lines: one line of 'score  |  primitive' does not fit a column."""
+    return f"{r.score}{' ‡' if dagger else ''}\n|  {r.primitive}"
+
+
+def _xlim_for(bars, axes_w_in, label_w_in, pad_in=0.022):
+    """
+    x limits leaving exactly enough room for the outboard value labels, solved
+    rather than guessed: the allowance is a fixed number of inches, so the data
+    span it costs depends on the span, which this inverts in closed form.
+    """
+    lo_raw = min([r.lo for r in bars] + [0.0])
+    hi_raw = max([r.hi for r in bars] + [0.0])
+    left_in = (label_w_in + pad_in) if any(r.tau < 0 for r in bars) else pad_in
+    right_in = (label_w_in + pad_in) if any(r.tau >= 0 for r in bars) else pad_in
+    span = (hi_raw - lo_raw) / (1.0 - (left_in + right_in) / axes_w_in)
+    xlo = lo_raw - left_in / axes_w_in * span
+    return xlo, xlo + span
+
+
+def _draw_bar_row(ax, r, y, bar_h, pt_value):
+    """One measured row: the bar, its bootstrap interval, its own floor marker."""
+    col = CLEARS if r.clears else FAILS
+    ax.barh(y, r.tau, height=bar_h, color=col, edgecolor="#333", lw=0.5, zorder=3)
+    ax.plot([r.lo, r.hi], [y, y], color="#111", lw=1.0, zorder=5)
+    for e in (r.lo, r.hi):
+        ax.plot([e, e], [y - bar_h * 0.30, y + bar_h * 0.30], color="#111", lw=1.0, zorder=5)
+    if r.tau >= 0:
+        ax.text(max(r.tau, r.hi) + 0.012, y, f"{r.tau:+.3f}", va="center",
+                ha="left", fontsize=pt_value, zorder=6)
+    else:
+        ax.text(min(r.tau, r.lo) - 0.012, y, f"{r.tau:+.3f}", va="center",
+                ha="right", fontsize=pt_value, zorder=6)
+    if r.floor is not None:
+        # this row's floor only, never a line across the plot: floors differ by
+        # n and by rho, so one threshold line would be a different claim. It is
+        # kept inside its own row band so it cannot be read as spanning rows.
+        ax.plot([r.floor, r.floor], [y - bar_h * 0.72, y + bar_h * 0.72], color=FLOORC,
+                lw=1.5, ls=(0, (2.0, 1.3)), zorder=7, solid_capstyle="butt")
+        if not r.clears:
+            ax.annotate("", xy=(r.floor, y), xytext=(max(r.tau, 0.0), y),
+                        arrowprops=dict(arrowstyle="->", color=FLOORC, lw=0.8,
+                                        linestyle=(0, (1.6, 1.6)), shrinkA=0,
+                                        shrinkB=2), zorder=6)
+
+
+TEXT_MARGIN_IN = 0.065      # left inset of every block of running text on a figure
+
+
+def _line_in(pt, leading=1.20):
+    return pt * leading / 72.0
+
+
+# ------------------------------------------------------ Figure 2, body variant
+
+def make_fig2_body(rows):
+    """
+    COLUMN_W_IN wide. Only the scores measured on the ordinal: a fourteen-row
+    audit with its reasons cannot be read at 3.18 in, and the rows that carry no
+    value are the ones that lose least by moving to the appendix figure, where
+    there is room to print the reason each of them carries instead of a number.
+    """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.patches as mp
     import matplotlib.pyplot as plt
-    import numpy as np
 
+    _floors_checked(rows)
+    fs = FontLedger("fig2_body")
     meas = [r for r in rows if r.kind == "measured"]
-    n_rows = len(rows)
-    has_sub = any(r.subsample for r in meas)
+    if not meas:
+        print("fig2_body skipped — no measured row to draw", file=sys.stderr)
+        return None
 
-    # Margins are held constant in inches, not in figure fractions, so adding a
-    # row does not push the legend around.
-    H = 0.54 * n_rows + 2.6
-    up = lambda inches: 1.0 - inches / H          # noqa: E731  (from the top)
-    dn = lambda inches: inches / H                # noqa: E731  (from the bottom)
-    fig = plt.figure(figsize=(10.2, H))
-    gs = fig.add_gridspec(1, 2, width_ratios=[2.35, 1.0], wspace=0.03,
-                          left=0.215, right=0.995, bottom=dn(1.50), top=up(1.30))
-    ax = fig.add_subplot(gs[0, 0])
-    axt = fig.add_subplot(gs[0, 1], sharey=ax)
+    pt_tick = fs(7.0, "y tick labels")
+    pt_value = fs(7.0, "per-bar values")
+    pt_xtick = fs(7.0, "x tick labels")
+    pt_xlab = fs(7.0, "x axis label")
+    pt_head = fs(8.5, "headline")
+    pt_leg = fs(7.0, "legend")
+    pt_foot = fs(7.0, "subsample footnote")
+    fs.enforce()
 
-    y = np.arange(n_rows)[::-1]
-    lo_val = min([r.lo for r in meas] + [0.0])
-    hi_val = max([r.hi for r in meas] + [0.0])
-    xlo, xhi = min(-0.32, lo_val - 0.12), max(0.80, hi_val + 0.16)
-
-    for yi, r in zip(y, rows):
-        if r.kind == "by-construction":
-            ax.add_patch(mp.Rectangle((xlo, yi - 0.5), xhi - xlo, 1.0,
-                                      facecolor="#f2ecf7", edgecolor="none", zorder=0))
-            continue
-        if r.kind in ("blocked", "off-ordinal", "out-of-class"):
-            c = {"blocked": BLOCKC, "off-ordinal": OFFC, "out-of-class": OUTC}[r.kind]
-            lead = {"blocked": "blocked, no value drawn",
-                    "off-ordinal": "not on this ordinal, no value drawn",
-                    "out-of-class": "not in this figure's class, no value drawn"}[r.kind]
-            hatch = {"blocked": "///", "off-ordinal": "\\\\", "out-of-class": "..."}[r.kind]
-            ax.barh(yi, 0.016, height=0.62, color="none", edgecolor=c,
-                    hatch=hatch, lw=0.9, zorder=3)
-            ax.text(0.034, yi, textwrap.fill(f"{lead} — {r.reason}", 74), va="center",
-                    fontsize=5.8, color=c, style="italic", linespacing=1.25)
-            continue
-
-        col = CLEARS if r.clears else FAILS
-        ax.barh(yi, r.tau, height=0.62, color=col, edgecolor="#333", lw=0.5, zorder=3)
-        ax.plot([r.lo, r.hi], [yi, yi], color="#111", lw=1.1, zorder=5)
-        for e in (r.lo, r.hi):
-            ax.plot([e, e], [yi - 0.13, yi + 0.13], color="#111", lw=1.1, zorder=5)
-        if r.tau >= 0:
-            ax.text(max(r.tau, r.hi) + 0.015, yi, f"{r.tau:+.3f}", va="center",
-                    ha="left", fontsize=7.2, zorder=6)
-        else:
-            ax.text(min(r.tau, r.lo) - 0.015, yi, f"{r.tau:+.3f}", va="center",
-                    ha="right", fontsize=7.2, zorder=6)
-
-        if r.floor is not None:
-            # this row's floor only: a dashed marker on the row band, never a
-            # line across the plot, because floors differ by n and by rho.
-            ax.plot([r.floor, r.floor], [yi - 0.37, yi + 0.37], color=FLOORC,
-                    lw=1.6, ls=(0, (2.2, 1.4)), zorder=7, solid_capstyle="butt")
-            if not r.clears:
-                ax.annotate("", xy=(r.floor, yi), xytext=(max(r.tau, 0.0), yi),
-                            arrowprops=dict(arrowstyle="->", color=FLOORC, lw=0.8,
-                                            linestyle=(0, (1.6, 1.6)), shrinkA=0,
-                                            shrinkB=2), zorder=6)
-
-    ax.axvline(0, color="#888", lw=0.9, zorder=2)
-    ax.set_yticks(y)
-    ax.set_yticklabels([r.label for r in rows], fontsize=7.4)
-    for tick, r in zip(ax.get_yticklabels(), rows):
-        if r.kind == "by-construction":
-            tick.set_color(BANDC)
-            tick.set_fontstyle("italic")
-        elif r.kind == "blocked":
-            tick.set_color(BLOCKC)
-        elif r.kind == "off-ordinal":
-            tick.set_color(OFFC)
-        elif r.kind == "out-of-class":
-            tick.set_color(OUTC)
-    ax.set_ylim(-0.70, n_rows - 0.30)
-    ax.set_xlim(xlo, xhi)
-    ax.set_xlabel("conditional skill beyond the declared primitive   (Kendall tau_b)",
-                  fontsize=8, labelpad=4)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.tick_params(axis="x", labelsize=7)
-
-    # ---- per-row column: n, this row's own floor, and the verdict in words
-    axt.set_xlim(0, 1)
-    axt.axis("off")
-    head_y = n_rows - 0.42
-    axt.text(0.03, head_y, "n", fontsize=6.6, fontweight="bold", ha="left")
-    axt.text(0.40, head_y, "its own floor", fontsize=6.6, fontweight="bold", ha="right")
-    axt.text(0.48, head_y, "clears it?", fontsize=6.6, fontweight="bold", ha="left")
-    for yi, r in zip(y, rows):
-        if r.kind == "measured":
-            axt.text(0.03, yi, f"{r.n:,}" + (" \u2021" if r.subsample else ""),
-                     fontsize=6.6, va="center", ha="left",
-                     color=FLOORC if r.subsample else "#333")
-            axt.text(0.40, yi, f"{r.floor:+.4f}" if r.floor is not None else "—",
-                     fontsize=6.6, va="center", ha="right", color=FLOORC)
-            verdict = "yes" if r.clears else ("no — negative" if r.tau <= 0 else "no")
-            axt.text(0.48, yi, verdict, fontsize=6.9, va="center", ha="left",
-                     color=CLEARS if r.clears else FAILS,
-                     fontweight="bold" if r.clears else "normal")
-        elif r.kind == "blocked":
-            axt.text(0.03, yi, "—", fontsize=6.6, va="center", color=BLOCKC)
-            axt.text(0.48, yi, "not measured", fontsize=6.9, va="center",
-                     ha="left", color=BLOCKC, style="italic")
-        elif r.kind == "off-ordinal":
-            axt.text(0.03, yi, "—", fontsize=6.6, va="center", color=OFFC)
-            axt.text(0.48, yi, "measured elsewhere", fontsize=6.9, va="center",
-                     ha="left", color=OFFC, style="italic")
-        elif r.kind == "out-of-class":
-            axt.text(0.03, yi, "—", fontsize=6.6, va="center", color=OUTC)
-            axt.text(0.48, yi, "outside the class", fontsize=6.9, va="center",
-                     ha="left", color=OUTC, style="italic")
-        else:
-            axt.text(0.03, yi, "—", fontsize=6.6, va="center", color=BANDC)
-            axt.text(0.48, yi, "not a measurement", fontsize=6.9, va="center",
-                     ha="left", color=BANDC, style="italic")
-
-    band = [r for r in rows if r.kind == "by-construction"]
-    if band:
-        y_band = [yi for yi, r in zip(y, rows) if r.kind == "by-construction"]
-        ax.text(xlo + 0.014, min(y_band) - 0.44,
-                "by construction \u2248 a transcriptome-entropy primitive: no run produces a "
-                "number, so no value is plotted",
-                fontsize=6.3, color=BANDC, style="italic", va="bottom")
-
+    W = COLUMN_W_IN
+    ROW_H, BAR_H = 0.285, 0.150
+    RIGHT_IN = 0.05
     n_clear = sum(1 for r in meas if r.clears)
-    fig.text(0.215, up(0.42),
-             f"Field audit on a clean fine ordinal (zebrafish GSE106474, 12 stages)",
-             fontsize=10.0, ha="left", va="top")
+    pen = subsample_penalty(rows)
+    ylabels = [_ylabel(r, r.subsample) for r in meas]
+    head = f"{n_clear} of {len(meas)} measured scores clear their own null floor"
+    xlab = "conditional skill beyond the declared primitive\n(Kendall tau_b)"
+    foot = ""
+    if any(r.subsample for r in meas):
+        n_sub = min(r.n for r in meas if r.subsample)
+        detail = (f"{pen[0]:.2f}–{pen[1]:.2f}× the {pen[2]:,}-cell floor at the same rho"
+                  if pen else "a higher floor")
+        foot = (f"‡ seed-42 {n_sub:,}-cell subsample; a smaller n raises the floor, so "
+                f"these rows face {detail}")
+
+    # ---- measure first, then choose the height the measurements imply
+    pm = _TextMetrics()
+    LEFT_IN = max(pm.width(t, pt_tick) for t in ylabels) + 0.07
+    label_w = max(pm.width(f"{r.tau:+.3f}", pt_value) for r in meas)
+    run_w = W - 2 * TEXT_MARGIN_IN
+    head_lines = pm.wrap(head, run_w, pt_head)
+    xlab_lines = pm.wrap(xlab, run_w, pt_xlab)
+    foot_lines = pm.wrap(foot, run_w, pt_foot) if foot else []
+    pm.close()
+
+    HEAD_IN = 0.07 + len(head_lines) * _line_in(pt_head, 1.25)
+    XAXIS_IN = 0.20 + len(xlab_lines) * _line_in(pt_xlab, 1.30)
+    FOOT_IN = (0.06 + len(foot_lines) * _line_in(pt_foot, 1.25)) if foot_lines else 0.0
+    LEG_IN = 2 * _line_in(pt_leg, 1.55) + 0.04          # two legend rows
+    AX_H = ROW_H * len(meas)
+    H = HEAD_IN + AX_H + XAXIS_IN + FOOT_IN + LEG_IN
+    axes_w = W - LEFT_IN - RIGHT_IN
+
+    fig = plt.figure(figsize=(W, H))
+    xlo, xhi = _xlim_for(meas, axes_w, label_w)
+    ax = fig.add_axes([LEFT_IN / W, (LEG_IN + FOOT_IN + XAXIS_IN) / H,
+                       axes_w / W, AX_H / H])
+    y = [AX_H - (i + 0.5) * ROW_H for i in range(len(meas))]
+    for yi, r in zip(y, meas):
+        _draw_bar_row(ax, r, yi, BAR_H, pt_value)
+
+    ax.axvline(0, color="#888", lw=0.8, zorder=2)
+    ax.set_yticks(y)
+    ax.set_yticklabels(ylabels, fontsize=pt_tick, linespacing=1.15)
+    ax.set_ylim(0, AX_H)
+    ax.set_xlim(xlo, xhi)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.tick_params(axis="x", labelsize=pt_xtick, pad=1.5)
+    ax.tick_params(axis="y", length=0, pad=2)
+
+    # the x label is centred on the figure, not on the axes: the axes are pushed
+    # right by the y labels, and a label centred on them runs off the column.
+    xm = TEXT_MARGIN_IN / W
+    fig.text(0.5, (LEG_IN + FOOT_IN + 0.035) / H, "\n".join(xlab_lines),
+             fontsize=pt_xlab, ha="center", va="bottom", linespacing=1.30)
+    fig.text(xm, 1.0 - 0.045 / H, "\n".join(head_lines),
+             fontsize=pt_head, ha="left", va="top", linespacing=1.25)
+    if foot_lines:
+        fig.text(xm, (LEG_IN + 0.030) / H, "\n".join(foot_lines), fontsize=pt_foot,
+                 color=FLOORC, style="italic", ha="left", va="bottom", linespacing=1.25)
+
+    handles = [
+        mp.Patch(facecolor=CLEARS, edgecolor="#333", lw=0.5, label="clears its own floor"),
+        mp.Patch(facecolor=FAILS, edgecolor="#333", lw=0.5, label="does not clear"),
+        plt.Line2D([0], [0], color=FLOORC, lw=1.5, ls=(0, (2.0, 1.3)),
+                   label="that row's own null floor"),
+        plt.Line2D([0], [0], color="#111", lw=1.0, label="95% bootstrap CI"),
+    ]
+    fig.legend(handles=handles, fontsize=pt_leg, loc="lower left", frameon=False,
+               bbox_to_anchor=(0.006, 0.018 / H), ncol=2, handlelength=1.9,
+               columnspacing=0.9, labelspacing=0.35, handletextpad=0.45,
+               borderpad=0.0, borderaxespad=0.0)
+
+    out = OUT / "fig2_body.pdf"
+    fig.savefig(out)
+    plt.close(fig)
+    print(f"fig2_body ok -> {out}")
+    return fs
+
+
+# -------------------------------------------------- Figure 2, appendix variant
+
+def make_fig2_appendix(rows):
+    """
+    TEXT_W_IN wide, for \\begin{figure*}. Every row the audit considered, the
+    per-row n / floor / verdict table, and the by-construction band. Rows are
+    given individual heights so a three-line reason is not compressed into the
+    height of a bar, and the table columns are placed from the measured width of
+    their own longest entry.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.patches as mp
+    import matplotlib.pyplot as plt
+
+    _floors_checked(rows)
+    fs = FontLedger("fig2_appendix")
+    meas = [r for r in rows if r.kind == "measured"]
+    band = [r for r in rows if r.kind == "by-construction"]
+
+    pt_tick = fs(7.0, "y tick labels")
+    pt_value = fs(7.0, "per-bar values")
+    pt_xtick = fs(7.0, "x tick labels")
+    pt_xlab = fs(7.5, "x axis label")
+    pt_reason = fs(7.0, "per-row reasons")
+    pt_table = fs(7.0, "n / floor / verdict table")
+    pt_head = fs(9.0, "headline")
+    pt_sub = fs(7.5, "sub-headline")
+    pt_leg = fs(7.0, "legend")
+    pt_foot = fs(7.0, "subsample footnote")
+    fs.enforce()
+
+    W = TEXT_W_IN
+    BAR_H, MEAS_ROW_H, BAND_ROW_H = 0.150, 0.250, 0.235
+    RIGHT_IN, GAP_IN, STUB_IN = 0.04, 0.17, 0.055
+    n_clear = sum(1 for r in meas if r.clears)
     n_blocked = len([r for r in rows if r.kind == "blocked"])
     n_off = len([r for r in rows if r.kind == "off-ordinal"])
     n_out = len([r for r in rows if r.kind == "out-of-class"])
-    fig.text(0.215, up(0.80),
-             f"{n_clear} of {len(meas)} measured scores exceed their own measured null floor\n"
-             f"every score considered has a row: {n_blocked} blocked, "
-             f"{n_off} measured on another ordinal, {n_out} outside the audited class, "
-             f"{len(band)} never measured",
-             fontsize=7.6, ha="left", va="top", color="#555", linespacing=1.5)
-
     pen = subsample_penalty(rows)
-    if has_sub:
+
+    ylabels = [_ylabel(r) for r in rows]
+    head = "Field audit on a clean fine ordinal (zebrafish GSE106474, 12 stages)"
+    sub = (f"The full audit behind Figure 2, which draws the {len(meas)} measured rows "
+           f"only. Every score considered has a row: {len(meas)} measured, {n_blocked} "
+           f"blocked, {n_off} measured on another ordinal, {n_out} outside the audited "
+           f"class, {len(band)} never measured.")
+    xlab = "conditional skill beyond the declared primitive   (Kendall tau_b)"
+    foot = ""
+    if any(r.subsample for r in meas):
         n_sub = min(r.n for r in meas if r.subsample)
-        detail = (f"{pen[0]:.2f}\u2013{pen[1]:.2f}\u00d7 the {pen[2]:,}-cell floor at the same rho"
+        detail = (f"{pen[0]:.2f}–{pen[1]:.2f}× the {pen[2]:,}-cell floor at the same rho"
                   if pen else "a higher floor")
-        fig.text(0.215, dn(0.95),
-                 f"\u2021 measured on the shared seed-42 {n_sub:,}-cell subsample; a smaller n "
-                 f"raises the floor, so these rows face {detail}",
-                 fontsize=6.2, color=FLOORC, style="italic", ha="left")
+        foot = (f"‡ measured on the shared seed-42 {n_sub:,}-cell subsample; a smaller n "
+                f"raises the floor, so these rows face {detail}")
+
+    n_txt = [f"{r.n:,}" + (" ‡" if r.subsample else "") if r.kind == "measured" else "—"
+             for r in rows]
+    floor_txt = [(f"{r.floor:+.4f}" if r.floor is not None else "—")
+                 if r.kind == "measured" else "" for r in rows]
+    verdict_txt = [("yes" if r.clears else ("no — negative" if r.tau <= 0 else "no"))
+                   if r.kind == "measured" else _KIND_VERDICT[r.kind] for r in rows]
+
+    # ---- measure first: the table columns, the y labels, and how many lines
+    # each reason wraps to. Only then is the figure's height known.
+    pm = _TextMetrics()
+    LEFT_IN = max(pm.width(t, pt_tick) for t in ylabels) + 0.07
+    C_N = 0.02
+    C_FLOOR = C_N + max(pm.width(t, pt_table) for t in n_txt) + 0.12 \
+        + max([pm.width(t, pt_table) for t in floor_txt if t] or [0.0])
+    C_VERDICT = C_FLOOR + 0.09
+    TABLE_IN = C_VERDICT + max(pm.width(t, pt_table) for t in verdict_txt) + 0.02
+    TABLE_IN = max(TABLE_IN, pm.width("its own floor", pt_table) + C_N + 0.30)
+    axes_w = W - LEFT_IN - TABLE_IN - GAP_IN - RIGHT_IN
+
+    wrap_w = axes_w - STUB_IN - 0.06
+    wrapped, heights = {}, []
+    for r in rows:
+        if r.kind == "measured":
+            heights.append(MEAS_ROW_H)
+            continue
+        text = (r.reason if r.kind == "by-construction"
+                else f"{_KIND_LEAD[r.kind]} — {r.reason}")
+        lines = pm.wrap(text, wrap_w, pt_reason)
+        wrapped[r.score] = lines
+        base = BAND_ROW_H if r.kind == "by-construction" else MEAS_ROW_H
+        heights.append(max(base, len(lines) * _line_in(pt_reason, 1.18) + 0.075))
+    label_w = max(pm.width(f"{r.tau:+.3f}", pt_value) for r in meas) if meas else 0.30
+    run_w = W - 2 * TEXT_MARGIN_IN
+    head_lines = pm.wrap(head, run_w, pt_head)
+    sub_lines = pm.wrap(sub, run_w, pt_sub)
+    xlab_lines = pm.wrap(xlab, run_w, pt_xlab)
+    foot_lines = pm.wrap(foot, run_w, pt_foot) if foot else []
+    pm.close()
+
+    HEAD_IN = (0.06 + len(head_lines) * _line_in(pt_head, 1.25)
+               + 0.02 + len(sub_lines) * _line_in(pt_sub, 1.30) + 0.04)
+    TBLHEAD_IN = _line_in(pt_table, 1.35) + 0.03
+    XAXIS_IN = 0.20 + len(xlab_lines) * _line_in(pt_xlab, 1.30)
+    FOOT_IN = (0.06 + len(foot_lines) * _line_in(pt_foot, 1.25)) if foot_lines else 0.0
+    LEG_IN = 4 * _line_in(pt_leg, 1.55) + 0.04         # eight entries, two columns
+    AX_H = sum(heights)
+    H = HEAD_IN + TBLHEAD_IN + AX_H + XAXIS_IN + FOOT_IN + LEG_IN
+
+    fig = plt.figure(figsize=(W, H))
+    xlo, xhi = _xlim_for(meas, axes_w, label_w) if meas else (-0.32, 0.80)
+    x_in = lambda inches: xlo + inches / axes_w * (xhi - xlo)    # noqa: E731
+    w_in = lambda inches: inches / axes_w * (xhi - xlo)          # noqa: E731
+
+    bottom = (LEG_IN + FOOT_IN + XAXIS_IN) / H
+    ax = fig.add_axes([LEFT_IN / W, bottom, axes_w / W, AX_H / H])
+    axt = fig.add_axes([(LEFT_IN + axes_w + GAP_IN) / W, bottom,
+                        TABLE_IN / W, (AX_H + TBLHEAD_IN) / H])
+    axt.set_xlim(0, TABLE_IN)
+    axt.set_ylim(0, AX_H + TBLHEAD_IN)
+    axt.axis("off")
+
+    y, cursor = [], AX_H
+    for h in heights:
+        y.append(cursor - h / 2.0)
+        cursor -= h
+
+    for yi, h, r in zip(y, heights, rows):
+        if r.kind == "by-construction":
+            ax.add_patch(mp.Rectangle((xlo, yi - h / 2), xhi - xlo, h,
+                                      facecolor="#f2ecf7", edgecolor="none", zorder=0))
+            ax.text(x_in(0.06), yi, "\n".join(wrapped[r.score]), va="center",
+                    fontsize=pt_reason, color=BANDC, style="italic", linespacing=1.18,
+                    zorder=3)
+        elif r.kind == "measured":
+            _draw_bar_row(ax, r, yi, BAR_H, pt_value)
+        else:
+            # a marker, not a value: it sits at the left edge of the axes rather
+            # than at zero, so it cannot be read as a bar of some magnitude.
+            c = _KIND_COLOR[r.kind]
+            ax.barh(yi, w_in(STUB_IN), left=xlo, height=BAR_H, color="none",
+                    edgecolor=c, hatch=_KIND_HATCH[r.kind], lw=0.8, zorder=3)
+            ax.text(x_in(STUB_IN + 0.05), yi, "\n".join(wrapped[r.score]), va="center",
+                    fontsize=pt_reason, color=c, style="italic", linespacing=1.18,
+                    zorder=3)
+
+    ax.axvline(0, color="#888", lw=0.8, zorder=2)
+    ax.set_yticks(y)
+    ax.set_yticklabels(ylabels, fontsize=pt_tick, linespacing=1.15)
+    for tick, r in zip(ax.get_yticklabels(), rows):
+        if r.kind in _KIND_COLOR:
+            tick.set_color(_KIND_COLOR[r.kind])
+        if r.kind == "by-construction":
+            tick.set_fontstyle("italic")
+    ax.set_ylim(0, AX_H)
+    ax.set_xlim(xlo, xhi)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.tick_params(axis="x", labelsize=pt_xtick, pad=1.5)
+    ax.tick_params(axis="y", length=0, pad=2)
+
+    # ---- per-row column: n, this row's own floor, the verdict in words
+    for yi, r, nt, ft, vt in zip(y, rows, n_txt, floor_txt, verdict_txt):
+        c = CLEARS if (r.kind == "measured" and r.clears) else (
+            FAILS if r.kind == "measured" else _KIND_COLOR[r.kind])
+        axt.text(C_N, yi, nt, fontsize=pt_table, va="center", ha="left",
+                 color=(FLOORC if r.subsample else "#333") if r.kind == "measured" else c)
+        if ft:
+            axt.text(C_FLOOR, yi, ft, fontsize=pt_table, va="center", ha="right",
+                     color=FLOORC)
+        axt.text(C_VERDICT, yi, vt, fontsize=pt_table, va="center", ha="left", color=c,
+                 style="normal" if r.kind == "measured" else "italic",
+                 fontweight="bold" if (r.kind == "measured" and r.clears) else "normal")
+    for xpos, txt, ha in ((C_N, "n", "left"), (C_FLOOR, "its own floor", "right"),
+                          (C_VERDICT, "clears it?", "left")):
+        axt.text(xpos, AX_H + 0.035, txt, fontsize=pt_table, fontweight="bold", ha=ha,
+                 va="bottom")
+
+    xm = TEXT_MARGIN_IN / W
+    fig.text(xm, 1.0 - 0.045 / H, "\n".join(head_lines), fontsize=pt_head,
+             ha="left", va="top", linespacing=1.25)
+    fig.text(xm, 1.0 - (0.06 + len(head_lines) * _line_in(pt_head, 1.25) + 0.02) / H,
+             "\n".join(sub_lines), fontsize=pt_sub, ha="left", va="top", color="#555",
+             linespacing=1.30)
+    fig.text(0.5, (LEG_IN + FOOT_IN + 0.035) / H, "\n".join(xlab_lines),
+             fontsize=pt_xlab, ha="center", va="bottom", linespacing=1.30)
+    if foot_lines:
+        fig.text(xm, (LEG_IN + 0.030) / H, "\n".join(foot_lines), fontsize=pt_foot,
+                 color=FLOORC, style="italic", ha="left", va="bottom", linespacing=1.25)
 
     handles = [
         mp.Patch(facecolor=CLEARS, edgecolor="#333", lw=0.5,
                  label="clears its own null floor"),
-        plt.Line2D([0], [0], color=FLOORC, lw=1.6, ls=(0, (2.2, 1.4)),
-                   label="that row's floor: 97.5th pct of this score's measured null, "
-                         "at its own n and rho"),
-        mp.Patch(facecolor=FAILS, edgecolor="#333", lw=0.5,
-                 label="does not clear its own null floor"),
-        plt.Line2D([0], [0], color="#111", lw=1.1,
-                   label="95% bootstrap interval — sampling precision, not the verdict"),
         mp.Patch(facecolor="none", edgecolor=BLOCKC, hatch="///",
                  label="blocked — no run artefact; reason on the row"),
+        mp.Patch(facecolor=FAILS, edgecolor="#333", lw=0.5,
+                 label="does not clear its own null floor"),
         mp.Patch(facecolor="none", edgecolor=OFFC, hatch="\\\\",
-                 label="measured, but on another ordinal — not comparable here"),
+                 label="measured, but on another ordinal"),
+        plt.Line2D([0], [0], color=FLOORC, lw=1.5, ls=(0, (2.0, 1.3)),
+                   label="that row's floor: 97.5th pct of its own null, at its n and rho"),
         mp.Patch(facecolor="none", edgecolor=OUTC, hatch="...",
-                 label="outside the unsupervised class this figure audits"),
+                 label="outside the unsupervised class audited here"),
+        plt.Line2D([0], [0], color="#111", lw=1.0,
+                   label="95% bootstrap interval — sampling precision, not the verdict"),
         mp.Patch(facecolor="#f2ecf7", edgecolor="none",
                  label="by construction, never measured — no value"),
     ]
-    fig.legend(handles=handles, fontsize=6.4, loc="lower left", frameon=False,
-               bbox_to_anchor=(0.210, dn(0.10)), ncol=2, handlelength=2.6,
-               columnspacing=1.6, labelspacing=0.55)
+    fig.legend(handles=handles, fontsize=pt_leg, loc="lower left", frameon=False,
+               bbox_to_anchor=(0.006, 0.018 / H), ncol=2, handlelength=2.1,
+               columnspacing=1.4, labelspacing=0.35, handletextpad=0.45,
+               borderpad=0.0, borderaxespad=0.0)
 
-    fig.savefig(OUT / "fig2.png", dpi=200)
-    fig.savefig(OUT / "fig2.pdf")
+    out = OUT / "fig2_appendix.pdf"
+    fig.savefig(out)
     plt.close(fig)
-    print(f"fig2 ok -> {OUT/'fig2.png'}, {OUT/'fig2.pdf'}")
+    print(f"fig2_appendix ok -> {out}")
+    return fs
 
 
 
@@ -914,6 +1366,17 @@ def make_fig1():
 # ---------------------------------------------------------------- Figure 3
 # The depth confound, read from the two w4 atlas runs. Kendall tau_b: the
 # weighted-tau copy of the same run is not read by any figure here.
+#
+# Retargeted to TEXT_W_IN, i.e. \begin{figure*}, not to a column. The two panels
+# are a matched pair — the same measurement on two atlases, and the argument is
+# the contrast between them — so they are read side by side, and side by side at
+# COLUMN_W_IN gives each panel about 1.06 in of plotting width. Its own title
+# needs 2.0 in at 8pt and its two x tick labels need 1.40 in at 7pt, so the
+# labels would collide with each other before the title even started to fit.
+# fig3_column_fit() measures exactly that and prints it, so the choice is a
+# number rather than a taste. Stacking the two panels in one column would fit,
+# but costs about 3.6 in of column height in a four-page paper and turns a pair
+# into a sequence. Nothing here is shrunk below MIN_PT to make it fit.
 
 FIG3 = [
     dict(panel="a", title="Hematopoietic (sorted)", art="w4/c1_gse117498_results.json",
@@ -922,12 +1385,13 @@ FIG3 = [
          hi=("Stem Cell", "potency high"), lo=("Enterocyte", "potency low"), color="#2f7f4f"),
 ]
 
+# per-panel furniture, in inches, the same in either candidate layout
+F3_YAXIS_IN = 0.50        # rotated y label + y tick labels
+F3_GUTTER_IN = 0.12       # between a panel and the next panel's y axis
 
-def make_fig3():
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
 
+def _fig3_load():
+    """(panels, missing) — every number on Figure 3, from the run record."""
     panels, missing = [], []
     for spec in FIG3:
         got = {}
@@ -946,60 +1410,128 @@ def make_fig3():
             spec.setdefault("sources", {})[key] = f"{spec['art']}:{field}"
         if got:
             panels.append((spec, got))
+    return panels, missing
 
+
+def fig3_column_fit(panels, pt_title=8.0, pt_tick=MIN_PT):
+    """
+    Would the two panels fit side by side in one column without going below
+    MIN_PT? Measured in the figure font, not assumed. Returns (fits, lines).
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+
+    m = _TextMetrics()
+    n = max(len(panels), 1)
+    avail = (COLUMN_W_IN - n * F3_YAXIS_IN - (n - 1) * F3_GUTTER_IN) / n
+    lines = [f"  fig3 side-by-side at {COLUMN_W_IN:.2f} in: {avail:.2f} in of plotting "
+             f"width per panel"]
+    fits = True
+    for spec, g in panels:
+        title = f"{spec['title']}  (n = {g['n']:,})"
+        w_title = m.width(title, pt_title)
+        w_ticks = sum(m.width(f"({lab})", pt_tick) for lab in (spec["hi"][1], spec["lo"][1]))
+        fits &= (w_title <= avail and w_ticks <= avail)
+        lines.append(f"    panel {spec['panel']}: title {w_title:.2f} in at {pt_title:g}pt, "
+                     f"the two x tick labels {w_ticks:.2f} in at {pt_tick:g}pt "
+                     f"-> {'fits' if w_title <= avail and w_ticks <= avail else 'does not fit'}")
+    m.close()
+    lines.append(f"    verdict: {'fits' if fits else 'does not fit'} in one column "
+                 f"side by side at >= {MIN_PT:g}pt -> emitted at "
+                 f"{COLUMN_W_IN if fits else TEXT_W_IN:.2f} in")
+    return fits, lines
+
+
+def make_fig3():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    panels, missing = _fig3_load()
     if missing:
-        for m in missing:
-            print(f"  fig3 BLOCKED: {m}", file=sys.stderr)
+        for x in missing:
+            print(f"  fig3 BLOCKED: {x}", file=sys.stderr)
     if not panels:
         print("fig3 skipped — no w4 artefacts in the run record", file=sys.stderr)
-        return missing
+        return missing, None, None
 
-    fig = plt.figure(figsize=(6.0, 2.9))
-    gs = fig.add_gridspec(1, len(panels), wspace=0.42, left=0.10, right=0.98,
-                          bottom=0.24, top=0.80)
+    fits, fit_lines = fig3_column_fit(panels)
+    for line in fit_lines:
+        print(line, file=sys.stderr)
+
+    fs = FontLedger("fig3")
+    pt_letter = fs(10.0, "panel letters")
+    pt_title = fs(8.0, "panel titles")
+    pt_ylab = fs(7.5, "y axis labels")
+    pt_ytick = fs(7.0, "y tick labels")
+    pt_xtick = fs(7.0, "x tick labels")
+    pt_bar = fs(7.0, "bar values")
+    pt_note = fs(7.0, "per-panel notes")
+    pt_foot = fs(7.0, "source footnote")
+    fs.enforce()
+
+    W = TEXT_W_IN                       # \begin{figure*}: see fig3_column_fit above
+    n = len(panels)
+    TOP_IN, XTICK_IN, FOOT_IN = 0.38, 0.30, 0.20
+    AX_H = 1.62
+    H = TOP_IN + AX_H + XTICK_IN + FOOT_IN
+    cell_w = W / n
+    ax_w = cell_w - F3_YAXIS_IN - F3_GUTTER_IN
+
+    fig = plt.figure(figsize=(W, H))
+    m = _TextMetrics()
     for i, (spec, g) in enumerate(panels):
-        ax = fig.add_subplot(gs[0, i])
-        ax.text(-0.16, 1.08, spec["panel"], transform=ax.transAxes,
-                fontsize=11, fontweight="bold")
+        left = (i * cell_w + F3_YAXIS_IN) / W
+        ax = fig.add_axes([left, (XTICK_IN + FOOT_IN) / H, ax_w / W, AX_H / H])
+        ax.text(-F3_YAXIS_IN / ax_w, 1.085, spec["panel"], transform=ax.transAxes,
+                fontsize=pt_letter, fontweight="bold", va="bottom")
         vals = [g["hi_genes"], g["lo_genes"]]
-        ymax = max(vals) * 1.62
-        ax.bar([0, 1], vals, 0.56, color=[spec["color"], "#b0b0b0"],
+        inverted = vals[1] > vals[0]
+        col = "#b00000" if inverted else "#008000"
+        # The direction phrase leads the note instead of labelling the arrow: on a
+        # panel this size a label sitting on the arrow masks a bar's own value.
+        note = ((f"genes up as potency down: gene-count AUROC {g['auroc']:.3f}, below "
+                 f"chance. The naive 'score beats primitive' test then reads CT marginal "
+                 f"delta = {g['delta']:+.3f} as a WIN") if inverted else
+                (f"genes down as potency down: gene-count AUROC {g['auroc']:.3f}, "
+                 f"direction correct"))
+        note_lines = m.wrap(note, ax_w * 0.97, pt_note)
+        # headroom is solved, not guessed: the note block and the direction arrow
+        # both have to sit above the taller bar without meeting each other.
+        head_frac = (len(note_lines) * _line_in(pt_note, 1.25) + 0.10) / AX_H
+        LIFT_FRAC = 0.12
+        ymax = max(vals) / max(0.35, 1.0 - head_frac - LIFT_FRAC)
+        ax.bar([0, 1], vals, 0.52, color=[spec["color"], "#b0b0b0"],
                edgecolor="#555", linewidth=0.5)
         ax.set_xticks([0, 1])
         ax.set_xticklabels([f"{spec['hi'][0]}\n({spec['hi'][1]})",
-                            f"{spec['lo'][0]}\n({spec['lo'][1]})"], fontsize=6.0)
-        ax.set_ylabel("median detected genes", fontsize=7)
+                            f"{spec['lo'][0]}\n({spec['lo'][1]})"], fontsize=pt_xtick,
+                           linespacing=1.2)
+        ax.set_ylabel("median detected genes", fontsize=pt_ylab, labelpad=2)
         ax.set_ylim(0, ymax)
-        ax.set_xlim(-0.62, 1.62)
-        ax.tick_params(axis="y", labelsize=6.5)
+        ax.set_xlim(-0.70, 1.70)
+        ax.tick_params(axis="y", labelsize=pt_ytick, pad=1.5)
+        ax.tick_params(axis="x", length=0, pad=1.5)
+        ax.spines[["top", "right"]].set_visible(False)
         for v, x in zip(vals, (0, 1)):
             ax.text(x, v + 0.015 * ymax, f"{v:,.1f}", ha="center", va="bottom",
-                    fontsize=6.0, color="#333")
+                    fontsize=pt_bar, color="#333")
 
-        inverted = vals[1] > vals[0]
-        col = "#b00000" if inverted else "#008000"
-        lift = 0.105 * ymax
+        lift = LIFT_FRAC * ymax
         ax.annotate("", xy=(1, vals[1] + lift), xytext=(0, vals[0] + lift),
                     arrowprops=dict(arrowstyle="->", color=col, lw=1.0))
-        ax.text(0.42 if inverted else 0.34, (vals[0] + vals[1]) / 2 + lift - 0.115 * ymax,
-                "genes up as\npotency down" if inverted else "genes down as\npotency down",
-                ha="center", va="top", fontsize=5.8, color=col, linespacing=1.3)
-        note = (f"gene-count AUROC {g['auroc']:.3f}"
-                + (" — below chance\nthe naive 'score beats primitive' test then\n"
-                   f"reads CT marginal delta = {g['delta']:+.3f} as a WIN"
-                   if inverted else " — direction correct"))
-        ax.text(0.02, 0.985, note, transform=ax.transAxes, fontsize=5.4, va="top",
-                color=col, linespacing=1.35)
-        ax.set_title(f"{spec['title']}  (n = {g['n']:,})", fontsize=7.2, pad=3)
+        ax.text(0.015, 0.99, "\n".join(note_lines), transform=ax.transAxes,
+                fontsize=pt_note, va="top", color=col, linespacing=1.25)
+        ax.set_title(f"{spec['title']}  (n = {g['n']:,})", fontsize=pt_title, pad=3)
 
-    fig.text(0.5, 0.035,
-             "medians and AUROC read from the w4 run record; Kendall tau_b",
-             ha="center", fontsize=5.6, color="#555", style="italic")
-    fig.savefig(OUT / "fig3.png", dpi=200)
-    fig.savefig(OUT / "fig3.pdf")
+    fig.text(0.5, 0.035, "medians and AUROC read from the w4 run record; Kendall tau_b",
+             ha="center", va="bottom", fontsize=pt_foot, color="#555", style="italic")
+    m.close()
+    out = OUT / "fig3.pdf"
+    fig.savefig(out)
     plt.close(fig)
-    print(f"fig3 ok -> {OUT/'fig3.png'}")
-    return missing
+    print(f"fig3 ok -> {out}")
+    return missing, fs, fit_lines
 
 
 # ---------------------------------------------------------------- Figure 4
@@ -1197,18 +1729,34 @@ def main():
         print(f"  floor check: {checked} rows agree with {REPORT_TXT.name}", file=sys.stderr)
 
     want = set((args.only or "1,2,3,4").split(","))
+    # what was emitted at what width, so the widths can be checked rather than
+    # trusted: (path, the width it was targeted at, its font ledger)
+    emitted = []
     if "1" in want:
         make_fig1()
     if "2" in want:
-        make_fig2(rows)
+        fs_body = make_fig2_body(rows)
+        fs_app = make_fig2_appendix(rows)
+        emitted.append((OUT / "fig2_body.pdf", COLUMN_W_IN, fs_body))
+        emitted.append((OUT / "fig2_appendix.pdf", TEXT_W_IN, fs_app))
     if "3" in want:
-        make_fig3()
+        _, fs_fig3, _ = make_fig3()
+        if fs_fig3 is not None:
+            emitted.append((OUT / "fig3.pdf", TEXT_W_IN, fs_fig3))
     if "4" in want:
         make_fig4(rows)
 
-    cap = caption(rows)
-    (OUT / "fig2_caption.txt").write_text(cap + "\n")
-    print(f"caption -> {OUT/'fig2_caption.txt'}")
+    caps = {"fig2_body_caption.txt": caption(rows, "body"),
+            "fig2_appendix_caption.txt": caption(rows, "appendix")}
+    for name, text in caps.items():
+        (OUT / name).write_text(text + "\n")
+        print(f"caption -> {OUT/name}")
+
+    if emitted:
+        print("\nrendered size, read back from each PDF's own MediaBox:")
+        for path, target, ledger in emitted:
+            if path.is_file():
+                print(report_width(path, target, ledger))
 
     table = provenance(rows, grid)
     if args.provenance:
@@ -1236,7 +1784,12 @@ def main():
                       clears_own_wtau_floor=r.clears_wtau,
                       subsample_3000=r.subsample, reason=r.reason, sources=r.sources)
                  for r in rows],
-        "caption": cap,
+        "caption_body": caps["fig2_body_caption.txt"],
+        "caption_appendix": caps["fig2_appendix_caption.txt"],
+        "appendix_figure_label": APPENDIX_FIG,
+        "target_widths_in": {"fig2_body.pdf": COLUMN_W_IN,
+                             "fig2_appendix.pdf": TEXT_W_IN,
+                             "fig3.pdf": TEXT_W_IN},
     }, indent=2) + "\n")
     print(f"values -> {OUT/'fig2_values.json'}")
 

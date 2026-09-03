@@ -84,9 +84,19 @@ def main():
     ap.add_argument("--out", default="ddof_real_vectors.csv")
     args = ap.parse_args()
 
-    prep = data_root() / "track2/data/prepared"
     res_repo = data_root() / "track2/results"
     res_vault = DIAG / "track2/results"
+
+    # The primitives were looked for under data_root() only, so the docstring's
+    # instruction -- point $TAUTOLOGY_DIAGNOSTIC at a checkout of
+    # 06-code/tautology-diagnostic -- did not on its own make this runnable.
+    # Search both roots, in the same order the score vectors are searched.
+    prep = next((r / "track2/data/prepared" for r in (DIAG, data_root())
+                 if (r / "track2/data/prepared/primitives.npz").is_file()), None)
+    if prep is None:
+        raise SystemExit(
+            "primitives.npz not found under $TAUTOLOGY_DIAGNOSTIC or "
+            "$OWNBASELINE_DATA_ROOT at track2/data/prepared/")
 
     p = np.load(prep / "primitives.npz")
     prims = {"gene_count": p["gene_count"],

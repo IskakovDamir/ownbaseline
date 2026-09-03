@@ -41,9 +41,20 @@ sys.path.insert(0, str(next(p for p in Path(__file__).resolve().parents
 from own_baseline.conditional_skill import align, rank_resid_multi  # noqa: E402
 from own_baseline.paths import data_root  # noqa: E402
 
-DIAG = Path(os.environ.get(
-    "TAUTOLOGY_DIAGNOSTIC",
-    Path.home() / "damir-research-vault/06-code/tautology-diagnostic"))
+# Where the frozen per-cell score vectors live. Set $TAUTOLOGY_DIAGNOSTIC to the
+# directory holding track2/, fix3/ and w4/. Defaults to the repository's own data
+# root (see own_baseline/paths.py), so this module imports on any machine.
+DIAG = Path(os.environ.get("TAUTOLOGY_DIAGNOSTIC", data_root()))
+
+def _rel(path):
+    """Provenance without the machine. Records which vector was read, relative to
+    $TAUTOLOGY_DIAGNOSTIC, so the row identifies its source on any checkout and
+    carries no absolute home path."""
+    try:
+        return str(Path(path).resolve().relative_to(Path(DIAG).resolve()))
+    except ValueError:
+        return Path(path).name
+
 
 
 def rank_residual_ddof1(score, primitive):
@@ -137,7 +148,7 @@ def main():
                 "shift_ddof1_minus_ddof0": d1 - d0,
                 "shift_ddof1_minus_lstsq": d1 - ls,
                 "shift_ddof0_minus_lstsq": d0 - ls,
-                "source_npz": src,
+                "source_npz": _rel(src),
             })
         print(f"  {label:28s} n={n:6d} rho={rho:+.4f}  "
               f"wtau lstsq {w_ls:+.6f} ddof1 {w_d1:+.6f} (Δ {w_d1-w_ls:+.2e})  "

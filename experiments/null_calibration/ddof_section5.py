@@ -43,15 +43,24 @@ from scipy.stats import kendalltau, rankdata, spearmanr, weightedtau
 sys.path.insert(0, str(next(p for p in Path(__file__).resolve().parents
                             if (p / "own_baseline" / "paths.py").is_file())))
 from own_baseline.conditional_skill import align, rank_resid_multi  # noqa: E402
+from own_baseline.paths import data_root  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ddof_shift import (rank_residual_covvar,          # noqa: E402  ddof1, verbatim
                         rank_residual_covvar_ddof0,    # noqa: E402  ddof0, verbatim
                         draw as draw_matched)          # noqa: E402
 
-DIAG = Path(os.environ.get(
-    "TAUTOLOGY_DIAGNOSTIC",
-    Path.home() / "damir-research-vault/06-code/tautology-diagnostic"))
+# See ddof_real_vectors.py for the same convention.
+DIAG = Path(os.environ.get("TAUTOLOGY_DIAGNOSTIC", data_root()))
+
+
+def _rel(path):
+    """Provenance without the machine; see ddof_real_vectors._rel."""
+    try:
+        return str(Path(path).resolve().relative_to(Path(DIAG).resolve()))
+    except ValueError:
+        return Path(path).name
+
 N_SYNTH_SEEDS = 200
 BASE = 20260814
 
@@ -185,7 +194,7 @@ def main():
             "residual_implementation": "rank_resid_multi (lstsq, intercept)",
             "ddof_mismatch_expressible": int(k == 1),
             "basis": "real vectors",
-            "source_npz": str(f),
+            "source_npz": _rel(f),
             "slope_inflation_if_applied": n / (n - 1),
             "tau_wtau_lstsq": w_ls, "tau_taub_lstsq": k_ls,
         }

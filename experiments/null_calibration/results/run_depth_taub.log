@@ -1,3 +1,6 @@
+# Absolute paths in this log were rewritten for anonymity on 2026-09-03: the run's
+# data root is shown as $TAUTOLOGY_DIAGNOSTIC and the repository as $REPO. No other
+# character of the log was changed; every number and every filename is as it ran.
 [C1] loading population TSVs...
   HSC                        :   1282 cells x  25464 genes
   MPP                        :    215 cells x  25464 genes
@@ -29,7 +32,7 @@
   own-baseline: CT ...
   own-baseline: SR ...
   own-baseline: CCAT ...
-  written /Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/results/c1_gse117498_results.json
+  written $TAUTOLOGY_DIAGNOSTIC/w4/results/c1_gse117498_results.json
 [C2] loading raw UMI matrix (this reads ~19k genes x 14.5k cells)...
 [C2] matrix shape: 19,525 genes x 14,537 cells
 
@@ -49,9 +52,9 @@
   own-baseline: CT ...
   own-baseline: SR ...
   own-baseline: CCAT ...
-  written /Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/results/c2_gse125970_results.json
+  written $TAUTOLOGY_DIAGNOSTIC/w4/results/c2_gse125970_results.json
 
-SUMMARY written: /Users/damir/damir-research-vault/06-code/tautology-diagnostic/w4/results/summary.json
+SUMMARY written: $TAUTOLOGY_DIAGNOSTIC/w4/results/summary.json
 {
   "C1_GSE117498": {
     "CT": {

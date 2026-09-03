@@ -2,7 +2,7 @@
 5. THE DECISION RULE UNDER THE NULL
 ====================================================================================================
 
-source: /Users/damir/potency-ownbaseline/experiments/null_calibration/results/null_decision_rule.csv   rows: 720
+source: experiments/null_calibration/results/null_decision_rule.csv   rows: 720
 cells: [(3000, 0.5), (3000, 0.9), (3000, 0.998), (39505, 0.5), (39505, 0.9), (39505, 0.998)]
 
 

@@ -69,7 +69,11 @@ def main():
     print("=" * 100)
     print("5. THE DECISION RULE UNDER THE NULL")
     print("=" * 100)
-    print(f"\nsource: {path}   rows: {len(rows)}")
+    try:
+        shown = path.resolve().relative_to(HERE.parents[1])
+    except ValueError:
+        shown = path.name
+    print(f"\nsource: {shown}   rows: {len(rows)}")
     print("cells:", sorted({(r['n'], r['rho_target']) for r in rows}))
 
     # ---- the narrow leg, per kernel, k = 1 -------------------------------

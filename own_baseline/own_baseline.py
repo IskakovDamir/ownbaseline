@@ -59,7 +59,7 @@ potency score is a reparametrization of a fixed low-order statistic, so that
 cross-context agreement between such scores is guaranteed by construction
 rather than by biology. **That hypothesis was tested and refuted.**
 
-On a 12-stage microscopy-staged zebrafish ordinal (GSE106474, 39,505 whole-
+On a 12-stage visually staged zebrafish ordinal (GSE106474, 39,505 whole-
 embryo cells), of the seven scores that could be placed on the ordinal, five
 carry ordering skill beyond their own primitive, measured as Kendall tau_b
 after rank residualization:

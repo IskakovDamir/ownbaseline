@@ -185,7 +185,7 @@ anything. The two agree where both can run; `make_paper_a_figures.py
 
 ## What the audit found
 
-On a 12-stage microscopy-staged zebrafish ordinal (GSE106474, 39,505
+On a 12-stage visually staged zebrafish ordinal (GSE106474, 39,505
 whole-embryo cells), of the seven scores that could be placed on the ordinal,
 five carry ordering skill beyond their own primitive — Kendall τ_b after rank
 residualization, with the value after residualizing on all four low-order

@@ -630,3 +630,110 @@ def test_the_author_line_lives_in_exactly_one_place():
             if author in line:
                 hits.append(f"{p.relative_to(root)}:{i}")
     assert hits == ["own_baseline/__init__.py:32"] or len(hits) == 1, hits
+
+
+# ----------------------------------------------------------------- F11
+# the CLI conventions, from clig.dev
+
+def test_json_dash_puts_json_on_stdout_and_prose_on_stderr(h5ad, tmp_path, capsys):
+    """
+    `--json -` has to be pipeable. Anything human on stdout would break the
+    reader on the other end of the pipe, so it goes to stderr instead.
+    """
+    code = 0
+    try:
+        main(["check", h5ad, "--score", "obs:cytotrace", "--ordinal", "obs:stage",
+              "--ordinal-source", "experimental", "--boot", "20", "--no-floors",
+              "--json", "-"])
+    except SystemExit as e:
+        code = int(e.code or 0)
+    assert code == 0
+    cap = capsys.readouterr()
+    rep = json.loads(cap.out)                      # stdout must parse whole
+    assert rep["n_used"] == 900
+    assert "VERDICT" in cap.err                    # the prose went the other way
+
+
+def test_quiet_keeps_the_numbers_and_drops_the_prose(h5ad, tmp_path, capsys):
+    common = ["check", h5ad, "--score", "obs:cytotrace", "--ordinal", "obs:stage",
+              "--ordinal-source", "experimental", "--boot", "20", "--no-floors"]
+    main(common)
+    loud = capsys.readouterr().out
+    main([*common, "--quiet"])
+    quiet = capsys.readouterr().out
+    assert "conditional skill" in quiet and "VERDICT" in quiet
+    assert "Scope:" in loud and "Scope:" not in quiet
+    assert len(quiet.splitlines()) < len(loud.splitlines())
+
+
+def test_quiet_and_no_color_are_accepted_before_and_after_the_verb(h5ad, tmp_path):
+    """A global flag a user has to put in one particular place is a trap."""
+    args = ["check", h5ad, "--score", "obs:cytotrace", "--ordinal", "obs:stage",
+            "--ordinal-source", "experimental", "--boot", "10", "--no-floors"]
+    for variant in ([args[0], "--quiet", *args[1:]], [*args, "--quiet"],
+                    [args[0], "--no-color", *args[1:]], [*args, "--no-color"]):
+        code = 0
+        try:
+            main(variant)
+        except SystemExit as e:
+            code = int(e.code or 0)
+        assert code == 0, variant
+
+
+def test_the_frame_is_dropped_rather_than_wrapped_on_a_narrow_terminal(monkeypatch):
+    import importlib
+    import own_baseline.style as st
+    monkeypatch.setenv("OWNBASELINE_COLOR", "1")
+    monkeypatch.setenv("COLUMNS", "200")
+    importlib.reload(st)
+    wide = st.frame(["a line of some length here"])
+    monkeypatch.setenv("COLUMNS", "12")
+    narrow = st.frame(["a line of some length here"])
+    assert len(wide) == 3 and "╭" in wide[0]
+    assert narrow == ["a line of some length here"]
+    monkeypatch.setenv("OWNBASELINE_COLOR", "0")
+    importlib.reload(st)
+
+
+def test_the_frame_width_ignores_escape_sequences(monkeypatch):
+    import importlib
+    import own_baseline.style as st
+    monkeypatch.setenv("OWNBASELINE_COLOR", "1")
+    monkeypatch.setenv("COLUMNS", "200")
+    importlib.reload(st)
+    plain = st.frame(["abcdefghij"])
+    styled = st.frame([st.accent("abcdefghij")])
+    assert st.printable(plain[0]) == st.printable(styled[0])
+    monkeypatch.setenv("OWNBASELINE_COLOR", "0")
+    importlib.reload(st)
+
+
+def test_force_color_turns_colour_on(monkeypatch):
+    import importlib
+    import own_baseline.style as st
+    for k in ("OWNBASELINE_COLOR", "NO_COLOR", "COLORTERM"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    monkeypatch.setenv("TERM", "xterm-256color")
+    importlib.reload(st)
+    assert st.DEPTH > 0
+    monkeypatch.setenv("OWNBASELINE_COLOR", "0")
+    importlib.reload(st)
+
+
+def test_a_mistyped_verb_names_the_nearest_real_one(capsys):
+    with pytest.raises(SystemExit) as e:
+        main(["chekc"])
+    assert e.value.code == 2
+    assert "Did you mean 'check'" in capsys.readouterr().err
+
+
+def test_help_leads_with_examples_and_documents_the_exit_codes(capsys):
+    with pytest.raises(SystemExit):
+        main(["--help"])
+    text = capsys.readouterr().out
+    assert "examples" in text and "ownbaseline check cells.h5ad" in text
+    assert "exit codes" in text
+    for code in ("0  ", "2  ", "3  "):
+        assert code in text
+    assert "docs/interpreting.md" in text

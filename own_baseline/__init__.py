@@ -27,6 +27,8 @@ Layout:
     paths.py              where this repo reads and writes
     synthetic.py          synthetic generators for the self-tests
 """
+__version__ = "0.2.0"
+
 from .own_baseline import (
     ADDS_DELTA,
     REDUCES_DELTA,
@@ -61,6 +63,7 @@ from .potency_metrics import (
 from .paths import data_root, repo_root, scratch_root
 
 __all__ = [
+    "__version__",
     # marginal gap
     "run_own_baseline",
     "nnz_per_cell",

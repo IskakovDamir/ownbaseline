@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "own-baseline"
-version = "0.1.0"
+version = "0.2.0"
 description = "Does a single-cell potency score add anything beyond its own low-order primitive?"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -15,6 +15,9 @@ dependencies = ["numpy>=1.24", "scipy>=1.10", "scikit-learn>=1.2"]
 # needed by the score implementations, reproduce.py and the figures
 full = ["pandas>=2.0", "anndata>=0.10", "matplotlib>=3.7"]
 
+[project.scripts]
+ownbaseline = "own_baseline.cli:main"
+
 [project.urls]
 Repository = "https://github.com/IskakovDamir/potency-ownbaseline"
 
@@ -24,4 +27,4 @@ Repository = "https://github.com/IskakovDamir/potency-ownbaseline"
 packages = ["own_baseline", "own_baseline.atlas_run"]
 
 [tool.setuptools.package-data]
-own_baseline = ["paths.R"]
+own_baseline = ["paths.R", "data/null_floors.csv.gz"]

@@ -122,9 +122,14 @@ When your score is a rank-preserving function of its primitive, the least-square
 fit is exact and what comes back is the rounding error of the subtraction, at
 about 1e-12. That debris is monotone in the primitive rank, so where the
 primitive predicts the ordinal it inherits that association and both kernels
-score it: on a twelve-level staged ordinal, Kendall tau_b returns 0.71 to 0.87 in
-magnitude and the weighted kernel 0.62 to 0.93, with a sign that changes with the
-seed.
+score it: on a twelve-level staged ordinal both reach 0.87 in magnitude, with a
+sign that changes with the seed. How large it is on any one run depends on the
+machine, because the debris is the rounding error of a LAPACK least-squares fit:
+across sixteen measured cells, aarch64 with numpy 2.2 puts all of them between
+0.71 and 0.87, while x86_64 with numpy 2.4 puts fourteen there and collapses two
+toward zero, the two where the residual itself lands two to three orders smaller.
+So the number a kernel returns on debris cannot be quoted as a constant, and the
+guard is on the residual's size instead.
 
 `ownbaseline check` refuses to print a value in that regime. What separates a real
 residual from debris is magnitude: `own_baseline.cli.residual_scale` returns

@@ -328,8 +328,11 @@ detail in the commit messages and in `tests/test_estimator.py`.
   near 0.02, which is the fixture the defect was first recorded on and the
   narrower case. Where it does, which is Null B and the case the audit faces,
   the debris inherits that association: across four seeds and two coupling
-  strengths τ_b returns 0.71 to 0.87 in magnitude and `weightedtau` 0.62 to
-  0.93, with a sign that changes with the seed. The sham score in the Quick
+  strengths both kernels reach 0.87 in magnitude, with a sign that changes with
+  the seed. How large it is depends on the machine, because the debris is the
+  rounding error of a LAPACK least-squares fit: aarch64 with numpy 2.2 puts all
+  sixteen measured cells between 0.71 and 0.87, x86_64 with numpy 2.4 puts
+  fourteen there and collapses two toward zero. The sham score in the Quick
   start above is this: its τ_b of −0.6385 is the rounding pattern, not a
   measurement. What separates a residual from debris is its magnitude, not its
   τ: `own_baseline.cli.residual_scale` returns `max|resid| / (eps * n)`, real

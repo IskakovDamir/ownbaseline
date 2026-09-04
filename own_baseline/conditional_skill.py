@@ -259,9 +259,11 @@ def conditional_skill_report(
     rank(primitive) the OLS fit is exact and this function returns the rounding
     error of the subtraction, on the order of eps times the largest rank. That
     debris is monotone in the primitive rank, so where the primitive predicts
-    the ordinal it inherits that association and both kernels score it: on a
-    twelve-level staged ordinal, tau_b returns between 0.71 and 0.87 in
-    magnitude with a sign that changes with the seed. Check the residual's
+    the ordinal it inherits that association and both kernels score it, reaching
+    0.87 in magnitude on a twelve-level staged ordinal, with a sign that changes
+    with the seed and a size that changes with the machine: across sixteen
+    cells, aarch64 with numpy 2.2 puts all of them between 0.71 and 0.87, and
+    x86_64 with numpy 2.4 puts fourteen there and collapses two toward zero. Check the residual's
     magnitude against eps * n before reading any value near rho = 1;
     `own_baseline.cli.residual_scale` does this and the CLI refuses to report.
 

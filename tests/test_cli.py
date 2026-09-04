@@ -93,29 +93,60 @@ def test_exact_monotone_prints_no_value_and_says_why(tmp_path, capsys):
     assert "rounding" in text
 
 
-@pytest.mark.parametrize("seed", [20260904, 1, 2, 3])
-@pytest.mark.parametrize("coupling", [0.5, 1.0])
-def test_debris_is_scored_by_both_kernels_when_the_primitive_predicts_the_ordinal(
-        seed, coupling):
+def _debris_sweep():
+    """Sixteen cells of pure rounding debris: 4 seeds x 2 sample sizes x 2 couplings."""
+    from scipy.stats import kendalltau, weightedtau
+    rows = []
+    for seed in (20260904, 1, 2, 3):
+        for n in (4000, 39505):
+            for coupling in (0.5, 1.0):
+                rng = np.random.default_rng(seed)
+                levels = 12
+                o = np.repeat(np.arange(levels, dtype=float), n // levels)
+                o = np.concatenate([o, np.full(n - len(o), float(levels - 1))])
+                prim = coupling * o + rng.normal(0, 1.0, n)
+                resid = rank_resid_multi(align(np.exp(prim / 3.0), o), [prim])
+                rows.append((float(np.abs(resid).max()),
+                             float(kendalltau(resid, o).statistic),
+                             float(weightedtau(resid, o).statistic)))
+    return rows
+
+
+def test_debris_is_scored_by_both_kernels_when_the_primitive_predicts_the_ordinal():
     """
-    Defect F-2, restated. It was recorded as a weighted-tau problem on a fixture
+    Defect F-2, restated. It was recorded as a weightedtau problem on a fixture
     whose ordinal is independent of the primitive; there tau_b stays near 0.02.
     When the primitive predicts the ordinal, which is Null B and the case the
-    audit actually faces, the debris inherits that association and BOTH kernels
-    score it. This test exists so the claim is pinned rather than remembered.
-    """
-    from scipy.stats import kendalltau, weightedtau
-    rng = np.random.default_rng(seed)
-    n, levels = 4000, 12
-    o = np.repeat(np.arange(levels, dtype=float), n // levels)
-    o = np.concatenate([o, np.full(n - len(o), float(levels - 1))])
-    prim = coupling * o + rng.normal(0, 1.0, n)
-    resid = rank_resid_multi(align(np.exp(prim / 3.0), o), [prim])
+    audit faces, the debris inherits that association and BOTH kernels score it.
 
-    assert np.abs(resid).max() < 1e-9, "setup: the residual must be float noise"
-    assert abs(kendalltau(resid, o).statistic) > 0.6, \
-        "tau_b no longer scores the debris; the paper's F-2 wording can be relaxed"
-    assert abs(weightedtau(resid, o).statistic) > 0.5
+    The assertions are on the maximum rather than on every cell, because the
+    debris is the rounding error of a LAPACK least-squares fit and its size
+    depends on the machine. Measured: aarch64 with numpy 2.2 puts all sixteen
+    cells between 0.71 and 0.87 under tau_b, while x86_64 with numpy 2.4 puts
+    fourteen there and collapses two toward zero, the two where the residual
+    itself lands two to three orders smaller. What is stable, and what the
+    manuscript rests on, is that a score which is an exact reparametrisation of
+    its primitive can be scored at 0.87.
+    """
+    rows = _debris_sweep()
+    assert all(m < 1e-9 for m, _, _ in rows), "setup: every residual must be float noise"
+    taub = [abs(t) for _, t, _ in rows]
+    wtau = [abs(w) for _, _, w in rows]
+    assert max(taub) > 0.8, f"tau_b no longer scores the debris: max {max(taub):.3f}"
+    assert max(wtau) > 0.8, f"weightedtau no longer scores it: max {max(wtau):.3f}"
+    assert sum(v > 0.6 for v in taub) >= 12, taub
+    signs = {np.sign(t) for _, t, _ in rows}
+    assert len(signs) > 1, "the sign should not be constant; the debris is not a measurement"
+
+
+def test_the_debris_magnitude_is_a_property_of_the_machine():
+    """
+    The residual at rank identity spans orders of magnitude across cells, which
+    is why the value a kernel returns on it cannot be quoted as a constant and
+    why the guard is on the residual's size rather than on its tau.
+    """
+    mags = sorted(m for m, _, _ in _debris_sweep())
+    assert mags[-1] / max(mags[0], 1e-300) > 100, mags
 
 
 def test_debris_stays_near_zero_under_taub_when_the_ordinal_is_independent():

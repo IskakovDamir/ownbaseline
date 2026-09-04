@@ -197,9 +197,12 @@ def residual_scale(score_aligned, covs):
     order of eps times the largest rank. That debris is not random: it is
     monotone in the covariate rank, so it inherits whatever association the
     covariate has with the ordinal, and a kernel scores it. Measured on a
-    twelve-level staged ordinal that the covariate predicts, tau_b returns
-    between 0.71 and 0.87 in magnitude on pure debris, with a sign that changes
-    with the seed, and the weighted kernel between 0.62 and 0.93. On a fixture
+    twelve-level staged ordinal that the covariate predicts, both kernels reach
+    0.87 in magnitude on pure debris, with a sign that changes with the seed.
+    How large it is on any one run depends on the machine, because the debris is
+    the rounding error of a LAPACK least-squares fit: across sixteen cells,
+    aarch64 with numpy 2.2 puts all of them between 0.71 and 0.87, x86_64 with
+    numpy 2.4 puts fourteen there and collapses two toward zero. On a fixture
     where the covariate is independent of the ordinal, tau_b stays near 0.02 and
     only the weighted kernel misbehaves, which is the case defect F-2 was first
     recorded on.
@@ -611,7 +614,8 @@ def _print_check(r, args):
             print( "    a real residual sits around 1e14. Conditional skill here is zero by")
             print( "    construction, and a kernel run on this returns the rounding pattern:")
             print( "    on a staged ordinal the primitive predicts, tau_b reaches 0.87 in")
-            print( "    magnitude with a sign that changes with the seed.")
+            print( "    magnitude, with a sign and a size that change with the seed and with")
+            print( "    the machine's floating-point path.")
             continue
         lo, hi = cs["CI95"]
         print(f"    conditional skill  {cs['tau']:+.4f}   "

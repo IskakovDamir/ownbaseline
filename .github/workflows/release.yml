@@ -3,11 +3,22 @@ name: release
 # Publishes to PyPI when a tag like v0.2.0 is pushed.
 #
 # No API token lives in this repository. PyPI Trusted Publishing signs the
-# upload with the workflow's own OIDC identity, which has to be registered once
-# on PyPI: Your projects -> own-baseline -> Publishing -> Add a new publisher,
-# owner IskakovDamir, repository potency-ownbaseline, workflow release.yml,
-# environment pypi. Until that exists the publish step fails and nothing else
-# does, which is the right way round.
+# upload with this workflow's own OIDC identity, which has to be registered once
+# on PyPI before the first tag: pypi.org -> Your projects -> Publishing ->
+# Add a new pending publisher, with
+#   PyPI project name  own-baseline
+#   Owner              IskakovDamir
+#   Repository         potency-ownbaseline
+#   Workflow           release.yml
+#   Environment        pypi
+# and a GitHub environment of the same name under Settings -> Environments.
+# Until both exist the publish step fails and nothing else does.
+#
+# One job on purpose. Handing the artefacts between jobs needs upload-artifact
+# and download-artifact, whose major versions move faster than this repository
+# does, and a release that fails on an action version is worse than a release
+# that takes thirty seconds longer. The action versions here are the ones the
+# test workflow already runs green on.
 
 on:
   push:
@@ -15,39 +26,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - name: build
-        run: |
-          python -m pip install --upgrade pip build
-          python -m build
-      - name: the wheel must carry the null grid
-        run: python tools/check_wheel.py dist/*.whl
-      - name: install the wheel clean and answer a published floor
-        run: |
-          python -m venv /tmp/v
-          /tmp/v/bin/pip install --quiet dist/*.whl
-          /tmp/v/bin/ownbaseline floors --n 39505 --rho 0.4844 | grep -- '+0.0247'
-          /tmp/v/bin/ownbaseline --version
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-  publish:
-    needs: build
+  release:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
       id-token: write        # Trusted Publishing needs this and nothing else
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          name: dist
-          path: dist/
+          python-version: "3.12"
+
+      - name: the version in pyproject must match the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VER=$(python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          echo "tag $TAG, pyproject $VER"
+          test "$TAG" = "$VER"
+
+      - name: build
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+
+      - name: the wheel must carry the null grid, and PyPI must accept the metadata
+        run: |
+          python tools/check_wheel.py dist/*.whl
+          twine check dist/*
+
+      - name: install the wheel clean and make it answer
+        run: |
+          python -m venv /tmp/v
+          /tmp/v/bin/pip install --quiet dist/*.whl
+          /tmp/v/bin/ownbaseline --version
+          /tmp/v/bin/ownbaseline floors --n 39505 --rho 0.4844 | grep -- '+0.0247'
+
       - uses: pypa/gh-action-pypi-publish@release/v1

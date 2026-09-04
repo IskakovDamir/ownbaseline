@@ -299,3 +299,122 @@ def test_entry_point_is_installed_and_runs():
                        capture_output=True, text=True)
     assert r.returncode == 0
     assert "+0.0247" in r.stdout
+
+
+# ------------------------------------------------------------------ F7
+# floor selection away from a design point
+
+def test_floor_below_the_query_n_is_labelled_conservative():
+    """
+    The floor falls monotonically with n, so a grid point below the query gives
+    a threshold that is too high. Clearing it is the safe direction to be wrong
+    in, and the result must say so rather than leaving the caller to work it out.
+    """
+    f = floors.floor(1500, 0.93, "taub", 1, 12)
+    assert f["grid_n"] == 500 and f["n_side"] == "conservative"
+
+
+def test_floor_above_the_query_n_is_labelled_permissive():
+    f = floors.floor(2600, 0.5, "taub", 1, 12)
+    assert f["grid_n"] == 3000 and f["n_side"] == "permissive"
+
+
+def test_floor_on_a_design_point_is_labelled_exact():
+    assert floors.floor(39505, 0.5, "taub", 1, 12)["n_side"] == "exact"
+
+
+def test_the_floor_is_monotone_decreasing_in_n():
+    """The claim the conservative/permissive labelling rests on."""
+    vals = [floors.floor(n, 0.5, "taub", 1, 12)["floor"]
+            for n in (500, 3000, 10000, 39505, 127607)]
+    assert vals == sorted(vals, reverse=True), vals
+
+
+def test_unmeasured_covariate_count_is_bracketed_not_rounded():
+    """
+    The floor is not monotone in the covariate count: it mostly falls and rises
+    again at rho 0 and rho 0.998. So an unmeasured k takes the larger of the two
+    measured values that bracket it.
+    """
+    f3 = floors.floor(39505, 0.5, "taub", 3, 12)
+    f2 = floors.floor(39505, 0.5, "taub", 2, 12)
+    f4 = floors.floor(39505, 0.5, "taub", 4, 12)
+    assert f3["k_bracketed"] and f3["k_used"] == [2, 4]
+    assert f3["floor"] == pytest.approx(max(f2["floor"], f4["floor"]))
+
+
+def test_covariate_count_outside_the_bracket_is_refused():
+    r = floors.floor(39505, 0.5, "taub", 9, 12)
+    assert r["floor"] is None and "does not bracket" in r["reason"]
+
+
+def test_the_floor_is_not_monotone_in_the_covariate_count():
+    """Pins the reason bracketing exists rather than rounding down."""
+    at = lambda k: floors.floor(39505, 0.998, "taub", k, 12)["floor"]
+    assert not (at(1) >= at(2) >= at(4)), (at(1), at(2), at(4))
+
+
+# ------------------------------------------------------------------ F8
+# the h5ad path, which the README documents as the primary one
+
+@pytest.fixture(scope="module")
+def h5ad(tmp_path_factory):
+    ad = pytest.importorskip("anndata")
+    import pandas as pd
+    import scipy.sparse as sp
+    rng = np.random.default_rng(3)
+    n_cells, n_genes, levels = 900, 200, 12
+    stage = np.repeat(np.arange(levels, dtype=float), n_cells // levels)
+    depth = np.clip(1000 - 55 * stage + rng.normal(0, 40, n_cells), 40, None)
+    X = np.zeros((n_cells, n_genes))
+    for i in range(n_cells):
+        k = int(min(n_genes, max(5, depth[i] / 5)))
+        X[i, rng.choice(n_genes, k, replace=False)] = rng.poisson(3, k) + 1
+    obs = pd.DataFrame(
+        {"stage": stage,
+         "cytotrace": -(0.5 * depth / 100 + 1.4 * stage + rng.normal(0, 1, n_cells))},
+        index=[f"c{i}" for i in range(n_cells)])
+    p = tmp_path_factory.mktemp("h5ad") / "demo.h5ad"
+    ad.AnnData(X=sp.csr_matrix(X), obs=obs,
+               var=pd.DataFrame(index=[f"G{j}" for j in range(n_genes)])).write_h5ad(p)
+    return str(p)
+
+
+def test_h5ad_path_computes_three_primitives_from_the_matrix(h5ad, tmp_path):
+    code, rep = _run([ "check", h5ad, "--score", "obs:cytotrace",
+                       "--ordinal", "obs:stage", "--ordinal-source", "experimental",
+                       "--boot", "30", "--no-floors"], tmp_path)
+    assert code == 0
+    assert set(rep["by_primitive"]) >= {"gene_count", "Shannon_H",
+                                        "log10_library_size", "JOINT"}
+    assert [m["primitive"] for m in rep["primitives_not_computed"]] == ["PCC(x,degree)"]
+    assert "no interactome is bundled" in \
+        rep["primitives_not_computed"][0]["reason"].lower()
+
+
+def test_h5ad_missing_obs_column_names_what_is_there(h5ad, tmp_path):
+    code, _ = _run(["check", h5ad, "--score", "obs:nope", "--ordinal", "obs:stage",
+                    "--ordinal-source", "experimental"], tmp_path)
+    assert code == 2
+
+
+def test_scaffold_npz_is_accepted_under_either_key_spelling(h5ad, tmp_path):
+    from own_baseline.cli import load_scaffold
+    import argparse
+    rng = np.random.default_rng(0)
+    for ci, dg in (("col_idx", "degree"), ("col_atlas", "deg_sub")):
+        p = tmp_path / f"{ci}.npz"
+        np.savez(p, **{ci: np.arange(50), dg: rng.random(50) * 10})
+        args = argparse.Namespace(scaffold=str(p), string_links=None, string_info=None)
+        sc = load_scaffold(args, None)
+        assert len(sc["col_idx"]) == 50 and len(sc["degree"]) == 50
+
+
+def test_scaffold_with_mismatched_lengths_is_refused(tmp_path):
+    from own_baseline.cli import load_scaffold
+    import argparse
+    p = tmp_path / "bad.npz"
+    np.savez(p, col_idx=np.arange(50), degree=np.arange(10.0))
+    args = argparse.Namespace(scaffold=str(p), string_links=None, string_info=None)
+    with pytest.raises(SystemExit):
+        load_scaffold(args, None)

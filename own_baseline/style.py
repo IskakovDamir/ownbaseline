@@ -14,6 +14,7 @@ OWNBASELINE_COLOR=1, which is what the tests use.
 from __future__ import annotations
 
 import os
+import re
 import sys
 
 # The accent: a bright violet that stays legible on light and dark terminals.
@@ -30,6 +31,8 @@ _ESC = "\x1b["
 
 def _depth():
     force = os.environ.get("OWNBASELINE_COLOR")
+    if os.environ.get("FORCE_COLOR") and force is None:
+        force = "0" if os.environ["FORCE_COLOR"] == "0" else "1"
     if force == "0":
         return 0
     if os.environ.get("NO_COLOR") is not None and force != "1":
@@ -238,3 +241,93 @@ def splash(version, author, tagline="does your score beat its own baseline?"):
     out.append("")
     out.append("  " + dim(f"v{version}  ·  MIT"))
     return "\n".join(out)
+
+
+# ------------------------------------------------------------------- frame
+
+_ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def printable(s):
+    """Width on screen: the string with its escape sequences taken out."""
+    return len(_ANSI.sub("", s))
+
+
+def terminal_width(default=100):
+    try:
+        return os.get_terminal_size().columns
+    except OSError:
+        return int(os.environ.get("COLUMNS", default))
+
+
+def frame(lines, title=None):
+    """
+    Draw a rule around `lines`, in the accent colour.
+
+    The width comes from the printable length of the content, never from the
+    styled length, and the frame is dropped entirely when the content is wider
+    than the terminal. A box that wraps is worse than no box, and a reader whose
+    window is narrow should still get the numbers.
+    """
+    body = [l.rstrip() for l in lines]
+    inner = max((printable(l) for l in body), default=0)
+    if inner == 0:
+        return body
+    if inner + 4 > terminal_width():
+        return body                       # no room; give the content plainly
+    top = "╭─" + "─" * inner + "─╮"
+    if title:
+        t = f" {title} "
+        if printable(t) + 4 <= inner:
+            top = "╭─" + t + "─" * (inner - printable(t)) + "─╮"
+    out = [accent(top)]
+    for l in body:
+        pad = " " * (inner - printable(l))
+        out.append(accent("│") + " " + l + pad + " " + accent("│"))
+    out.append(accent("╰─" + "─" * inner + "─╯"))
+    return out
+
+
+# ---------------------------------------------------------------- progress
+
+class Progress:
+    """
+    A single line on stderr, rewritten in place, for work that takes a while.
+
+    The audit's expensive part is the bootstrap: a thousand resamples of a
+    rank-residual fit on forty thousand cells is a minute of arithmetic, and
+    until now that minute printed nothing at all. This says what is being
+    computed and how far along it is, on stderr so it never lands in piped
+    output, and switches itself off when stderr is not a terminal, when colour
+    is off, or when the caller asks for quiet.
+    """
+
+    def __init__(self, enabled=True, stream=None):
+        self.stream = stream or sys.stderr
+        self.enabled = bool(enabled) and self.stream.isatty()
+        self._width = 0
+
+    def update(self, text):
+        if not self.enabled:
+            return
+        line = text[: max(20, terminal_width() - 2)]
+        pad = " " * max(0, self._width - printable(line))
+        self.stream.write("\r" + line + pad)
+        self.stream.flush()
+        self._width = printable(line)
+
+    def done(self, text=None):
+        if not self.enabled:
+            return
+        self.stream.write("\r" + " " * self._width + "\r")
+        if text:
+            self.stream.write(text + "\n")
+        self.stream.flush()
+        self._width = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.done()
+        return False

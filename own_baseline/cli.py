@@ -32,6 +32,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib
+import os
 import json
 import platform
 import subprocess
@@ -215,7 +217,8 @@ def residual_scale(score_aligned, covs):
     return float(np.abs(r).max() / (np.finfo(float).eps * n)), r
 
 
-def conditional_skill(score_aligned, ordinal, covs, kernel, n_boot, seed):
+def conditional_skill(score_aligned, ordinal, covs, kernel, n_boot, seed,
+                      on_step=None):
     """
     One cell of the audit: residualize on `covs`, score the residual, bootstrap.
 
@@ -243,10 +246,13 @@ def conditional_skill(score_aligned, ordinal, covs, kernel, n_boot, seed):
     rng = np.random.default_rng(seed)
     n = len(ordinal)
     b = np.empty(n_boot)
+    every = max(1, n_boot // 100)
     for j in range(n_boot):
         i = rng.integers(0, n, n)
         b[j] = kfun(rank_resid_multi(score_aligned[i], [c[i] for c in covs]),
                     ordinal[i])
+        if on_step is not None and (j % every == 0 or j == n_boot - 1):
+            on_step(j + 1, n_boot)
     lo, hi = (np.nanquantile(b, [0.025, 0.975]) if n_boot
               else (float("nan"), float("nan")))
     return {"tau": float(tau), "CI95": [float(lo), float(hi)],
@@ -485,16 +491,30 @@ def cmd_check(args):
 
     from scipy.stats import spearmanr
     rows, order = {}, list(prims)
+    total = len(prims) + (1 if len(prims) > 1 else 0)
+    prog = _s.Progress(enabled=not args.quiet)
+    step = [0]
+
+    def _tick(label):
+        step[0] += 1
+        idx = step[0]
+
+        def cb(j, nb):
+            prog.update(f"  {_s.accent('·')} {label}  "
+                        f"{_s.dim(f'{idx}/{total}')}  bootstrap {j:,}/{nb:,}")
+        return cb
+
     for name, p in prims.items():
         rho = float(spearmanr(p, score, nan_policy="omit").statistic)
-        cs = conditional_skill(s, ordinal, [p], args.kernel, args.boot, args.seed)
+        cs = conditional_skill(s, ordinal, [p], args.kernel, args.boot, args.seed,
+                               on_step=_tick(name))
         fl = _floors.floor(n, rho, args.kernel, 1, 12) if not args.no_floors else {"floor": None, "reason": "--no-floors"}
         rows[name] = {"rho_score_primitive": rho,
                       "primitive_auc_vs_ordinal": ordinal_auc(p, ordinal),
                       "conditional_skill": cs, "null": fl}
     if len(prims) > 1:
         cs = conditional_skill(s, ordinal, list(prims.values()), args.kernel,
-                               args.boot, args.seed)
+                               args.boot, args.seed, on_step=_tick("JOINT"))
         rho_j = max(abs(rows[k]["rho_score_primitive"]) for k in prims)
         fl = (_floors.floor(n, rho_j, args.kernel, len(prims), 12)
               if not args.no_floors else {"floor": None, "reason": "--no-floors"})
@@ -539,26 +559,31 @@ def cmd_check(args):
             report["scaffold_null"] = scaffold_null(
                 adata, ordinal, sc, args.kernel, int(args.scaffold_null), args.seed)
 
+    prog.done()
     report["receipt"] = _receipt(args, {
         "n": n, "n_boot": args.boot, "ordinal_levels": int(len(levels)),
         "sha256": {"score": _sha256_array(score),
                    "ordinal": _sha256_array(ordinal),
                    **{k: _sha256_array(v) for k, v in prims.items()}},
     })
-    _print_check(report, args)
-    if args.json:
+    to_stdout = args.json != "-"
+    _print_check(report, args, out=sys.stdout if to_stdout else sys.stderr)
+    if args.json == "-":
+        json.dump(report, sys.stdout, indent=2)
+        sys.stdout.write("\n")
+    elif args.json:
         Path(args.json).write_text(json.dumps(report, indent=2))
-        print(f"\nwrote {args.json}")
+        print(f"\nwrote {args.json}", file=sys.stderr if not to_stdout else sys.stdout)
     return report
 
 
-def _print_check(r, args):
+def _print_check(r, args, out=None):
+    L = []
+    def print(*a, **k):          # noqa: A001 - collect, do not emit
+        L.append(" ".join(str(x) for x in a))
     from . import __author__, __version__
     d = r["direction_check"]
     drop = f", dropped {r['n_dropped_nonfinite']} non-finite" if r["n_dropped_nonfinite"] else ""
-    print()
-    print(_s.banner(__version__, __author__))
-    print(_s.rule())
     print(f"  score    {r['score_name']}")
     print(f"  ordinal  {r['ordinal_spec']}  "
           + _s.dim(f"{r['ordinal_levels']} levels"))
@@ -626,7 +651,11 @@ def _print_check(r, args):
             print( "       number, not a decision.")
             continue
         f = fl["floor"]
-        print(f"    own floor          {f:+.4f}   {fl['cell']}")
+        print(f"    own floor          {f:+.4f}")
+        import textwrap
+        for k, seg in enumerate(textwrap.wrap(fl["cell"], 56)):
+            print("    " + _s.dim(("null cell          " if k == 0
+                                   else "                   ") + seg))
         if fl.get("n_side") == "permissive":
             print("    " + _s.warn(f"WARNING: the nearest measured n is {fl['grid_n']:,}, above this run's"))
             print(f"    {r['n_used']:,}. The floor falls with n, so this threshold is LOWER than the")
@@ -670,7 +699,6 @@ def _print_check(r, args):
     scored = {k: v for k, v in verdicts.items()
               if v[0] is not None and v[1] is not None}
     print()
-    print(_s.rule())
     if refused:
         print(f"  {', '.join(refused)}: no verdict, the score is a rank-preserving")
         print( "  function of that primitive and its conditional skill is zero by")
@@ -720,6 +748,17 @@ def _print_check(r, args):
         print("  It returned a positive verdict on 720 of 720 null replicates. The")
         print("  floor above is its own measured floor, so the comparison is still")
         print("  valid, but the kernel cannot disagree with anything.")
+
+    if args.quiet:
+        keep = ("VERDICT", "NO VALUE", "conditional skill", "own floor",
+                "-> CLEARS", "-> DOES NOT", "-> NO VERDICT", "WARNING",
+                "AUC", "vs ")
+        L = [l for l in L if _s.printable(l) and any(k in l for k in keep)]
+    frame_title = f"own-baseline {r['receipt']['own_baseline_version']}"
+    if __author__:
+        frame_title += f"  {_s.dim('·')}  {_s.volt(__author__)}"
+    for line in _s.frame(L, frame_title):
+        (out or sys.stdout).write(line + "\n")
 
 
 # ------------------------------------------------------------------ floors
@@ -834,6 +873,17 @@ def cmd_verify(args):
 
 # -------------------------------------------------------------------- main
 
+def _add_global_flags(p, suppress=False):
+    kw = {"default": argparse.SUPPRESS} if suppress else {}
+    p.add_argument("--no-color", dest="no_color", action="store_true",
+                   help="never colour the output. NO_COLOR in the environment "
+                        "does the same, and colour is off already when stdout "
+                        "is not a terminal.", **kw)
+    p.add_argument("-q", "--quiet", action="store_true",
+                   help="the numbers and the verdict, without the explanations "
+                        "or the progress line", **kw)
+
+
 def _add_input_args(p, need_score=True, required=True):
     p.add_argument("data", nargs="?", help="a .h5ad, optional if the score, the "
                                           "ordinal and the primitives are files")
@@ -861,14 +911,38 @@ def _add_input_args(p, need_score=True, required=True):
                    help="STRING combined_score cutoff (default 700)")
 
 
+EPILOG = """\
+examples
+  ownbaseline check cells.h5ad --score obs:cytotrace --ordinal obs:stage \\
+                    --ordinal-source experimental
+  ownbaseline check cells.h5ad --score obs:ccat --ordinal obs:stage \\
+                    --ordinal-source experimental --scaffold prepared.npz --json -
+  ownbaseline floors --n 39505 --rho 0.4844
+  ownbaseline primitives cells.h5ad --scaffold prepared.npz --out prim.npz
+  ownbaseline verify report.json --rerun --score obs:cytotrace --ordinal obs:stage
+
+exit codes
+  0  ran, and the verdict is in the output
+  1  ran, and something the caller asked for was not available
+  2  the command line was wrong
+  3  the test does not apply to what was passed, and there is no override
+
+what a verdict does and does not mean
+  docs/interpreting.md in the repository, github.com/IskakovDamir/potency-ownbaseline
+"""
+
+
 def build_parser():
     ap = argparse.ArgumentParser(
         prog="ownbaseline",
         description="Does a single-cell potency score order cells beyond the "
-                    "low-order statistic it is closest to?")
+                    "low-order statistic it is closest to?",
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     from . import __version__
     ap.add_argument("--version", action="version",
                     version=f"ownbaseline {__version__}")
+    _add_global_flags(ap)
     sub = ap.add_subparsers(dest="cmd")
 
     c = sub.add_parser("check", help="run the test on your data")
@@ -882,7 +956,10 @@ def build_parser():
     c.add_argument("--kernel", default="taub", choices=["taub", "weighted"])
     c.add_argument("--boot", type=int, default=1000)
     c.add_argument("--seed", type=int, default=42)
-    c.add_argument("--json", help="write the full report here")
+    c.add_argument("--json", metavar="PATH",
+                   help="write the full report here; \"-\" writes it to stdout "
+                        "and moves the human-readable output to stderr, so the "
+                        "JSON can be piped")
     c.add_argument("--no-floors", action="store_true",
                    help="report conditional skill without a decision threshold")
     c.add_argument("--i-checked-this-is-not-derived", dest="i_checked",
@@ -892,6 +969,7 @@ def build_parser():
                    help="also run the degree-permutation control, N permutations "
                         "(default 200). Needs --scaffold or the STRING pair. It "
                         "is a diagnostic and not a verdict; read what it prints.")
+    _add_global_flags(c, suppress=True)
     c.set_defaults(func=cmd_check)
 
     f = sub.add_parser("floors", help="the measured null floor at n, rho, kernel")
@@ -903,11 +981,13 @@ def build_parser():
     f.add_argument("--json", action="store_true")
     f.add_argument("--list-grid", action="store_true",
                    help="print the design points the shipped grid holds")
+    _add_global_flags(f, suppress=True)
     f.set_defaults(func=cmd_floors)
 
     p = sub.add_parser("primitives", help="compute the low-order statistics")
     _add_input_args(p, need_score=False)
     p.add_argument("--out", default="primitives.npz")
+    _add_global_flags(p, suppress=True)
     p.set_defaults(func=cmd_primitives)
 
     v = sub.add_parser("verify", help="re-check a receipt against this environment")
@@ -920,6 +1000,7 @@ def build_parser():
     v.add_argument("--seed", type=int, default=42)
     v.add_argument("--json")
     v.add_argument("--no-floors", action="store_true")
+    _add_global_flags(v, suppress=True)
     v.set_defaults(func=cmd_verify)
     return ap
 
@@ -947,12 +1028,44 @@ def _splash():
     print()
 
 
+def _suggest(argv):
+    """A mistyped verb should name the nearest real one, not just fail."""
+    import difflib
+    verbs = ["check", "floors", "primitives", "verify"]
+    for a in argv or []:
+        if a.startswith("-"):
+            continue
+        near = difflib.get_close_matches(a, verbs, n=1, cutoff=0.5)
+        if near and a not in verbs:
+            print(f"ownbaseline: no such command {a!r}. Did you mean "
+                  f"{near[0]!r}?", file=sys.stderr)
+        return
+
+
 def main(argv=None):
-    args = build_parser().parse_args(argv)
+    raw = list(sys.argv[1:] if argv is None else argv)
+    if "--no-color" in raw or "-q" in raw or "--quiet" in raw:
+        # decided before anything is styled, so the first line already obeys
+        if "--no-color" in raw:
+            os.environ["OWNBASELINE_COLOR"] = "0"
+            importlib.reload(_s)
+    try:
+        args = build_parser().parse_args(argv)
+    except SystemExit as e:
+        if e.code == 2:
+            _suggest(raw)
+        raise
+    for flag in ("quiet", "no_color"):
+        if not hasattr(args, flag):
+            setattr(args, flag, False)
     if getattr(args, "cmd", None) is None:
         _splash()
         return 0
-    rc = args.func(args)
+    try:
+        rc = args.func(args)
+    except KeyboardInterrupt:
+        print("\nownbaseline: interrupted. Nothing was written.", file=sys.stderr)
+        return 130
     return 0 if rc is None or isinstance(rc, dict) else int(rc)
 
 

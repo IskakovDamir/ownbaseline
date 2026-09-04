@@ -83,6 +83,19 @@ diagnostic. The own baseline is the arbiter.
 indistinguishable from gene counts and on sorted haematopoietic progenitors
 returns the exact false positive this repository exists to expose.
 
+Conventions, mostly from [clig.dev](https://clig.dev):
+
+| | |
+|---|---|
+| `--json -` | the report on stdout, everything human on stderr, so it pipes |
+| `-q`, `--quiet` | the numbers and the verdict, nothing else, and no progress line |
+| `--no-color` | as does `NO_COLOR`; `FORCE_COLOR` turns it back on |
+| exit `0` / `1` / `2` / `3` | ran / something asked for was unavailable / bad command line / the test does not apply |
+
+Both global flags are accepted before or after the verb. Colour is off already
+when stdout is not a terminal. The bootstrap prints its progress on stderr and
+Ctrl-C stops it without a traceback and without writing anything.
+
 ### From Python
 
 ```python

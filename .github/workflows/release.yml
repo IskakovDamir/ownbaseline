@@ -1,0 +1,53 @@
+name: release
+
+# Publishes to PyPI when a tag like v0.2.0 is pushed.
+#
+# No API token lives in this repository. PyPI Trusted Publishing signs the
+# upload with the workflow's own OIDC identity, which has to be registered once
+# on PyPI: Your projects -> own-baseline -> Publishing -> Add a new publisher,
+# owner IskakovDamir, repository potency-ownbaseline, workflow release.yml,
+# environment pypi. Until that exists the publish step fails and nothing else
+# does, which is the right way round.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: build
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - name: the wheel must carry the null grid
+        run: python tools/check_wheel.py dist/*.whl
+      - name: install the wheel clean and answer a published floor
+        run: |
+          python -m venv /tmp/v
+          /tmp/v/bin/pip install --quiet dist/*.whl
+          /tmp/v/bin/ownbaseline floors --n 39505 --rho 0.4844 | grep -- '+0.0247'
+          /tmp/v/bin/ownbaseline --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write        # Trusted Publishing needs this and nothing else
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

@@ -150,6 +150,22 @@ shows it. `conditional_skill_report` flags this; `run_own_baseline` does not.
 
 ## Install
 
+Once released, the command is on PyPI and needs nothing from this repository:
+
+```bash
+pipx install own-baseline           # a CLI, isolated from your other packages
+uv tool install own-baseline        # same thing, if you use uv
+pip install own-baseline            # or into the current environment
+ownbaseline                         # the splash, and the four verbs
+```
+
+That gives the diagnostic, the shipped 200-seed null grid and the `ownbaseline`
+command. It does not give the reproduction chain: the score implementations,
+`reproduce.py` and the figures need the `[full]` extra and the datasets, which
+is what the rest of this section is about.
+
+From a checkout:
+
 ```bash
 pip install -e ".[full]"            # or: pip install -r requirements.txt
 python3 tests/run_tests.py          # 25 pass, 1 known defect (F-2), 0 fail

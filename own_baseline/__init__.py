@@ -28,6 +28,8 @@ Layout:
     synthetic.py          synthetic generators for the self-tests
 """
 __version__ = "0.2.0"
+# One place. The anonymised review copy blanks this line and nothing else.
+__author__ = "Damir Iskakov"
 
 from .own_baseline import (
     ADDS_DELTA,
@@ -64,6 +66,7 @@ from .paths import data_root, repo_root, scratch_root
 
 __all__ = [
     "__version__",
+    "__author__",
     # marginal gap
     "run_own_baseline",
     "nnz_per_cell",

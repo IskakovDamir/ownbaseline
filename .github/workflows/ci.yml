@@ -21,7 +21,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[full]" pytest
       - name: unit tests
-        run: pytest tests/ -q
+        run: |
+          set -o pipefail
+          pytest tests/ -q -ra --tb=short 2>&1 | tee /tmp/pytest.txt
+      - name: put the failure on the run summary, which is readable without signing in
+        if: failure()
+        run: |
+          {
+            echo "### pytest failed on Python ${{ matrix.python-version }}"
+            echo '```'
+            tail -n 120 /tmp/pytest.txt 2>/dev/null || echo "no pytest output captured"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: the CLI entry point exists and answers
         run: |
           ownbaseline floors --list-grid
@@ -29,7 +40,18 @@ jobs:
       - name: published floors come back out of the shipped grid
         run: pytest tests/test_cli.py -q -k floor
       - name: self-test
-        run: python reproduce.py --self-test
+        run: |
+          set -o pipefail
+          python reproduce.py --self-test 2>&1 | tee /tmp/selftest.txt
+      - name: put the self-test failure on the run summary too
+        if: failure()
+        run: |
+          {
+            echo "### later step failed on Python ${{ matrix.python-version }}"
+            echo '```'
+            tail -n 80 /tmp/selftest.txt 2>/dev/null || echo "self-test produced no output, so it failed before it"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   package:
     runs-on: ubuntu-latest
@@ -43,19 +65,7 @@ jobs:
           python -m pip install --upgrade pip build
           python -m build --wheel
       - name: the wheel must carry the null grid, not just the code
-        run: |
-          python - <<'PY'
-          import glob, zipfile, sys
-          whl = glob.glob("dist/*.whl")[0]
-          names = zipfile.ZipFile(whl).namelist()
-          missing = [n for n in ("own_baseline/data/null_floors.csv.gz",
-                                 "own_baseline/cli.py",
-                                 "own_baseline/floors.py")
-                     if n not in names]
-          if missing:
-              sys.exit(f"{whl} is missing {missing}")
-          print(f"{whl}: {len(names)} entries, floors table present")
-          PY
+        run: python tools/check_wheel.py dist/*.whl
       - name: install it clean and answer a published floor
         run: |
           python -m venv /tmp/v

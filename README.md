@@ -46,8 +46,15 @@ too.
 ownbaseline floors --n 39505 --rho 0.4844      # the floor at that cell
 ownbaseline floors --list-grid                 # the design points that exist
 ownbaseline primitives cells.h5ad --out prim.npz
+ownbaseline check cells.h5ad --primitives prim.npz ...   # reuse them
 ownbaseline verify report.json --rerun ...     # does it still reproduce?
 ```
+
+`primitives` and `check` compose: the first writes the low-order statistics once,
+with a provenance block recording the scaffold, the cell count and a sha256 per
+vector, and the second reads them back instead of recomputing. On a large atlas
+the degree primitive is the expensive one and this is the difference between
+computing it once and computing it on every run.
 
 The degree primitive needs an interaction scaffold, and none is bundled: an
 interactome is 100 MB and the release you pick changes every number downstream.

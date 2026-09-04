@@ -42,6 +42,7 @@ from pathlib import Path
 import numpy as np
 
 from . import floors as _floors
+from . import style as _s
 from .conditional_skill import align, kang_taub, rank_resid_multi, scipy_wtau
 
 __all__ = ["main"]
@@ -52,6 +53,12 @@ PRIMITIVE_NAMES = {
     "entropy": "Shannon_H",
     "log-libsize": "log10_library_size",
 }
+NPZ_KEY = {"gene_count": "gene_count",
+           "PCC(x,degree)": "pcc_degree",
+           "Shannon_H": "shannon_H",
+           "log10_library_size": "log10_library_size"}
+KEY_NPZ = {v: k for k, v in NPZ_KEY.items()}
+
 PSEUDOTIME_HINTS = ("dpt", "pseudotime", "latent_time", "palantir", "velocity",
                     "diffusion_time", "monocle")
 
@@ -268,6 +275,8 @@ def _receipt(args, extra):
                     "weighted": "scipy.stats.weightedtau (rank=False)"}[args.kernel],
          "estimator": "rank_resid_multi (rank, OLS with intercept)",
          "argv": sys.argv[1:],
+         "primitives_from": getattr(args, "primitives", None),
+         "scaffold": getattr(args, "scaffold", None) or getattr(args, "string_links", None),
          "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     r.update(extra)
     return r
@@ -358,8 +367,29 @@ def _resolve_primitives(args, adata, n):
     have, missing = {}, []
     wanted = args.primitive or list(PRIMITIVE_NAMES)
 
+    # a file written by `ownbaseline primitives` supplies whatever it holds,
+    # so the two verbs compose and nothing is recomputed twice
+    from_file = {}
+    if getattr(args, "primitives", None):
+        z = np.load(args.primitives, allow_pickle=False)
+        unknown = [k for k in z.files
+                   if k not in KEY_NPZ and not k.startswith("_")]
+        if unknown:
+            _die(f"--primitives {args.primitives}: unrecognised arrays "
+                 f"{unknown}. Expected any of {sorted(KEY_NPZ)}, as written by "
+                 f"`ownbaseline primitives`.")
+        for k in z.files:
+            if k.startswith("_"):
+                continue
+            from_file[KEY_NPZ[k]] = np.asarray(z[k], dtype=float)
+        if not from_file:
+            _die(f"--primitives {args.primitives} holds no primitive arrays")
+
     for w in wanted:
         label = PRIMITIVE_NAMES[w]
+        if label in from_file:
+            have[label] = from_file[label]
+            continue
         spec = getattr(args, w.replace("-", "_"), None)
         if spec:
             v, src = _read_vector(spec, adata, w)
@@ -520,14 +550,21 @@ def cmd_check(args):
 
 
 def _print_check(r, args):
+    from . import __author__, __version__
     d = r["direction_check"]
     drop = f", dropped {r['n_dropped_nonfinite']} non-finite" if r["n_dropped_nonfinite"] else ""
-    print(f"\nown-baseline  score={r['score_name']}  "
-          f"ordinal={r['ordinal_spec']} ({r['ordinal_levels']} levels)  "
-          f"n={r['n_used']:,}{drop}  seed={r['receipt']['seed']}")
-    print(f"kernel: {r['receipt']['kernel']}\n")
+    print()
+    print(_s.banner(__version__, __author__))
+    print(_s.rule())
+    print(f"  score    {r['score_name']}")
+    print(f"  ordinal  {r['ordinal_spec']}  "
+          + _s.dim(f"{r['ordinal_levels']} levels"))
+    print(f"  n        {r['n_used']:,}{_s.dim(drop) if drop else ''}   "
+          f"{_s.dim('seed ' + str(r['receipt']['seed']))}   "
+          f"{_s.dim(r['receipt']['kernel'])}")
+    print()
 
-    print("  DIRECTION CHECK")
+    print(_s.section("DIRECTION CHECK"))
     raw = d["score_auc_before_alignment"]
     print(f"    score      vs ordinal   AUC {raw:.3f}"
           + ("   points AGAINST the ordinal" if raw < 0.5 else
@@ -556,15 +593,18 @@ def _print_check(r, args):
         print("    difference between the two, and no gap shows this. Read the conditional")
         print("    skill, which is orientation-invariant.")
     if raw >= 0.5 and not disagree:
-        print("    -> score and every primitive point the same way; margins read as written.")
+        print("    " + _s.dim("-> score and every primitive point the same way; "
+                                "margins read as written."))
 
     for name in r["order"]:
         row = r["by_primitive"][name]
         cs, fl = row["conditional_skill"], row["null"]
-        print(f"\n  vs {name}"
-              + (f"    rho(score, primitive) = {row['rho_score_primitive']:+.3f}"
+        print()
+        print(_s.section(f"vs {name}")
+              + (_s.dim(f"    rho(score, primitive) = "
+                        f"{row['rho_score_primitive']:+.3f}")
                  if name != "JOINT" else
-                 f"    {len(r['order']) - 1} primitives at once"))
+                 _s.dim(f"    {len(r['order']) - 1} primitives at once")))
         if cs.get("refused"):
             print( "    NO VALUE. " + cs["refused"].split(": ")[0] + ".")
             print(f"    residual scale {cs['residual_scale']:.2f} against a noise floor of 1.0;")
@@ -584,7 +624,7 @@ def _print_check(r, args):
         f = fl["floor"]
         print(f"    own floor          {f:+.4f}   {fl['cell']}")
         if fl.get("n_side") == "permissive":
-            print(f"    WARNING: the nearest measured n is {fl['grid_n']:,}, above this run's")
+            print("    " + _s.warn(f"WARNING: the nearest measured n is {fl['grid_n']:,}, above this run's"))
             print(f"    {r['n_used']:,}. The floor falls with n, so this threshold is LOWER than the")
             print( "    true one and clearing it proves less than it looks. Run the grid at this n,")
             print( "    or read the result as provisional.")
@@ -610,13 +650,13 @@ def _print_check(r, args):
             print( "    at this rho as a statement about the debris unless it is an order of")
             print( "    magnitude away from that scale.")
         if cs["tau"] > f:
-            print(f"    -> CLEARS its floor by {cs['tau'] / f:.1f}x")
+            print("    " + _s.good(f"-> CLEARS its floor by {cs['tau'] / f:.1f}x"))
         elif cs["tau"] < 0:
             print( "    -> DOES NOT CLEAR. The residual is negative, and a negative value")
             print( "       does not exceed a positive threshold. That is where the value")
             print( "       sits; it is not a failed test.")
         else:
-            print(f"    -> DOES NOT CLEAR ({cs['tau']:+.4f} against {f:+.4f})")
+            print("    " + _s.bad(f"-> DOES NOT CLEAR ({cs['tau']:+.4f} against {f:+.4f})"))
 
     verdicts = {k: (r["by_primitive"][k]["conditional_skill"]["tau"],
                     r["by_primitive"][k]["null"].get("floor"))
@@ -626,6 +666,7 @@ def _print_check(r, args):
     scored = {k: v for k, v in verdicts.items()
               if v[0] is not None and v[1] is not None}
     print()
+    print(_s.rule())
     if refused:
         print(f"  {', '.join(refused)}: no verdict, the score is a rank-preserving")
         print( "  function of that primitive and its conditional skill is zero by")
@@ -633,20 +674,22 @@ def _print_check(r, args):
     if not scored:
         print("  NO VERDICT for the remaining primitives: no floor was available.")
     elif all(t > f for t, f in scored.values()):
-        print("  VERDICT  orders cells beyond every primitive tested here.")
+        print("  " + _s.head("VERDICT") + "  " + _s.good("orders cells beyond every primitive tested here."))
     elif any(t > f for t, f in scored.values()):
         cleared = [k for k, (t, f) in scored.items() if t > f]
-        print(f"  VERDICT  mixed. Clears against {', '.join(cleared)} and not "
-              f"against the rest.")
+        print("  " + _s.head("VERDICT") + _s.warn(f"  mixed. Clears against "
+              f"{', '.join(cleared)} and not against the rest."))
     else:
-        print("  VERDICT  does not order cells beyond its primitive on this ordinal.")
+        print("  " + _s.head("VERDICT") + "  " + _s.bad("does not order cells beyond its primitive on this ordinal."))
     print("  Scope: this says the score orders cells beyond these statistics. It")
     print("  does not say what the residual is. A residual can be developmental")
     print("  position, manifold structure, or a fifth statistic nobody named.")
 
     sn = r.get("scaffold_null")
     if sn:
-        print(f"\n  SCAFFOLD-RANDOMIZATION CONTROL, {sn['n_perm']} permutations of the degree vector")
+        print()
+        print(_s.section(f"SCAFFOLD-RANDOMIZATION CONTROL")
+              + _s.dim(f"   {sn['n_perm']} permutations of the degree vector"))
         print(f"    scaffold      {sn['scaffold']}")
         print(f"    real          {sn['real']:+.4f}")
         print(f"    permuted      {sn['null_mean']:+.4f}  sd {sn['null_sd']:.4f}  "
@@ -662,7 +705,8 @@ def _print_check(r, args):
             print( "    uninterpretable as a measure of how much biology the score carries.")
 
     if r["primitives_not_computed"]:
-        print("\n  NOT COMPUTED, and therefore not controlled for:")
+        print()
+        print(_s.section("NOT COMPUTED, and therefore not controlled for"))
         for m in r["primitives_not_computed"]:
             print(f"    {m['primitive']}: {m['reason']}")
 
@@ -708,15 +752,24 @@ def cmd_primitives(args):
         _die("primitives needs a .h5ad")
     n = adata.n_obs
     have, missing = _resolve_primitives(args, adata, n)
+    sc = load_scaffold(args, adata) if not getattr(args, "primitives", None) else None
+    meta = {"n_cells": int(n), "source": str(args.data),
+            "own_baseline_version": __import__("own_baseline").__version__,
+            "scaffold": (sc or {}).get("source"),
+            "written": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "sha256": {k: _sha256_array(v) for k, v in have.items()},
+            "not_computed": {k: w for k, w in missing}}
     out = Path(args.out)
-    np.savez(out, **{k.replace("(", "_").replace(")", "").replace(",", "_"): v
-                     for k, v in have.items()})
-    print(f"wrote {out} with {len(have)} primitives over {n:,} cells:")
+    np.savez(out, _meta=np.array(json.dumps(meta)),
+             **{NPZ_KEY[k]: v for k, v in have.items()})
+    print(f"wrote {out} with {len(have)} primitive"
+          f"{'s' if len(have) != 1 else ''} over {n:,} cells:")
     for k, v in have.items():
-        print(f"  {k:22s} median {np.nanmedian(v):.4g}  "
-              f"sha256 {_sha256_array(v)[:16]}")
+        print(f"  {NPZ_KEY[k]:20s} median {np.nanmedian(v):.4g}  "
+              f"sha256 {meta['sha256'][k][:16]}")
     for k, why in missing:
-        print(f"  {k:22s} NOT COMPUTED: {why}")
+        print(f"  {NPZ_KEY[k]:20s} NOT COMPUTED: {why}")
+    print(f"\nfeed it back with:  ownbaseline check --primitives {out} ...")
     return 0
 
 
@@ -789,6 +842,9 @@ def _add_input_args(p, need_score=True, required=True):
         p.add_argument(f"--{flag}", metavar="VEC",
                        help=f"supply {PRIMITIVE_NAMES[flag]} directly instead of "
                             f"computing it")
+    p.add_argument("--primitives", metavar="NPZ",
+                   help="an .npz written by `ownbaseline primitives`; whatever "
+                        "it holds is used as-is and not recomputed")
     p.add_argument("--primitive", action="append", choices=list(PRIMITIVE_NAMES),
                    help="restrict to this primitive; repeatable. Default: all four.")
     p.add_argument("--scaffold", metavar="NPZ",
@@ -806,6 +862,9 @@ def build_parser():
         prog="ownbaseline",
         description="Does a single-cell potency score order cells beyond the "
                     "low-order statistic it is closest to?")
+    from . import __version__
+    ap.add_argument("--version", action="version",
+                    version=f"ownbaseline {__version__}")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     c = sub.add_parser("check", help="run the test on your data")

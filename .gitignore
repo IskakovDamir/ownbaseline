@@ -37,6 +37,8 @@ reproduction/
 !experiments/null_calibration/results/*.csv
 !experiments/null_calibration/results/*.log
 
-# packaging build artefact, not evidence
+# packaging build artefacts, not evidence
 own_baseline.egg-info/
 *.egg-info/
+build/
+dist/

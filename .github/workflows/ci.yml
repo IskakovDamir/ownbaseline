@@ -30,3 +30,34 @@ jobs:
         run: pytest tests/test_cli.py -q -k floor
       - name: self-test
         run: python reproduce.py --self-test
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: build a wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --wheel
+      - name: the wheel must carry the null grid, not just the code
+        run: |
+          python - <<'PY'
+          import glob, zipfile, sys
+          whl = glob.glob("dist/*.whl")[0]
+          names = zipfile.ZipFile(whl).namelist()
+          missing = [n for n in ("own_baseline/data/null_floors.csv.gz",
+                                 "own_baseline/cli.py",
+                                 "own_baseline/floors.py")
+                     if n not in names]
+          if missing:
+              sys.exit(f"{whl} is missing {missing}")
+          print(f"{whl}: {len(names)} entries, floors table present")
+          PY
+      - name: install it clean and answer a published floor
+        run: |
+          python -m venv /tmp/v
+          /tmp/v/bin/pip install --quiet dist/*.whl
+          /tmp/v/bin/ownbaseline floors --n 39505 --rho 0.4844 | grep -- '+0.0247'

@@ -418,3 +418,184 @@ def test_scaffold_with_mismatched_lengths_is_refused(tmp_path):
     args = argparse.Namespace(scaffold=str(p), string_links=None, string_info=None)
     with pytest.raises(SystemExit):
         load_scaffold(args, None)
+
+
+# ------------------------------------------------------------------ F9
+# the two verbs must compose
+
+def test_primitives_then_check_round_trips(h5ad, tmp_path):
+    """
+    `primitives` writes an npz and `check --primitives` reads it straight back.
+    Without this the first verb produces a file the second cannot use, which is
+    a workflow that only looks complete.
+    """
+    out = tmp_path / "prim.npz"
+    code = 0
+    try:
+        main(["primitives", h5ad, "--out", str(out)])
+    except SystemExit as e:
+        code = int(e.code or 0)
+    assert code == 0 and out.is_file()
+
+    z = np.load(out, allow_pickle=False)
+    assert {"gene_count", "shannon_H", "log10_library_size"} <= set(z.files)
+    meta = json.loads(str(z["_meta"]))
+    assert meta["n_cells"] == 900
+    assert set(meta["sha256"]) == {"gene_count", "Shannon_H", "log10_library_size"}
+    assert "PCC(x,degree)" in meta["not_computed"]
+
+    code, rep = _run(["check", h5ad, "--score", "obs:cytotrace",
+                      "--ordinal", "obs:stage", "--ordinal-source", "experimental",
+                      "--primitives", str(out), "--boot", "30", "--no-floors"],
+                     tmp_path)
+    assert code == 0
+    assert set(rep["by_primitive"]) >= {"gene_count", "Shannon_H",
+                                        "log10_library_size", "JOINT"}
+    assert rep["receipt"]["primitives_from"] == str(out)
+
+
+def test_check_recomputes_the_same_numbers_it_was_handed(h5ad, tmp_path):
+    """A primitive read from a file must give the same answer as one computed."""
+    out = tmp_path / "prim.npz"
+    try:
+        main(["primitives", h5ad, "--out", str(out)])
+    except SystemExit:
+        pass
+    common = ["check", h5ad, "--score", "obs:cytotrace", "--ordinal", "obs:stage",
+              "--ordinal-source", "experimental", "--boot", "20", "--no-floors"]
+    _, a = _run(common, tmp_path)
+    _, b = _run([*common, "--primitives", str(out)], tmp_path)
+    for k in ("gene_count", "Shannon_H", "log10_library_size", "JOINT"):
+        assert a["by_primitive"][k]["conditional_skill"]["tau"] == pytest.approx(
+            b["by_primitive"][k]["conditional_skill"]["tau"], abs=0, rel=0), k
+
+
+def test_primitives_npz_with_a_foreign_key_is_refused(h5ad, tmp_path):
+    bad = tmp_path / "bad.npz"
+    np.savez(bad, gene_count=np.ones(900), something_else=np.ones(900))
+    code, _ = _run(["check", h5ad, "--score", "obs:cytotrace",
+                    "--ordinal", "obs:stage", "--ordinal-source", "experimental",
+                    "--primitives", str(bad)], tmp_path)
+    assert code == 2
+
+
+def test_version_flag():
+    from own_baseline import __version__
+    with pytest.raises(SystemExit) as e:
+        main(["--version"])
+    assert e.value.code == 0
+
+
+def test_the_wheel_checker_rejects_a_wheel_without_the_floors_table(tmp_path):
+    """
+    tools/check_wheel.py is the only thing standing between a packaging mistake
+    and a release where `ownbaseline floors` raises for every installed user.
+    """
+    import subprocess
+    import zipfile
+    whl = tmp_path / "fake-0.0.0-py3-none-any.whl"
+    with zipfile.ZipFile(whl, "w") as z:
+        z.writestr("own_baseline/cli.py", "")
+        z.writestr("own_baseline/floors.py", "")
+        z.writestr("own_baseline/conditional_skill.py", "")
+        z.writestr("fake-0.0.0.dist-info/entry_points.txt",
+                   "[console_scripts]\nownbaseline = own_baseline.cli:main\n")
+    tool = Path(__file__).resolve().parents[1] / "tools/check_wheel.py"
+    r = subprocess.run([sys.executable, str(tool), str(whl)],
+                       capture_output=True, text=True)
+    assert r.returncode != 0
+    assert "null_floors" in (r.stdout + r.stderr)
+
+
+# ----------------------------------------------------------------- F10
+# terminal styling: it must never change what the output says
+
+def _style_with(env, monkeypatch):
+    import importlib
+    for k in ("OWNBASELINE_COLOR", "NO_COLOR", "TERM", "COLORTERM"):
+        monkeypatch.delenv(k, raising=False)
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    import own_baseline.style as st
+    return importlib.reload(st)
+
+
+def test_no_colour_when_stdout_is_not_a_terminal(monkeypatch):
+    st = _style_with({"TERM": "xterm-256color"}, monkeypatch)
+    assert st.DEPTH == 0
+    assert st.accent("x") == "x" and st.head("VERDICT") == "VERDICT"
+
+
+def test_no_color_environment_variable_is_honoured(monkeypatch):
+    st = _style_with({"NO_COLOR": "1", "TERM": "xterm-256color"}, monkeypatch)
+    assert st.DEPTH == 0
+
+
+def test_truecolor_is_used_when_the_terminal_says_so(monkeypatch):
+    st = _style_with({"OWNBASELINE_COLOR": "1", "COLORTERM": "truecolor"}, monkeypatch)
+    assert st.DEPTH == 24
+    assert "38;2;168;85;247" in st.accent("x")
+
+
+def test_it_falls_back_to_256_and_then_to_eight(monkeypatch):
+    st = _style_with({"OWNBASELINE_COLOR": "1", "TERM": "xterm-256color"}, monkeypatch)
+    assert st.DEPTH == 8 and "38;5;141" in st.accent("x")
+
+
+def test_styling_never_changes_the_text(monkeypatch, capsys, h5ad, tmp_path):
+    """
+    The same run with and without colour must differ only in escape sequences.
+    A reader piping the output into a file loses the scannability and nothing
+    else, so no number and no word may depend on whether colour is on.
+    """
+    import importlib
+    import re
+
+    import own_baseline.cli as cli
+    import own_baseline.style as st
+
+    args = ["check", h5ad, "--score", "obs:cytotrace", "--ordinal", "obs:stage",
+            "--ordinal-source", "experimental", "--boot", "20", "--no-floors"]
+
+    def run(env):
+        for k in ("OWNBASELINE_COLOR", "NO_COLOR", "TERM", "COLORTERM"):
+            monkeypatch.delenv(k, raising=False)
+        for k, v in env.items():
+            monkeypatch.setenv(k, v)
+        importlib.reload(st)
+        importlib.reload(cli)
+        capsys.readouterr()
+        cli.main([*args, "--json", str(tmp_path / "same.json")])
+        return capsys.readouterr().out
+
+    plain = run({"OWNBASELINE_COLOR": "0"})
+    coloured = run({"OWNBASELINE_COLOR": "1", "COLORTERM": "truecolor"})
+
+    # leave the modules in the no-colour state for whatever runs next
+    monkeypatch.delenv("COLORTERM", raising=False)
+    monkeypatch.setenv("OWNBASELINE_COLOR", "0")
+    importlib.reload(st)
+    importlib.reload(cli)
+
+    assert "\x1b[" in coloured and "\x1b[" not in plain
+    assert re.sub(r"\x1b\[[0-9;]*m", "", coloured) == plain
+
+
+def test_the_author_line_lives_in_exactly_one_place():
+    """
+    The review copy blanks own_baseline.__author__ and nothing else, so the
+    name must not be written out anywhere a second time.
+    """
+    import own_baseline
+    root = Path(own_baseline.__file__).resolve().parents[1]
+    author = own_baseline.__author__
+    if not author:
+        pytest.skip("this is the anonymised copy")
+    hits = []
+    for p in sorted(root.rglob("*.py")):
+        if ".git" in p.parts or "__pycache__" in p.parts:
+            continue
+        for i, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
+            if author in line:
+                hits.append(f"{p.relative_to(root)}:{i}")
+    assert hits == ["own_baseline/__init__.py:32"] or len(hits) == 1, hits

@@ -43,13 +43,22 @@ def _ordinal(n, levels=6, seed=SEED):
 
 @known_defect(
     "F-2",
-    "rank_resid_multi returns floating-point rounding debris (1e-13, a dozen "
+    "rank_resid_multi returns floating-point rounding debris (1e-12, a few dozen "
     "distinct values) instead of an exact zero when rank(score) == "
-    "rank(primitive). The debris is monotone in the primitive rank, and "
-    "weightedtau is scale-invariant, so it is scored as signal: tau reaches "
-    "+0.51 on this fixture where 0 is the only correct answer. NOT FIXED -- "
-    "fixing it changes "
-    "what the estimator computes near rho = 1, and CCAT sits at rho = 0.998.",
+    "rank(primitive). The debris is monotone in the primitive rank, so what a "
+    "kernel returns depends on whether the primitive predicts the ordinal. THIS "
+    "fixture draws the ordinal independently of it, and there only weightedtau "
+    "misbehaves, reaching +0.51 where 0 is the only correct answer, while tau_b "
+    "stays near 0.02. That is the narrow case. Where the primitive predicts the "
+    "ordinal, which is Null B and the case the audit faces, the debris inherits "
+    "that association and BOTH kernels score it: tau_b returns 0.71 to 0.87 in "
+    "magnitude and weightedtau 0.62 to 0.93, with a sign that changes with the "
+    "seed. Pinned in tests/test_cli.py::"
+    "test_debris_is_scored_by_both_kernels_when_the_primitive_predicts_the_ordinal. "
+    "NOT FIXED -- fixing it changes what the estimator computes near rho = 1, and "
+    "CCAT sits at rho = 0.998. Guarded instead: own_baseline.cli.residual_scale "
+    "returns max|resid| / (eps * n), real residuals sit at 1e14 to 1e15 on that "
+    "ratio and debris at 1, and `ownbaseline check` refuses to report below 1e6.",
 )
 def test_exact_monotone_function_of_primitive_has_zero_conditional_skill():
     rng = np.random.default_rng(SEED)

@@ -25,6 +25,37 @@ cd potency-ownbaseline
 pip install -e ".[full]"
 ```
 
+### From the command line
+
+```bash
+ownbaseline check cells.h5ad \
+    --score   obs:cytotrace \
+    --ordinal obs:stage \
+    --ordinal-source experimental \
+    --json report.json
+```
+
+All four primitives are computed unless you name one, the direction check is
+printed above the first margin, and every value is placed against its own
+measured null floor rather than against zero. `--ordinal-source` is required and
+has no override: a pseudotime computed from the same expression matrix is not a
+valid ground truth for this test, because the primitive predicts such an ordinal
+too.
+
+```
+ownbaseline floors --n 39505 --rho 0.4844      # the floor at that cell
+ownbaseline floors --list-grid                 # the design points that exist
+ownbaseline primitives cells.h5ad --out prim.npz
+ownbaseline verify report.json --rerun ...     # does it still reproduce?
+```
+
+`check` wraps the conditional-skill estimator. It does not wrap
+`run_own_baseline`, the marginal gap, which returns a pass when a score is
+indistinguishable from gene counts and on sorted haematopoietic progenitors
+returns the exact false positive this repository exists to expose.
+
+### From Python
+
 ```python
 import numpy as np
 from own_baseline import conditional_skill_report
@@ -243,13 +274,25 @@ computes and the manuscript's numbers were traced to specific runs of it. Full
 detail in the commit messages and in `tests/test_estimator.py`.
 
 - **F-2 — an exact monotone function of its primitive does not yield zero
-  conditional skill.** When `rank(score) == rank(primitive)`, the residual is
-  floating-point rounding debris at 1e-13 rather than an exact zero, and the
-  debris is monotone in the primitive rank. `weightedtau` is scale-invariant
-  and scores it as signal, returning up to +0.51; Kendall τ_b returns ≈ 0.02.
-  The kernels then disagree. Both residual implementations in this repository
-  have it. Recorded by a strict expected-failure test:
-  `test_exact_monotone_function_of_primitive_has_zero_conditional_skill`.
+  conditional skill, and both kernels are affected.** When
+  `rank(score) == rank(primitive)` the least-squares fit is exact and the
+  residual is the rounding error of the subtraction, on the order of 1e-12
+  rather than an exact zero. That debris is monotone in the primitive rank, so
+  what a kernel returns depends on whether the primitive predicts the ordinal.
+  Where it does not, `weightedtau` returns up to +0.51 and Kendall τ_b stays
+  near 0.02, which is the fixture the defect was first recorded on and the
+  narrower case. Where it does, which is Null B and the case the audit faces,
+  the debris inherits that association: across four seeds and two coupling
+  strengths τ_b returns 0.71 to 0.87 in magnitude and `weightedtau` 0.62 to
+  0.93, with a sign that changes with the seed. The sham score in the Quick
+  start above is this: its τ_b of −0.6385 is the rounding pattern, not a
+  measurement. What separates a residual from debris is its magnitude, not its
+  τ: `own_baseline.cli.residual_scale` returns `max|resid| / (eps * n)`, real
+  residuals sit at 1e14 to 1e15 on that ratio, and `ownbaseline check` refuses
+  to report a value below 1e6. Both residual implementations in this repository
+  have the defect. Pinned by
+  `tests/test_estimator.py::test_exact_monotone_function_of_primitive_has_zero_conditional_skill`
+  (expected failure) and by four tests in `tests/test_cli.py`.
 - **`figures/make_paper_a_figures.py` contained no data — fixed 2026-08-29.**
   Every number in it was a hard-coded literal; it had no `errorbar` call despite
   the caption promising bootstrap intervals; it plotted StemID and cmEntropy at

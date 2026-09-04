@@ -238,10 +238,32 @@ def conditional_skill_report(
         SIGN-FLIPPED  interval strictly negative
         INCONCLUSIVE-kernel-disagree
 
-    Reading it: call a score substantive only when all three hold -- the two
-    kernels agree, the interval excludes zero, and it survives a depth control
-    (add log10 library size as a further primitive). That conjunction is
-    stricter than a corrected single test near the boundary.
+    Reading it: compare the value against the estimator's own measured null
+    floor at that value's own sample size, kernel and score-primitive rank
+    correlation. `own_baseline.floors.floor(n, rho, kernel, k_covariates)`
+    returns it from the shipped 200-seed grid, and the `ownbaseline` CLI prints
+    it beside every row.
+
+    Do NOT use the older rule, which asked for the two kernels to agree, the
+    interval to exclude zero, and the value to survive a depth control. It was
+    retired because it was measured on synthetic data whose true conditional
+    skill is exactly zero and it fired in 40 of 40 replicates at the cells where
+    CytoTRACE, signalling entropy and ORIGINS sit. A bootstrap interval narrows
+    as one over the square root of n while the floor is close to flat in n, so
+    at atlas scale an interval excluding zero is not evidence of anything: at
+    n = 39,505 the tau_b floor sits three to four interval half-widths above
+    zero. The kernel-agreement leg could not do its job either, because
+    weightedtau returned a positive verdict on all 720 null replicates run.
+
+    One more thing the interval will not tell you. When rank(score) equals
+    rank(primitive) the OLS fit is exact and this function returns the rounding
+    error of the subtraction, on the order of eps times the largest rank. That
+    debris is monotone in the primitive rank, so where the primitive predicts
+    the ordinal it inherits that association and both kernels score it: on a
+    twelve-level staged ordinal, tau_b returns between 0.71 and 0.87 in
+    magnitude with a sign that changes with the seed. Check the residual's
+    magnitude against eps * n before reading any value near rho = 1;
+    `own_baseline.cli.residual_scale` does this and the CLI refuses to report.
 
     Rows with a non-finite score, ordinal or primitive are dropped jointly
     before anything is computed; `n` in the result is what remained.

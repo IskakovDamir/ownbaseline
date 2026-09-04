@@ -865,7 +865,7 @@ def build_parser():
     from . import __version__
     ap.add_argument("--version", action="version",
                     version=f"ownbaseline {__version__}")
-    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub = ap.add_subparsers(dest="cmd")
 
     c = sub.add_parser("check", help="run the test on your data")
     _add_input_args(c)
@@ -920,8 +920,34 @@ def build_parser():
     return ap
 
 
+def _splash():
+    from . import __author__, __version__
+    print()
+    print(_s.splash(__version__, __author__))
+    print()
+    print("  " + _s.head("check") + "        does this score order cells beyond "
+          "the statistic it is closest to?")
+    print("  " + _s.head("floors") + "       the estimator's measured null floor "
+          "at a given n, rho and kernel")
+    print("  " + _s.head("primitives") + "   compute the low-order statistics "
+          "from an expression matrix")
+    print("  " + _s.head("verify") + "       re-run a receipt and report whether "
+          "it still reproduces")
+    print()
+    print("  " + _s.dim("ownbaseline check cells.h5ad --score obs:cytotrace "
+                        "--ordinal obs:stage \\"))
+    print("  " + _s.dim("                  --ordinal-source experimental"))
+    print()
+    print("  " + _s.dim("ownbaseline <verb> --help   ·   docs/interpreting.md "
+                        "for what a verdict does not mean"))
+    print()
+
+
 def main(argv=None):
     args = build_parser().parse_args(argv)
+    if getattr(args, "cmd", None) is None:
+        _splash()
+        return 0
     rc = args.func(args)
     return 0 if rc is None or isinstance(rc, dict) else int(rc)
 

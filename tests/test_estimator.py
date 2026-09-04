@@ -468,15 +468,30 @@ def test_paths_default_inside_the_repository_and_honour_the_environment():
 
 
 def test_no_source_file_hard_codes_an_absolute_home_path():
+    """
+    The guard is about what is committed, so it reads what git tracks rather
+    than walking the directory. rglob() also swept up whatever happened to be
+    sitting in the tree: a .venv, an egg-info from `pip install -e .`, a build/
+    from a wheel. Several dependencies carry example home paths inside their
+    own docstrings, so a virtualenv in the checkout failed this test on content
+    nobody here wrote.
+    """
+    import subprocess
+
+    import pytest
+
     from own_baseline.paths import repo_root
     root = repo_root()
+    tracked = subprocess.run(["git", "-C", str(root), "ls-files", "-z"],
+                             capture_output=True, text=True)
+    if tracked.returncode != 0:
+        pytest.skip("not a git checkout, so there is no tracked-file list to read")
     # Assembled from fragments so this file does not match its own guard.
     needles = ("/Us" + "ers/", "/priv" + "ate/tmp/", "/ho" + "me/")
     offenders = []
-    for path in sorted(root.rglob("*")):
+    for rel in sorted(f for f in tracked.stdout.split("\0") if f):
+        path = root / rel
         if not path.is_file() or path.suffix not in {".py", ".R", ".md", ".txt"}:
-            continue
-        if ".git" in path.parts or "__pycache__" in path.parts:
             continue
         for i, line in enumerate(path.read_text(errors="replace").splitlines(), 1):
             stripped = line.lstrip()

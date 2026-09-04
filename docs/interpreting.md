@@ -106,6 +106,16 @@ represent.
 Outside the measured grid, `ownbaseline floors` refuses and names the cell that
 would have to be run. Do not interpolate past it by hand.
 
+Inside the grid but away from a design point, two things are worth reading off
+the output. The floor falls monotonically with n, from 0.0741 at n = 500 to
+0.0228 at n = 127,607 for tau_b at rho = 0.5, so a grid point below your n gives
+a threshold that is too high and clearing it is safe, while a grid point above
+your n gives one that is too low and clearing it proves less than it looks. The
+tool labels which case you are in and warns on the second. The floor is not
+monotone in the covariate count, so an unmeasured count takes the larger of the
+two measured values bracketing it, and it is not monotone in rho either, so a
+large rho offset can run in either direction and the tool says how large it is.
+
 ## Near rank identity, read the residual and not the value
 
 When your score is a rank-preserving function of its primitive, the least-squares
@@ -121,6 +131,23 @@ residual from debris is magnitude: `own_baseline.cli.residual_scale` returns
 `max|resid| / (eps * n)`, real residuals sit at 1e14 to 1e15 on that ratio and
 debris sits at 1. If you are calling the library directly rather than the CLI,
 check that ratio yourself before reading any number near rho = 1.
+
+## The scaffold-randomization control
+
+`--scaffold-null` permutes which gene carries which degree, which keeps the
+degree distribution and breaks the correspondence between expression and
+connectivity. It is worth looking at and it is not a verdict.
+
+On the systems in the paper the gap over that null was 0.120 for signalling
+entropy against 0.057 for CCAT, while both sat at a conditional skill of about
+zero. A rule reading a larger gap as more genuine would have called signalling
+entropy the more genuine of the two and been backwards. The entropy null itself
+came in below chance at 0.437, which leaves its gap uninterpretable as a measure
+of how much biology a score carries. Two pre-registered predictions about this
+control were falsified on the way to that conclusion.
+
+Read it as a description of the scaffold, and read the own baseline for the
+verdict.
 
 ## Kernels
 

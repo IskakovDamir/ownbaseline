@@ -273,6 +273,84 @@ def _receipt(args, extra):
     return r
 
 
+# ------------------------------------------------------------------ scaffold
+
+def load_scaffold(args, adata):
+    """
+    The interaction scaffold, as a dict with col_idx and degree, or None.
+
+    Two routes. --scaffold takes a .npz already holding the column index into
+    the expression matrix and the degree vector, which is what a prepared run
+    carries; keys are read as col_idx or col_atlas, and degree or deg_sub.
+    --string-links with --string-info builds one from a STRING release, at the
+    confidence threshold --string-threshold, keeping the largest connected
+    component. No interactome is bundled with the package: it is 100 MB and the
+    release you pick changes every number downstream, so it is named on the
+    command line and recorded in the receipt.
+    """
+    if getattr(args, "scaffold", None):
+        z = np.load(args.scaffold)
+        keys = set(z.files)
+        ci = "col_idx" if "col_idx" in keys else ("col_atlas" if "col_atlas" in keys else None)
+        dg = "degree" if "degree" in keys else ("deg_sub" if "deg_sub" in keys else None)
+        if ci is None or dg is None:
+            _die(f"--scaffold {args.scaffold}: expected a column index "
+                 f"(col_idx or col_atlas) and a degree vector (degree or "
+                 f"deg_sub), found {sorted(keys)}")
+        col_idx = np.asarray(z[ci], dtype=int)
+        degree = np.asarray(z[dg], dtype=float)
+        if len(col_idx) != len(degree):
+            _die(f"--scaffold {args.scaffold}: {ci} has {len(col_idx)} entries "
+                 f"and {dg} has {len(degree)}")
+        return {"col_idx": col_idx, "degree": degree,
+                "source": f"{Path(args.scaffold).name} ({len(degree):,} genes)"}
+    if getattr(args, "string_links", None) and getattr(args, "string_info", None):
+        if adata is None:
+            _die("--string-links needs the expression matrix to map gene names "
+                 "onto columns; pass the .h5ad")
+        from .potency_metrics import build_ppi_adjacency, load_string_ppi
+        edges = load_string_ppi(args.string_links, args.string_info,
+                                score_threshold=args.string_threshold)
+        _A, _g, col_idx, degree = build_ppi_adjacency(edges, adata.var_names)
+        return {"col_idx": col_idx, "degree": np.asarray(degree, float),
+                "source": (f"STRING from {Path(args.string_links).name}, "
+                           f"combined_score>={args.string_threshold}, largest "
+                           f"connected component, {len(degree):,} genes")}
+    return None
+
+
+def scaffold_null(adata, ordinal, scaffold, kernel, n_perm, seed):
+    """
+    The degree-permutation control, run and reported with its own health check.
+
+    Permuting which gene carries which degree keeps the degree distribution and
+    breaks the correspondence between expression and connectivity, so it asks
+    how much of a degree-anchored score's agreement with the ordinal survives a
+    scaffold that carries no biology. It is a diagnostic and never a verdict:
+    see the warning the CLI prints beside it.
+    """
+    from .potency_metrics import _ccat_from_matrix, _get_X, library_normalize
+    kfun = KERNEL_FN[kernel]
+    Xn = library_normalize(_get_X(adata, None))[:, scaffold["col_idx"]]
+    Xn = np.log1p(Xn)
+    degree = scaffold["degree"]
+    real = float(kfun(align(_ccat_from_matrix(Xn, degree), ordinal), ordinal))
+    rng = np.random.default_rng(seed)
+    null = np.empty(n_perm)
+    for i in range(n_perm):
+        kp = degree[rng.permutation(len(degree))]
+        null[i] = kfun(align(_ccat_from_matrix(Xn, kp), ordinal), ordinal)
+    lo, hi = np.percentile(null, [2.5, 97.5])
+    return {"metric": "PCC(x, degree), sign-aligned to the ordinal",
+            "kernel": kernel, "n_perm": n_perm, "seed": seed,
+            "real": real, "null_mean": float(null.mean()),
+            "null_sd": float(null.std(ddof=1)),
+            "null_CI95": [float(lo), float(hi)],
+            "gap": real - float(null.mean()),
+            "null_above_chance": bool(null.mean() > 0),
+            "scaffold": scaffold["source"]}
+
+
 # ------------------------------------------------------------------- check
 
 def _resolve_primitives(args, adata, n):
@@ -303,19 +381,19 @@ def _resolve_primitives(args, adata, n):
                    else np.asarray(X).sum(axis=1))
             have[label] = np.log10(np.asarray(tot, float) + 1.0)
         elif w == "pcc-degree":
-            if not (args.string_links and args.string_info):
+            sc = load_scaffold(args, adata)
+            if sc is None:
                 missing.append((label,
-                                "needs an interaction scaffold. Pass "
-                                "--string-links and --string-info, or supply "
+                                "needs an interaction scaffold. Pass --scaffold "
+                                "<npz> with a column index and a degree vector, "
+                                "or --string-links and --string-info, or supply "
                                 "the vector directly with --pcc-degree <file>. "
                                 "No interactome is bundled: it is 100 MB and "
                                 "which release you use changes the number."))
                 continue
-            from .potency_metrics import build_ppi_adjacency, ccat, load_string_ppi
-            edges = load_string_ppi(args.string_links, args.string_info,
-                                    score_threshold=args.string_threshold)
-            _A, _g, col_idx, degree = build_ppi_adjacency(edges, adata.var_names)
-            have[label] = np.asarray(ccat(adata, col_idx, degree), dtype=float)
+            from .potency_metrics import ccat
+            have[label] = np.asarray(ccat(adata, sc["col_idx"], sc["degree"]),
+                                     dtype=float)
 
     for k, v in list(have.items()):
         if len(v) != n:
@@ -416,6 +494,18 @@ def cmd_check(args):
                                     for k, w in missing],
         "by_primitive": rows, "order": order,
     }
+    if getattr(args, "scaffold_null", 0):
+        sc = load_scaffold(args, adata)
+        if sc is None:
+            print("\n  --scaffold-null needs a scaffold: pass --scaffold <npz> or "
+                  "--string-links with --string-info.", file=sys.stderr)
+        elif adata is None:
+            print("\n  --scaffold-null needs the expression matrix; pass the .h5ad.",
+                  file=sys.stderr)
+        else:
+            report["scaffold_null"] = scaffold_null(
+                adata, ordinal, sc, args.kernel, int(args.scaffold_null), args.seed)
+
     report["receipt"] = _receipt(args, {
         "n": n, "n_boot": args.boot, "ordinal_levels": int(len(levels)),
         "sha256": {"score": _sha256_array(score),
@@ -554,6 +644,23 @@ def _print_check(r, args):
     print("  does not say what the residual is. A residual can be developmental")
     print("  position, manifold structure, or a fifth statistic nobody named.")
 
+    sn = r.get("scaffold_null")
+    if sn:
+        print(f"\n  SCAFFOLD-RANDOMIZATION CONTROL, {sn['n_perm']} permutations of the degree vector")
+        print(f"    scaffold      {sn['scaffold']}")
+        print(f"    real          {sn['real']:+.4f}")
+        print(f"    permuted      {sn['null_mean']:+.4f}  sd {sn['null_sd']:.4f}  "
+              f"95% [{sn['null_CI95'][0]:+.4f}, {sn['null_CI95'][1]:+.4f}]")
+        print(f"    gap           {sn['gap']:+.4f}")
+        print( "    This is a diagnostic and not a verdict. On the systems in the paper the")
+        print( "    gap was 0.120 for signalling entropy against 0.057 for CCAT while both sat")
+        print( "    at a conditional skill of about zero, so a rule reading a larger gap as more")
+        print( "    genuine would have ranked them backwards. Two pre-registered predictions")
+        print( "    about this control were falsified. Read the conditional skill above.")
+        if not sn["null_above_chance"]:
+            print(f"    The permuted mean is {sn['null_mean']:+.4f}, below chance, which leaves the gap")
+            print( "    uninterpretable as a measure of how much biology the score carries.")
+
     if r["primitives_not_computed"]:
         print("\n  NOT COMPUTED, and therefore not controlled for:")
         for m in r["primitives_not_computed"]:
@@ -684,6 +791,10 @@ def _add_input_args(p, need_score=True, required=True):
                             f"computing it")
     p.add_argument("--primitive", action="append", choices=list(PRIMITIVE_NAMES),
                    help="restrict to this primitive; repeatable. Default: all four.")
+    p.add_argument("--scaffold", metavar="NPZ",
+                   help="a prepared scaffold: an .npz holding a column index "
+                        "(col_idx or col_atlas) and a degree vector (degree or "
+                        "deg_sub). Cheaper than rebuilding one from STRING.")
     p.add_argument("--string-links", help="STRING protein.links.v12.0.txt.gz")
     p.add_argument("--string-info", help="STRING protein.info.v12.0.txt.gz")
     p.add_argument("--string-threshold", type=int, default=700,
@@ -713,9 +824,11 @@ def build_parser():
                    help="report conditional skill without a decision threshold")
     c.add_argument("--i-checked-this-is-not-derived", dest="i_checked",
                    action="store_true")
-    c.add_argument("--scaffold-null", action="store_true",
-                   help="also run a scaffold-randomization null. Read the "
-                        "warning it prints before using the number.")
+    c.add_argument("--scaffold-null", nargs="?", type=int, const=200, default=0,
+                   metavar="N",
+                   help="also run the degree-permutation control, N permutations "
+                        "(default 200). Needs --scaffold or the STRING pair. It "
+                        "is a diagnostic and not a verdict; read what it prints.")
     c.set_defaults(func=cmd_check)
 
     f = sub.add_parser("floors", help="the measured null floor at n, rho, kernel")
@@ -750,26 +863,6 @@ def build_parser():
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
-    if getattr(args, "scaffold_null", False):
-        print("\n  WARNING on scaffold randomization. On this project the "
-              "scaffold-null gap\n"
-              "  was 0.120 for signalling entropy against 0.057 for CCAT while "
-              "both sat at\n"
-              "  a conditional skill of about zero, so a rule reading 'gap over "
-              "the scaffold\n"
-              "  null implies genuine' would have ranked SR as more genuine than "
-              "CCAT and\n"
-              "  been backwards. The SR null itself came in below chance at "
-              "0.437, which\n"
-              "  leaves the gap uninterpretable as a measure of genuineness. Two "
-              "consecutive\n"
-              "  pre-registered predictions about its behaviour were falsified. "
-              "The own\n"
-              "  baseline above is the arbiter; this number is a diagnostic and "
-              "not a verdict.\n", file=sys.stderr)
-        print("  scaffold-null is not wired into the CLI yet; use "
-              "own_baseline.potency_metrics.scaffold_null directly.\n",
-              file=sys.stderr)
     rc = args.func(args)
     return 0 if rc is None or isinstance(rc, dict) else int(rc)
 

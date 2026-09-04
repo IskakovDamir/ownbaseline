@@ -49,6 +49,28 @@ ownbaseline primitives cells.h5ad --out prim.npz
 ownbaseline verify report.json --rerun ...     # does it still reproduce?
 ```
 
+The degree primitive needs an interaction scaffold, and none is bundled: an
+interactome is 100 MB and the release you pick changes every number downstream.
+Point at a prepared one, or build it from a STRING release:
+
+```bash
+ownbaseline check cells.h5ad --score obs:ccat --ordinal obs:stage \
+    --ordinal-source experimental \
+    --scaffold prepared/string_cols.npz          # col_idx + degree
+# or
+    --string-links protein.links.v12.0.txt.gz \
+    --string-info  protein.info.v12.0.txt.gz --string-threshold 700
+```
+
+`--scaffold-null N` adds the degree-permutation control on top of that: it
+permutes which gene carries which degree, keeping the degree distribution and
+breaking the correspondence with expression. Read what it prints before using
+the number. On the systems in the paper the gap over that null was 0.120 for
+signalling entropy against 0.057 for CCAT while both sat at a conditional skill
+of about zero, so a rule reading a larger gap as more genuine would have ranked
+them backwards, and the entropy null itself came in below chance. It is a
+diagnostic. The own baseline is the arbiter.
+
 `check` wraps the conditional-skill estimator. It does not wrap
 `run_own_baseline`, the marginal gap, which returns a pass when a score is
 indistinguishable from gene counts and on sorted haematopoietic progenitors

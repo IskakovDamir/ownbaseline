@@ -135,13 +135,52 @@ _GLYPHS = {
     "E": ("█████", "█    ", "████ ", "█    ", "█████"),
     "L": ("█    ", "█    ", "█    ", "█    ", "█████"),
     "I": ("█████", "  █  ", "  █  ", "  █  ", "█████"),
+    "D": ("████ ", "█   █", "█   █", "█   █", "████ "),
+    "M": ("█   █", "██ ██", "█ █ █", "█   █", "█   █"),
+    "R": ("████ ", "█   █", "████ ", "█  █ ", "█   █"),
+    "K": ("█   █", "█  █ ", "███  ", "█  █ ", "█   █"),
+    "V": ("█   █", "█   █", "█   █", " █ █ ", "  █  "),
+    ".": ("  ", "  ", "  ", "  ", "██"),
 }
+GLYPH_W = 5
+
+
+def _w(ch):
+    return len(_GLYPHS[ch][0])
 
 
 def _block(word):
     rows = []
     for r in range(5):
         rows.append(" ".join(_GLYPHS[c][r] for c in word))
+    return rows
+
+
+def block_width(word):
+    return sum(_w(c) for c in word) + (len(word) - 1)
+
+
+def _block_fit(word, width):
+    """
+    The same block letters, tracked out so the word ends exactly at `width`.
+
+    The slack is spread over the gaps between letters, the leftover columns
+    going to the leftmost gaps, so two words of different lengths line up on
+    both edges instead of only on the left.
+    """
+    ink = sum(_w(c) for c in word)
+    gaps = len(word) - 1
+    if gaps <= 0 or width < ink:
+        return _block(word)          # nothing to distribute, or it will not fit
+    slack = width - ink
+    base, extra = divmod(slack, gaps)
+    seps = [" " * (base + (1 if i < extra else 0)) for i in range(gaps)]
+    rows = []
+    for r in range(5):
+        line = _GLYPHS[word[0]][r]
+        for i, c in enumerate(word[1:]):
+            line += seps[i] + _GLYPHS[c][r]
+        rows.append(line)
     return rows
 
 
@@ -153,36 +192,49 @@ def _box(styled, plain, pad=1):
             dim("╰" + "─" * w + "╯"))
 
 
+def _monogram(author):
+    """Initials with stops, as a block word: DAMIR ISKAKOV -> D.I."""
+    letters = [w[0].upper() for w in (author or "").split() if w]
+    word = "".join(f"{c}." for c in letters)
+    return word if word and all(c in _GLYPHS for c in word) else ""
+
+
 def splash(version, author, tagline="does your score beat its own baseline?"):
     """
     The full opening screen, shown when the tool is run with no arguments.
 
-    The name sits beside the first block, in volt, on the two rows where the
-    letters leave room. It is the only place a second colour appears anywhere in
-    this tool. Deliberately not printed by `check`: a banner a user sees on every
-    run of a long audit stops introducing anything and becomes noise, so `check`
-    gets the single line from banner() instead.
+    Two bands. The first carries OWN on the left and the author's initials on
+    the right, both in the same face, the initials in volt; at five letters and
+    four they happen to set to the same width, so the band is symmetrical
+    without anything being padded to make it so. The second carries BASELINE
+    across the full width. The name itself is one quiet line under the mark,
+    flush with its right edge, which is the only part of this that survives a
+    narrow terminal intact.
+
+    Deliberately not printed by `check`: a banner a user sees on every run of a
+    long audit stops introducing anything and becomes noise, so `check` gets the
+    single line from banner() instead.
     """
     plain = f"✳ own-baseline  {tagline}"
     styled = f"{accent('✳')} {bold('own-baseline')}  {dim(tagline)}"
     out = list(_box(styled, plain))
     out.append("")
 
-    # the author beside OWN, on rows 1 and 3 of five
-    beside = {}
-    if author:
-        parts = author.split()
-        beside[1] = parts[0]
-        beside[3] = " ".join(parts[1:]) or ""
+    W = block_width("BASELINE")
+    mono = _monogram(author)
+    mono_rows = _block(mono) if mono else None
+    lead = W - block_width("OWN") - (block_width(mono) if mono else 0)
 
-    for row_i, row in enumerate(_block("OWN")):
+    for i, row in enumerate(_block("OWN")):
         line = "  " + accent(row)
-        if row_i in beside and beside[row_i]:
-            line += "   " + volt(beside[row_i])
+        if mono_rows and lead > 0:
+            line += " " * lead + volt(mono_rows[i])
         out.append(line)
     for row in _block("BASELINE"):
         out.append("  " + accent(row))
 
+    if author:
+        out.append("  " + " " * max(0, W - len(author)) + volt(author))
     out.append("")
     out.append("  " + dim(f"v{version}  ·  MIT"))
     return "\n".join(out)

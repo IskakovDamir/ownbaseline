@@ -150,13 +150,47 @@ shows it. `conditional_skill_report` flags this; `run_own_baseline` does not.
 
 ## Install
 
-Once released, the command is on PyPI and needs nothing from this repository:
+Straight from this repository, no checkout and no PyPI:
 
 ```bash
-pipx install own-baseline           # a CLI, isolated from your other packages
-uv tool install own-baseline        # same thing, if you use uv
-pip install own-baseline            # or into the current environment
+uv tool install --python 3.12 "git+https://github.com/IskakovDamir/potency-ownbaseline"
 ownbaseline                         # the splash, and the four verbs
+```
+
+`uv` is a single binary and brings its own Python, which is why it is first here:
+`curl -LsSf https://astral.sh/uv/install.sh | sh`, or `brew install uv`. Pinning
+3.12 keeps you on interpreters that numpy, scipy and scikit-learn publish wheels
+for; on a very new Python those wheels may not exist yet and pip will try to
+build them from source.
+
+Equivalents, if you already have the tooling:
+
+```bash
+pipx install "git+https://github.com/IskakovDamir/potency-ownbaseline"
+pip  install "git+https://github.com/IskakovDamir/potency-ownbaseline"
+```
+
+Once released it will also be on PyPI as `own-baseline`, and the URL drops out:
+`uv tool install own-baseline`.
+
+**If pipx fails before it reaches this package.** An error naming `ensurepip`,
+`venv --clear` or pipx's own `shared` directory is pipx repairing itself against
+a Python it cannot bootstrap, and it happens with the newest Homebrew Python.
+Nothing here is involved yet. Either use `uv` above, or repair pipx:
+
+```bash
+rm -rf "$HOME/Library/Application Support/pipx/shared"
+brew install python@3.12
+pipx install --python "$(brew --prefix python@3.12)/bin/python3.12" \
+     "git+https://github.com/IskakovDamir/potency-ownbaseline"
+```
+
+Or skip the installers entirely, which always works:
+
+```bash
+python3 -m venv ~/.ownbaseline
+~/.ownbaseline/bin/pip install "git+https://github.com/IskakovDamir/potency-ownbaseline"
+~/.ownbaseline/bin/ownbaseline
 ```
 
 That gives the diagnostic, the shipped 200-seed null grid and the `ownbaseline`

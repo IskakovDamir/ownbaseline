@@ -6,10 +6,16 @@ Double-blind venues require the code to be anonymous too, links included. This
 script produces that copy from the current working tree, so what a reviewer gets
 matches what is on disk rather than the last commit.
 
-Three edits, and it names none of them literally: the author string is read out
-of own_baseline.__author__ and blanked wherever it appears, the clone line in the
-README becomes an unzip line, and the repository URL leaves pyproject.toml. It
-then greps the result for the author's own name, surname, e-mail and any home
+The edits name none of them literally. The author string is read out of
+own_baseline.__author__ and blanked case-insensitively wherever it appears, the
+install commands stop naming a repository, the whole [project.urls] table leaves
+pyproject.toml, and any remaining GitHub URL under an owner whose handle carries
+the author's name becomes a placeholder. Third-party repositories survive, since
+scrubbing a citation would be a different kind of damage. CI workflows are left
+out of the copy: they carry the repository owner, the deployment environment and
+the name of the PyPI project, and a reviewer needs none of it.
+
+It then greps the result for the author's own name, surname, e-mail and any home
 path, and refuses to write the zip if anything survives. The refusal is the point
 of the script; the edits are the easy part.
 
@@ -29,13 +35,20 @@ from pathlib import Path
 TEXT_SUFFIXES = {".py", ".md", ".txt", ".toml", ".cfg", ".yml", ".yaml", ".R",
                  ".r", ".json", ".sh", ".ini"}
 
+# A workflow file names the repository owner, the deployment environment and the
+# project it publishes to. None of that is reviewable and all of it is a leak.
+SKIP_PREFIXES = (".github/",)
+
+WITHHELD = "[repository URL withheld for review]"
+
 
 def tracked_files(root: Path) -> list[str]:
     r = subprocess.run(["git", "-C", str(root), "ls-files"],
                        capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit("not a git checkout; this script copies what git tracks")
-    return [f for f in r.stdout.splitlines() if f]
+    return [f for f in r.stdout.splitlines()
+            if f and not f.startswith(SKIP_PREFIXES)]
 
 
 def main() -> int:
@@ -57,35 +70,58 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory() as td:
         stage = Path(td) / args.name
+        copied = []
         for rel in tracked_files(root):
             src, dst = root / rel, stage / rel
             if not src.is_file():
                 continue
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dst)
+            copied.append(rel)
 
-        # 1. the author string, wherever it appears
-        for p in stage.rglob("*"):
-            if not (p.is_file() and p.suffix in TEXT_SUFFIXES):
-                continue
-            t = p.read_text(errors="replace")
-            if author and author in t:
-                p.write_text(t.replace(author, ""))
-
-        # 2. the clone line, and 3. the repository URL
+        # 1. the install commands. They have to keep working from the
+        #    unzipped directory, so the URL becomes a dot and not a placeholder.
         rd = stage / "README.md"
         if rd.is_file():
             t = rd.read_text()
             t = re.sub(r"git clone https://\S+",
                        f"unzip {Path(args.out).name}   "
                        f"# anonymised review copy", t)
+            t = re.sub(r'"git\+https://\S+?"', ".", t)
             t = re.sub(r"cd [A-Za-z0-9._-]*potency[A-Za-z0-9._-]*",
                        f"cd {args.name}", t)
             rd.write_text(t)
+
+        # 2. the whole [project.urls] table. Removing one key of it left Issues
+        #    behind, which is how this was found.
         pj = stage / "pyproject.toml"
         if pj.is_file():
-            pj.write_text(re.sub(r'\n\[project\.urls\]\nRepository = "[^"]*"\n',
+            pj.write_text(re.sub(r"\n\[project\.urls\]\n[^\[]*?(?=\n\[|\Z)",
                                  "\n", pj.read_text()))
+
+        # 3. the author string, and whatever still points at the author's own
+        #    GitHub. Case-insensitively: DAMIR ISKAKOV in a docstring is the same
+        #    leak as Damir Iskakov in a metadata field, and the check below is
+        #    case-insensitive, so a case-sensitive edit here only fails later.
+        #    Third-party repositories are left alone; they are citations.
+        author_re = re.compile(re.escape(author), re.I) if author else None
+        gh_re = re.compile(r"(?:https://)?github\.com/(?P<owner>[A-Za-z0-9._-]+)"
+                           r"/[A-Za-z0-9._-]+(?:/[^\s\"\'`)\]]*)?")
+        mine = [n.lower() for n in (surname, forename) if n]
+
+        def _scrub(m):
+            owner = m.group("owner").lower()
+            return WITHHELD if any(n in owner for n in mine) else m.group(0)
+
+        for p in stage.rglob("*"):
+            if not (p.is_file() and p.suffix in TEXT_SUFFIXES):
+                continue
+            t = orig = p.read_text(errors="replace")
+            if author_re:
+                t = author_re.sub("", t)
+            t = gh_re.sub(_scrub, t)
+            if t != orig:
+                p.write_text(t)
 
         # the check that decides whether anything is written at all
         needles = [n for n in (author, surname, forename) if n]
@@ -96,7 +132,7 @@ def main() -> int:
             for i, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
                 low = line.lower()
                 hit = ([n for n in needles if n.lower() in low]
-                       + [n for n in ("@gmail", "/Us" + "ers/", "/ho" + "me/")
+                       + [n for n in ("@gm" + "ail", "/Us" + "ers/", "/ho" + "me/")
                           if n.lower() in low]
                        + (["github.com/" + surname.lower()]
                           if surname and f"github.com/{surname.lower()}" in low
@@ -120,6 +156,10 @@ def main() -> int:
                 [sys.executable, "-c",
                  "import own_baseline, own_baseline.cli, own_baseline.floors; "
                  "print(own_baseline.__version__)"],
+                # the splash reads __author__, which this script has just
+                # emptied. An author-derived monogram has to degrade to nothing
+                # rather than raise, and only running it shows that.
+                [sys.executable, "-m", "own_baseline.cli", "--no-color"],
                 [sys.executable, "-m", "own_baseline.cli", "floors",
                  "--n", "39505", "--rho", "0.4844"],
                 [sys.executable, "-m", "pytest", "tests/", "-q",
@@ -139,10 +179,14 @@ def main() -> int:
                   "own test suite")
 
         out = Path(args.out).resolve()
+        # Only what git tracked. The smoke run above leaves __pycache__ and
+        # .pytest_cache in the stage, the grep ran before it and never saw them,
+        # and a .pyc is not a text suffix so it would never be grepped at all.
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-            for p in sorted(stage.rglob("*")):
-                if p.is_file():
-                    z.write(p, p.relative_to(stage.parent))
+            for rel in copied:
+                f = stage / rel
+                if f.is_file():
+                    z.write(f, Path(args.name) / rel)
         n = len(zipfile.ZipFile(out).namelist())
         print(f"wrote {out}  ({n} files, {out.stat().st_size / 1e6:.1f} MB)")
         print("no author string, e-mail, repository URL or home path survives")

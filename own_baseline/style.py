@@ -196,7 +196,7 @@ def _box(styled, plain, pad=1):
 
 
 def _monogram(author):
-    """Initials with stops, as a block word: DAMIR ISKAKOV -> D.I."""
+    """Initials with stops, as a block word: ADA LOVELACE -> A.L."""
     letters = [w[0].upper() for w in (author or "").split() if w]
     word = "".join(f"{c}." for c in letters)
     return word if word and all(c in _GLYPHS for c in word) else ""

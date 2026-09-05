@@ -193,6 +193,13 @@ For what is on `main` and not yet released:
 pip install "git+https://github.com/IskakovDamir/ownbaseline"
 ```
 
+**If the install succeeds and the command is still not found.** `pip install`
+outside a virtual environment falls back to a user install, and on macOS that
+puts the command in `~/Library/Python/3.x/bin`, which is not on `PATH` by
+default; `python3 -m site --user-base` prints the directory and the command sits
+in its `bin`. Run it by full path, add that directory to `PATH`, or use `uv`
+above, which puts the command somewhere already on it.
+
 **If pip says it cannot find the package at all.** An error naming
 `Requires-Python >=3.9` followed by `No matching distribution found` means the
 pip you ran belongs to a Python older than 3.9, which by now means an interpreter

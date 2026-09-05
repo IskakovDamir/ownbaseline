@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "own-baseline"
-version = "0.2.1"
+version = "0.2.2"
 description = "Does a single-cell potency score add anything beyond its own low-order primitive?"
 readme = "README.md"
 license = { file = "LICENSE" }

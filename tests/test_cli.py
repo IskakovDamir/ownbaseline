@@ -612,6 +612,27 @@ def test_styling_never_changes_the_text(monkeypatch, capsys, h5ad, tmp_path):
     assert re.sub(r"\x1b\[[0-9;]*m", "", coloured) == plain
 
 
+def test_the_declared_version_matches_the_one_pip_resolves():
+    """
+    __version__ is a literal in __init__.py, and the version pip resolves is a
+    different literal in pyproject.toml. 0.2.1 shipped with the first still at
+    0.2.0, so every receipt that release wrote carries a version that was never
+    released, and `ownbaseline --version` answered with it too. Nothing compared
+    them, so CI stayed green through the whole thing.
+    """
+    import re
+
+    import own_baseline
+    pj = Path(own_baseline.__file__).resolve().parents[1] / "pyproject.toml"
+    if not pj.is_file():
+        pytest.skip("installed without the source tree")
+    m = re.search(r'^version = "([^"]+)"', pj.read_text(), re.M)
+    assert m, "pyproject.toml declares no version"
+    assert own_baseline.__version__ == m.group(1), (
+        f"__init__.py says {own_baseline.__version__}, "
+        f"pyproject.toml says {m.group(1)}")
+
+
 def test_the_author_line_lives_in_exactly_one_place():
     """
     The review copy blanks own_baseline.__author__ and nothing else, so the

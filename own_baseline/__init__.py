@@ -27,7 +27,7 @@ Layout:
     paths.py              where this repo reads and writes
     synthetic.py          synthetic generators for the self-tests
 """
-__version__ = "0.2.0"
+__version__ = "0.2.2"
 # One place. The anonymised review copy blanks this line and nothing else.
 __author__ = "Damir Iskakov"
 

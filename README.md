@@ -6,7 +6,7 @@
 A single-cell potency or stemness score is usually validated by correlating it
 against a pseudotime, a marker panel, or a known hierarchy. A score that
 restates sequencing depth passes that test, and so does a score carrying real
-ordering information — the criterion cannot separate them, because the thing
+ordering information: the criterion cannot separate them, because the thing
 you are worried about correlates with the gold standard too. This repository
 implements the check that can: residualize the score on the low-order statistic
 its own authors say it approximates, and ask whether what is left still orders
@@ -14,14 +14,21 @@ cells. A score at rank correlation 0.93 with node degree can carry substantial
 skill beyond it; another at 0.998 carries none. Pairwise correlation does not
 tell you which you have, in either direction. Also in here: the field audit
 that came out of applying this to thirteen published scores, and the finding
-that our own strong hypothesis — that the whole family reduces to a fixed
-low-order statistic — is false for most of them.
+that our own strong hypothesis, that the whole family reduces to a fixed
+low-order statistic, is false for most of them.
 
 ## Quick start
 
 ```bash
-git clone https://github.com/IskakovDamir/potency-ownbaseline
-cd potency-ownbaseline
+pip install own-baseline            # the diagnostic, the command and the null grid
+```
+
+For the audit, the figures and the reproduction chain, work from the
+repository:
+
+```bash
+git clone https://github.com/IskakovDamir/ownbaseline
+cd ownbaseline
 pip install -e ".[full]"
 ```
 
@@ -133,7 +140,7 @@ Real output, about thirty seconds:
     => TAUTOLOG
 ```
 
-`sham_score` is `exp(primitive / 2)` — a monotone reparametrization that adds
+`sham_score` is `exp(primitive / 2)`, a monotone reparametrization that adds
 nothing. Its marginal gap is exactly `+0.0000` and its verdict is `TAUTOLOG`,
 which is right. But its conditional skill should also be zero and reports
 `-0.54` with an interval spanning most of [-1, 1]. That is not a near-null; it
@@ -147,7 +154,7 @@ Two entry points, in increasing strength:
 | function | what it computes | when to use it |
 |---|---|---|
 | `run_own_baseline(adata, score, gt_ordinal)` | marginal gap `tau(score, ordinal) − tau(gene counts, ordinal)` | a first look; one line, no residualization |
-| `conditional_skill_report(score, ordinal, primitives)` | rank residual on the primitive(s), scored under two kernels with a bootstrap interval, plus a direction check | the test the paper reports — **prefer this** |
+| `conditional_skill_report(score, ordinal, primitives)` | rank residual on the primitive(s), scored under two kernels with a bootstrap interval, plus a direction check | the test the paper reports, **prefer this** |
 
 The verdict vocabulary says which way the evidence points and is not a
 pass/fail: `REDUCES-TO-PRIMITIVE`, `INCONCLUSIVE`, `ADDS-BEYOND-PRIMITIVE` for
@@ -155,7 +162,7 @@ the marginal gap; `TAUTOLOG`, `ADDS-BEYOND`, `SIGN-FLIPPED`,
 `INCONCLUSIVE-kernel-disagree` for conditional skill.
 
 **Check the direction before reading any margin.** In sorted haematopoietic
-progenitors the gene-count primitive orders cells *below* chance — HSCs carry a
+progenitors the gene-count primitive orders cells *below* chance: HSCs carry a
 median 916 detected genes, the GMPs below them carry 1,404, and the primitive
 scores AUROC 0.378 against the known hierarchy. A score that beats that
 baseline has supplied a sign correction, not biology, and nothing in the margin
@@ -163,28 +170,28 @@ shows it. `conditional_skill_report` flags this; `run_own_baseline` does not.
 
 ## Install
 
-Straight from this repository, no checkout and no PyPI:
-
 ```bash
-uv tool install --python 3.12 "git+https://github.com/IskakovDamir/potency-ownbaseline"
+pip install own-baseline
 ownbaseline                         # the splash, and the four verbs
 ```
 
-`uv` is a single binary and brings its own Python, which is why it is first here:
-`curl -LsSf https://astral.sh/uv/install.sh | sh`, or `brew install uv`. Pinning
-3.12 keeps you on interpreters that numpy, scipy and scikit-learn publish wheels
-for; on a very new Python those wheels may not exist yet and pip will try to
-build them from source.
-
-Equivalents, if you already have the tooling:
+For an isolated install that brings its own interpreter and puts the command on
+your PATH without touching a project environment:
 
 ```bash
-pipx install "git+https://github.com/IskakovDamir/potency-ownbaseline"
-pip  install "git+https://github.com/IskakovDamir/potency-ownbaseline"
+uv tool install --python 3.12 own-baseline
 ```
 
-Once released it will also be on PyPI as `own-baseline`, and the URL drops out:
-`uv tool install own-baseline`.
+`uv` is a single binary: `curl -LsSf https://astral.sh/uv/install.sh | sh`, or
+`brew install uv`. Pinning 3.12 keeps you on interpreters that numpy, scipy and
+scikit-learn publish wheels for; on a very new Python those wheels may not exist
+yet and pip will try to build them from source.
+
+For what is on `main` and not yet released:
+
+```bash
+pip install "git+https://github.com/IskakovDamir/ownbaseline"
+```
 
 **If pipx fails before it reaches this package.** An error naming `ensurepip`,
 `venv --clear` or pipx's own `shared` directory is pipx repairing itself against
@@ -194,15 +201,14 @@ Nothing here is involved yet. Either use `uv` above, or repair pipx:
 ```bash
 rm -rf "$HOME/Library/Application Support/pipx/shared"
 brew install python@3.12
-pipx install --python "$(brew --prefix python@3.12)/bin/python3.12" \
-     "git+https://github.com/IskakovDamir/potency-ownbaseline"
+pipx install --python "$(brew --prefix python@3.12)/bin/python3.12" own-baseline
 ```
 
 Or skip the installers entirely, which always works:
 
 ```bash
 python3 -m venv ~/.ownbaseline
-~/.ownbaseline/bin/pip install "git+https://github.com/IskakovDamir/potency-ownbaseline"
+~/.ownbaseline/bin/pip install own-baseline
 ~/.ownbaseline/bin/ownbaseline
 ```
 
@@ -225,7 +231,7 @@ Verified on 2026-08-13 in a fresh `python3 -m venv` on macOS 15 (Darwin
 Both commands above pass in that environment, and `import own_baseline` works
 from outside the repository directory.
 
-The core diagnostic needs only numpy, scipy and scikit-learn — with just those
+The core diagnostic needs only numpy, scipy and scikit-learn: with just those
 three installed, 22 of the 25 tests pass and the 3 that do not are the ones
 constructing an `AnnData`. `pandas`, `anndata` and `matplotlib` come with the
 `[full]` extra and are needed by the score implementations, `reproduce.py` and
@@ -261,7 +267,7 @@ implementations in `own_baseline/potency_metrics.py`).
 
 This was run, not asserted. On 2026-08-13 `reproduce.py` downloaded
 GSE106474 and STRING v12, rebuilt the scaffold, prepared **39,505 cells across
-12 stages** — the paper's n exactly — and regenerated four rows of the headline
+12 stages**, the paper's n exactly, and regenerated four rows of the headline
 table. They match the values behind the manuscript to every digit reported,
 including both bootstrap bounds under both kernels:
 
@@ -283,7 +289,7 @@ also the signature of the F-2 artefact.
 
 | row | blocker |
 |---|---|
-| ORIGINS (τ_b 0.402) | needs `diff_edges.tsv` — `ORIGINS::differentiation_edges` dumped to TSV by hand. No script in this repository writes it. |
+| ORIGINS (τ_b 0.402) | needs `diff_edges.tsv`, `ORIGINS::differentiation_edges` dumped to TSV by hand. No script in this repository writes it. |
 | SLICE (ρ 0.932) | needs the SLICE R package and its bundled `hs_kappasim.rda`; nothing here fetches it |
 | dpath (τ_b 0.120) | GitHub-only R package with a documented R ≥ 4.2 incompatibility |
 | NCG (τ_b 0.402) | needs the NCG repo cloned **with Git-LFS**; a plain clone yields pointer files |
@@ -293,8 +299,8 @@ also the signature of the F-2 artefact.
 | StemID, cmEntropy | never measured. They equal a transcriptome-entropy primitive by construction, and the manuscript declines to report a number for them. |
 
 The R cross-check of the Python SR/CCAT implementations is a separate matter
-from computing them. The published check — Spearman 1.000, max |Δ| < 1e-13 on a
-500-cell subsample — needs the SCENT R sources placed under
+from computing them. The published check, Spearman 1.000, max |Δ| < 1e-13 on a
+500-cell subsample, needs the SCENT R sources placed under
 `$OWNBASELINE_SCRATCH/scent_src`, which no script here does.
 `reproduce.py` computes the scores and writes `scent_validation.json` recording
 that the cross-check was **skipped**.
@@ -310,7 +316,7 @@ anything. The two agree where both can run; `make_paper_a_figures.py
 
 On a 12-stage visually staged zebrafish ordinal (GSE106474, 39,505
 whole-embryo cells), of the seven scores that could be placed on the ordinal,
-five carry ordering skill beyond their own primitive — Kendall τ_b after rank
+five carry ordering skill beyond their own primitive, Kendall τ_b after rank
 residualization, with the value after residualizing on all four low-order
 statistics at once in brackets:
 
@@ -319,10 +325,10 @@ statistics at once in brackets:
 | CytoTRACE v1 | gene count | 0.653 | 0.288 |
 | SCENT SR | `PCC(x, degree)` | 0.430 | 0.183 |
 | ORIGINS | `PCC(x, degree)` | 0.402 | 0.156 |
-| NCG † | its own GO connectome | 0.402 | — |
+| NCG † | its own GO connectome | 0.402 | - |
 | dpath † | Shannon entropy | 0.120 | 0.134 |
-| CCAT | `PCC(x, degree)` | no measurable residual (ρ = 0.998) | — |
-| SLICE † | Shannon entropy | near zero (ρ = 0.932) | — |
+| CCAT | `PCC(x, degree)` | no measurable residual (ρ = 0.998) | - |
+| SLICE † | Shannon entropy | near zero (ρ = 0.932) | - |
 
 † on a fixed 3,000-cell subsample, not the full 39,505.
 
@@ -330,16 +336,16 @@ statistics at once in brackets:
 unsupervised potency score is a reparametrization of a fixed low-order
 statistic, so that agreement between such scores across contexts is guaranteed
 by construction rather than by biology. That holds for the identity and entropy
-constructions — CCAT is its primitive by definition; StemID and cmEntropy equal
+constructions, CCAT is its primitive by definition; StemID and cmEntropy equal
 a transcriptome entropy by construction; SLICE tracks one it does not improve
-on — and it is false for the entropy-rate and diffusion constructions.
+on, and it is false for the entropy-rate and diffusion constructions.
 Signalling entropy sits at ρ = 0.93 with the degree correlation and keeps skill
 after four primitives are removed at once. What the surviving residual consists
 of is open: a staged timecourse traces a developmental manifold, and a score
 tracking that manifold keeps skill whether or not it measures potency in any
 deeper sense.
 
-## Scope — what this does not do
+## Scope, what this does not do
 
 - **It does not tell you a score is good.** `ADDS-BEYOND` means the score
   orders cells beyond the primitive you named. It says nothing about whether
@@ -365,7 +371,7 @@ Recorded rather than patched, because fixing them changes what the estimator
 computes and the manuscript's numbers were traced to specific runs of it. Full
 detail in the commit messages and in `tests/test_estimator.py`.
 
-- **F-2 — an exact monotone function of its primitive does not yield zero
+- **F-2: an exact monotone function of its primitive does not yield zero
   conditional skill, and both kernels are affected.** When
   `rank(score) == rank(primitive)` the least-squares fit is exact and the
   residual is the rounding error of the subtraction, on the order of 1e-12
@@ -388,7 +394,7 @@ detail in the commit messages and in `tests/test_estimator.py`.
   have the defect. Pinned by
   `tests/test_estimator.py::test_exact_monotone_function_of_primitive_has_zero_conditional_skill`
   (expected failure) and by four tests in `tests/test_cli.py`.
-- **`figures/make_paper_a_figures.py` contained no data — fixed 2026-08-29.**
+- **`figures/make_paper_a_figures.py` contained no data, fixed 2026-08-29.**
   Every number in it was a hard-coded literal; it had no `errorbar` call despite
   the caption promising bootstrap intervals; it plotted StemID and cmEntropy at
   ρ 0.990 / 1.000 and skill 0.000 as though measured, and NCG as pending
@@ -399,7 +405,7 @@ detail in the commit messages and in `tests/test_estimator.py`.
   `figures/deprecated/make_paper_a_figures.py` because its literals are what the
   pre-2026-08 manuscript was traced against. The full before/after is
   `04-experiments/2026-08-29-figure2-provenance.md` in the vault.
-- **The figures were drawn to no page in particular — retargeted 2026-08-30.**
+- **The figures were drawn to no page in particular, retargeted 2026-08-30.**
   Figure 2 was emitted at 10.2 in wide, 1.6× the ML4H text block and 3.2× a
   column, with a side table set in 6.6pt type. Nothing about it survived
   reduction to a 3.18 in column. Figure 2 is now two variants built from the
@@ -410,7 +416,7 @@ detail in the commit messages and in `tests/test_estimator.py`.
   measures and prints on every run: side by side in one column each panel gets
   1.03 in of plotting width, against 2.06 in for its own title and 1.38 in for
   its two x tick labels at 7pt. Nothing on a retargeted figure is set below 7pt
-  at final size — `FontLedger.enforce()` raises rather than shrinking type —
+  at final size, `FontLedger.enforce()` raises rather than shrinking type,
   and each run reads the rendered width back out of the written PDF's MediaBox
   instead of trusting the `figsize` it asked for.
 - **Two residual implementations, not merged.** `rank_resid_multi` (the
@@ -438,9 +444,9 @@ scores/                score implementations used in the audit
 experiments/           every run script, verbatim, organized as it was run
 figures/               the manuscript's figures, each value read from a run artefact
   make_paper_a_figures.py  reads data/run_record/ + the null-calibration grid
-  fig2_body.pdf        3.18 in, figure  — the 7 rows measured on the ordinal
-  fig2_appendix.pdf    6.50 in, figure* — all 14 rows, side table, band
-  fig3.pdf             6.50 in, figure* — the depth confound, two panels
+  fig2_body.pdf        3.18 in, figure  - the 7 rows measured on the ordinal
+  fig2_appendix.pdf    6.50 in, figure* - all 14 rows, side table, band
+  fig3.pdf             6.50 in, figure* - the depth confound, two panels
   fig2_*_caption.txt   the caption generated for each variant
   deprecated/          the pre-2026-08-29 literal-only script, kept for tracing
 tests/                 known-answer tests
@@ -460,7 +466,7 @@ The audit ran published implementations wherever one existed: SCENT
 ORIGINS (`danielasenraoka/ORIGINS`), NCG (`Xinzhe-Ni/NCG`). CytoTRACE v1 is a
 port of the Gulati 2020 R algorithm. The SR, CCAT and ORIGINS **Python**
 implementations were checked against the R packages on a 500-cell subsample
-before use at scale — SR and CCAT to machine precision (Spearman 1.000,
+before use at scale, SR and CCAT to machine precision (Spearman 1.000,
 max |Δ| < 1e-13), ORIGINS to rank agreement only (Spearman 1.000).
 
 ## Citation
@@ -470,4 +476,4 @@ entry once one is minted. Until then, cite the repository by URL and commit.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

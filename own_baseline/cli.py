@@ -928,7 +928,7 @@ exit codes
   3  the test does not apply to what was passed, and there is no override
 
 what a verdict does and does not mean
-  docs/interpreting.md in the repository, github.com/IskakovDamir/potency-ownbaseline
+  docs/interpreting.md in the repository, github.com/IskakovDamir/ownbaseline
 """
 
 

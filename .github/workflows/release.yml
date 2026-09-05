@@ -8,7 +8,7 @@ name: release
 # Add a new pending publisher, with
 #   PyPI project name  own-baseline
 #   Owner              IskakovDamir
-#   Repository         potency-ownbaseline
+#   Repository         ownbaseline
 #   Workflow           release.yml
 #   Environment        pypi
 # and a GitHub environment of the same name under Settings -> Environments.

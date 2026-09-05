@@ -193,6 +193,14 @@ For what is on `main` and not yet released:
 pip install "git+https://github.com/IskakovDamir/ownbaseline"
 ```
 
+**If pip says it cannot find the package at all.** An error naming
+`Requires-Python >=3.10` followed by `No matching distribution found` means the
+pip you ran belongs to a Python older than 3.10. On macOS that is usually
+`/Library/Developer/CommandLineTools/usr/bin/python3`, which is 3.9 and comes
+with the Xcode command line tools; `python3 -V` says which one you have. Nothing
+is wrong with the package, and pip is reporting this correctly. `uv` above fixes
+it without touching that interpreter, because it brings its own.
+
 **If pipx fails before it reaches this package.** An error naming `ensurepip`,
 `venv --clear` or pipx's own `shared` directory is pipx repairing itself against
 a Python it cannot bootstrap, and it happens with the newest Homebrew Python.

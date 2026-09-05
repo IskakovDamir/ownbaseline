@@ -131,9 +131,9 @@ def main() -> int:
                                  "\n", pj.read_text()))
 
         # 3. the author string, and whatever still points at the author's own
-        #    GitHub. Case-insensitively: DAMIR ISKAKOV in a docstring is the same
-        #    leak as Damir Iskakov in a metadata field, and the check below is
-        #    case-insensitive, so a case-sensitive edit here only fails later.
+        #    GitHub. Case-insensitively: a name shouted in a docstring is the
+        #    same leak as the same name in a metadata field, and the check below
+        #    is case-insensitive, so a case-sensitive edit here only fails later.
         #    Third-party repositories are left alone; they are citations.
         author_re = re.compile(re.escape(author), re.I) if author else None
         gh_re = re.compile(r"(?:https://)?github\.com/(?P<owner>[A-Za-z0-9._-]+)"

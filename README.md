@@ -194,10 +194,10 @@ pip install "git+https://github.com/IskakovDamir/ownbaseline"
 ```
 
 **If pip says it cannot find the package at all.** An error naming
-`Requires-Python >=3.10` followed by `No matching distribution found` means the
-pip you ran belongs to a Python older than 3.10. On macOS that is usually
-`/Library/Developer/CommandLineTools/usr/bin/python3`, which is 3.9 and comes
-with the Xcode command line tools; `python3 -V` says which one you have. Nothing
+`Requires-Python >=3.9` followed by `No matching distribution found` means the
+pip you ran belongs to a Python older than 3.9, which by now means an interpreter
+that has been out of support for over two years; `python3 -V` says which one you
+have. Nothing
 is wrong with the package, and pip is reporting this correctly. `uv` above fixes
 it without touching that interpreter, because it brings its own.
 

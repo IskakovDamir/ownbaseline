@@ -37,9 +37,25 @@ TEXT_SUFFIXES = {".py", ".md", ".txt", ".toml", ".cfg", ".yml", ".yaml", ".R",
 
 # A workflow file names the repository owner, the deployment environment and the
 # project it publishes to. None of that is reviewable and all of it is a leak.
-SKIP_PREFIXES = (".github/",)
+# This script is left out for the same reason: its list of things to grep for is
+# a description of the author.
+SKIP_PREFIXES = (".github/", "tools/make_review_copy.py")
 
 WITHHELD = "[repository URL withheld for review]"
+
+# The Install section of the public README names the PyPI distribution, whose
+# project page carries the repository owner and the uploading account. The
+# review copy gets this instead.
+ANON_INSTALL = """## Install
+
+Unpack the zip and install from it. Python 3.10 or newer:
+
+```bash
+pip install .
+ownbaseline                         # the splash, and the four verbs
+```
+
+"""
 
 
 def tracked_files(root: Path) -> list[str]:
@@ -88,8 +104,23 @@ def main() -> int:
                        f"unzip {Path(args.out).name}   "
                        f"# anonymised review copy", t)
             t = re.sub(r'"git\+https://\S+?"', ".", t)
-            t = re.sub(r"cd [A-Za-z0-9._-]*potency[A-Za-z0-9._-]*",
+            t = re.sub(r"cd (?:[A-Za-z0-9._-]*potency[A-Za-z0-9._-]*|ownbaseline)",
                        f"cd {args.name}", t)
+
+            # The package is on PyPI, and its project page carries the owner's
+            # GitHub and the uploader's account name. An install line naming it
+            # is one click from the author, so the whole Install section is
+            # replaced with an install from the zip, and any install command
+            # elsewhere in the README stops naming the distribution.
+            i = t.find("## Install")
+            j = t.find("That gives the diagnostic", i + 1)
+            if i != -1 and j != -1:
+                t = t[:i] + ANON_INSTALL + t[j:]
+            else:
+                print("note: the Install section did not match; check the copy",
+                      file=sys.stderr)
+            t = re.sub(r"((?:pip|pipx|uv tool)\s+install\s+[^\n]*?)\bown-baseline\b",
+                       r"\1.", t)
             rd.write_text(t)
 
         # 2. the whole [project.urls] table. Removing one key of it left Issues
@@ -132,7 +163,9 @@ def main() -> int:
             for i, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
                 low = line.lower()
                 hit = ([n for n in needles if n.lower() in low]
-                       + [n for n in ("@gm" + "ail", "/Us" + "ers/", "/ho" + "me/")
+                       + [n for n in ("@gm" + "ail", "/Us" + "ers/", "/ho" + "me/",
+                                      "install own-base" + "line",
+                                      "pypi.org/project/own-base" + "line")
                           if n.lower() in low]
                        + (["github.com/" + surname.lower()]
                           if surname and f"github.com/{surname.lower()}" in low

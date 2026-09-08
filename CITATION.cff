@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: own-baseline
+abstract: >-
+  A single-cell potency or stemness score is usually validated by correlating it
+  against a pseudotime, a marker panel, or a known hierarchy. A score that
+  restates sequencing depth passes that test, and so does a score carrying real
+  ordering information. This package implements the check that separates them:
+  residualize the score on the low-order statistic its own authors say it
+  approximates, and ask whether what is left still orders cells, judged against
+  a null-calibrated floor computed at that value's own n and its own
+  score-primitive rank correlation.
+type: software
+authors:
+  - family-names: Iskakov
+    given-names: Damir
+version: 0.2.2
+date-released: "2026-09-05"
+license: MIT
+repository-code: "https://github.com/IskakovDamir/ownbaseline"
+url: "https://iskakov.dev/ownbaseline"
+keywords:
+  - single-cell
+  - scRNA-seq
+  - potency
+  - stemness
+  - benchmarking
+  - incremental-validity
+  - null-calibration
+  - CytoTRACE
+  - SCENT

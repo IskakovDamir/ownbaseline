@@ -632,6 +632,16 @@ def test_the_declared_version_matches_the_one_pip_resolves():
         f"__init__.py says {own_baseline.__version__}, "
         f"pyproject.toml says {m.group(1)}")
 
+    # A third literal joined these two when CITATION.cff arrived, and Zenodo
+    # mints the DOI off it. The review copy does not carry that file, so its
+    # absence is a skip and not a failure.
+    cff = pj.parent / "CITATION.cff"
+    if cff.is_file():
+        c = re.search(r"^version:\s*\"?([^\"\n]+?)\"?\s*$", cff.read_text(), re.M)
+        assert c, "CITATION.cff declares no version"
+        assert c.group(1) == m.group(1), (
+            f"CITATION.cff says {c.group(1)}, pyproject.toml says {m.group(1)}")
+
 
 def test_the_author_line_lives_in_exactly_one_place():
     """

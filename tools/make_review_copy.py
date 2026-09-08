@@ -38,8 +38,10 @@ TEXT_SUFFIXES = {".py", ".md", ".txt", ".toml", ".cfg", ".yml", ".yaml", ".R",
 # A workflow file names the repository owner, the deployment environment and the
 # project it publishes to. None of that is reviewable and all of it is a leak.
 # This script is left out for the same reason: its list of things to grep for is
-# a description of the author.
-SKIP_PREFIXES = (".github/", "tools/make_review_copy.py")
+# a description of the author. CITATION.cff is left out because it is nothing
+# else: name, handle, personal domain. Scrubbing it would leave valid YAML
+# claiming the software has no author, which is worse than not shipping it.
+SKIP_PREFIXES = (".github/", "tools/make_review_copy.py", "CITATION.cff")
 
 WITHHELD = "[repository URL withheld for review]"
 
@@ -48,7 +50,7 @@ WITHHELD = "[repository URL withheld for review]"
 # review copy gets this instead.
 ANON_INSTALL = """## Install
 
-Unpack the zip and install from it. Python 3.10 or newer:
+Unpack the zip and install from it. Python 3.9 or newer:
 
 ```bash
 pip install .
@@ -100,6 +102,13 @@ def main() -> int:
         rd = stage / "README.md"
         if rd.is_file():
             t = rd.read_text()
+
+            # 0. the badge block at the top. Badges link to hosted services and
+            #    the CI one points at the repository, so the scrub below leaves
+            #    a placeholder sitting inside markdown image syntax on the first
+            #    line a reviewer reads. None of them carry method or result.
+            t = re.sub(r"\A(?:\[!\[[^\n]*\n)+\n*", "", t)
+
             t = re.sub(r"git clone https://\S+",
                        f"unzip {Path(args.out).name}   "
                        f"# anonymised review copy", t)
@@ -154,13 +163,22 @@ def main() -> int:
             if t != orig:
                 p.write_text(t)
 
-        # the check that decides whether anything is written at all
+        # the check that decides whether anything is written at all.
+        #
+        # Every file, not only the text suffixes. The scrub above has to skip
+        # binaries or it corrupts them; skipping them here meant the check
+        # passed because it had not looked. Thirty-five tracked files went into
+        # the zip ungrepped, the LICENSE and every run log among them, and a
+        # CITATION.cff would have joined them: a file whose entire content is
+        # the author's name, carried past a check whose only job is to find the
+        # author's name. They were clean. That is not the same as checked.
         needles = [n for n in (author, surname, forename) if n]
         offenders = []
         for p in sorted(stage.rglob("*")):
-            if not (p.is_file() and p.suffix in TEXT_SUFFIXES):
+            if not p.is_file():
                 continue
-            for i, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
+            text = p.read_bytes().decode("utf-8", "replace")
+            for i, line in enumerate(text.splitlines(), 1):
                 low = line.lower()
                 hit = ([n for n in needles if n.lower() in low]
                        + [n for n in ("@gm" + "ail", "/Us" + "ers/", "/ho" + "me/",

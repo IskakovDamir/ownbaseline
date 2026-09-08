@@ -1,5 +1,6 @@
+[![tests](https://github.com/IskakovDamir/ownbaseline/actions/workflows/ci.yml/badge.svg)](https://github.com/IskakovDamir/ownbaseline/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 
 # own-baseline
 
@@ -309,7 +310,7 @@ also the signature of the F-2 artefact.
 | dpath (τ_b 0.120) | GitHub-only R package with a documented R ≥ 4.2 incompatibility |
 | NCG (τ_b 0.402) | needs the NCG repo cloned **with Git-LFS**; a plain clone yields pointer files |
 | MCE | no public implementation exists |
-| SPIDE | the formula is paywalled and was never obtained |
+| SPIDE | source paper paywalled; a first-party implementation is public and was not run here |
 | scEnergy | requires MATLAB |
 | StemID, cmEntropy | never measured. They equal a transcriptome-entropy primitive by construction, and the manuscript declines to report a number for them. |
 

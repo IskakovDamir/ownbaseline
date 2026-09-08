@@ -94,9 +94,15 @@ LEDGER = [
     ("NCG           (tau_b 0.402, n=3,000, GO connectome)", "BLOCKED",
      "needs the NCG repo (Xinzhe-Ni/NCG) cloned WITH Git-LFS: a plain clone "
      "yields pointer files, not the HPRD and GO matrices"),
+    ("joint-4 residuals (0.288 / 0.183 / 0.156 / 0.134)", "BLOCKED",
+     "fix2_joint_primitive.py is here, two of its four score inputs are not: "
+     "origins_scores.npz and dpath_scores.npz are absent for the reasons those "
+     "two rows give, and no output JSON of this step ships. The four values in "
+     "the paper, one of them in the abstract, therefore rest on a run record "
+     "and not on anything this script can recompute."),
     ("MCE", "BLOCKED", "no public implementation exists (Shi 2020)"),
-    ("SPIDE", "BLOCKED", "the formula is paywalled (Zheng 2023) and was never obtained"),
-    ("scEnergy", "BLOCKED", "requires a MATLAB environment"),
+    ("SPIDE", "BLOCKED", "the source paper is paywalled (Zheng 2023); a first-party\n     Python implementation is public and was not run here"),
+    ("scEnergy", "BLOCKED", "requires MATLAB; its network step uses the Statistics\n     toolbox and graph objects GNU Octave does not provide"),
     ("StemID, cmEntropy", "NOT-A-MEASUREMENT",
      "equal to a transcriptome-entropy primitive by construction. The paper "
      "declines to report a number for them and so does this script. "

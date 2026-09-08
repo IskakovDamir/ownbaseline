@@ -375,14 +375,15 @@ BLOCKED = [
          art="track4/fix1_mce_ncg_skill.json", status="scores/MCE/status",
          source="run record"),
     dict(score="SPIDE", primitive="unresolved",
-         reason="formula paywalled (Zheng 2023); never obtained, so the declared "
-                "primitive cannot be derived and no own-baseline can be defined",
+         reason="source paper paywalled (Zheng 2023); a first-party implementation "
+                "is public and was not run, so no own-baseline is defined here",
          source="04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md, "
                 "final-2-reductions section"),
     dict(score="scEnergy", primitive="no fixed primitive",
-         reason="needs a MATLAB/Octave environment; no implementation ran. Its "
-                "scaffold is a data-built co-expression graph, so it does not "
-                "reduce to a fixed low-order statistic either",
+         reason="needs MATLAB; its network step uses the Statistics toolbox and "
+                "graph objects GNU Octave does not provide. Its scaffold is a "
+                "data-built co-expression graph, so it does not reduce to a "
+                "fixed low-order statistic either",
          source="04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md, "
                 "frozen-benchmark table"),
 ]
@@ -1492,7 +1493,7 @@ def make_fig3():
         # panel this size a label sitting on the arrow masks a bar's own value.
         note = ((f"genes up as potency down: gene-count AUROC {g['auroc']:.3f}, below "
                  f"chance. The naive 'score beats primitive' test then reads CT marginal "
-                 f"delta = {g['delta']:+.3f} as a WIN") if inverted else
+                 f"delta = {g['delta']:+.3f} as a pass") if inverted else
                 (f"genes down as potency down: gene-count AUROC {g['auroc']:.3f}, "
                  f"direction correct"))
         note_lines = m.wrap(note, ax_w * 0.97, pt_note)
@@ -1524,7 +1525,7 @@ def make_fig3():
                 fontsize=pt_note, va="top", color=col, linespacing=1.25)
         ax.set_title(f"{spec['title']}  (n = {g['n']:,})", fontsize=pt_title, pad=3)
 
-    fig.text(0.5, 0.035, "medians and AUROC read from the w4 run record; Kendall tau_b",
+    fig.text(0.5, 0.035, "medians and AUROC read from the released run record; Kendall tau_b",
              ha="center", va="bottom", fontsize=pt_foot, color="#555", style="italic")
     m.close()
     out = OUT / "fig3.pdf"

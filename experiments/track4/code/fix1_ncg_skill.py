@@ -16,7 +16,7 @@ from scipy.stats import spearmanr
 
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys
@@ -68,7 +68,7 @@ def main():
     for nm, fn, key in [("NCG", "ncg_scores.npz", "ncg"), ("MCE", "mce_scores.npz", "mce")]:
         f = RES / fn
         if not f.exists():
-            out["scores"][nm] = {"status": "INCONCLUSIVE-infra (no real implementation ran in-session)"}
+            out["scores"][nm] = {"status": "INCONCLUSIVE-infra (no real implementation ran)"}
             print(f"{nm}: INCONCLUSIVE-infra (no {fn})")
             continue
         d = np.load(f)

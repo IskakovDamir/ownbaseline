@@ -7,7 +7,7 @@ tissues, species) from the CT2 Shiny metadata file.
 Rationale
 ---------
 The prereg (04-experiments/2026-07-17-hod5-atlas-scale-reduction-prereg.md §3)
-says: 'Explorer must fix the real N by the metadata file BEFORE running.'
+says the real N must be fixed by the metadata file BEFORE running.
 Three sources disagree:
     - GitHub README:               '34 datasets / 24 tissues'
     - CT2 Nature Methods 2025:     '34 human and mouse scRNA-seq datasets'

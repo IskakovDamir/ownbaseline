@@ -2,7 +2,7 @@
 Track 2 Gate 2 — build shared SCENT inputs so the verbatim SCENT R functions
 and the vectorized Python reimpl operate on the IDENTICAL network + expression.
 
-Outputs (scratchpad/scent_io/):
+Outputs (<scratch>/scent_io/):
   adjMC.mtx / mc_genes.txt      max-connected subnetwork of (atlas ∩ STRING v12),
                                 symmetric 0/1 adjacency, genes as rownames.
   sub_expr_libnorm.mtx          (mc_genes × N_SUB) library-normalized (linear CPM,
@@ -24,7 +24,7 @@ from scipy.sparse.csgraph import connected_components
 
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys

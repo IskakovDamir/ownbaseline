@@ -12,7 +12,7 @@ import scipy.sparse as sp
 
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys

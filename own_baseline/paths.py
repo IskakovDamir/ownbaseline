@@ -2,8 +2,8 @@
 paths.py — where this repository reads and writes.
 
 Every script here used to hard-code an absolute path under the author's home
-directory (and, for the R handoff scripts, an ephemeral agent-session
-scratchpad). Nothing outside that one machine could import them. This module
+directory (and, for the R handoff scripts, an ephemeral scratch
+directory). Nothing outside that one machine could import them. This module
 replaces those constants with two roots, each an environment variable with a
 repository-relative default.
 

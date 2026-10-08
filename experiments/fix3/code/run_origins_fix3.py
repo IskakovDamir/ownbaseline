@@ -1,7 +1,7 @@
 """
 FIX 3 GATE 2 — ORIGINS on Briggs Xenopus via the vectorized x^T A x validated ==
 ORIGINS::activity in the zebrafish decider. Uses ORIGINS' native differentiation_edges
-network (already exported to scratchpad/origins_io/diff_edges.tsv). Writes a 500-cell
+network (already exported to <scratch>/origins_io/diff_edges.tsv). Writes a 500-cell
 subsample for an independent Briggs R re-validation. Declared primitives: gene count AND
 PCC(x,degree).
 """
@@ -14,7 +14,7 @@ import scipy.io as sio
 
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys

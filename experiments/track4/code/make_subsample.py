@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build a reproducible 3000-cell subsample (seed 42) shared by SLICE and dpath.
 
-Writes, into the scratchpad:
+Writes, into the scratch root:
   sub_genes_cells.mtx   MatrixMarket, genes x cells, raw UMI counts (subsample)
   sub_features.tsv      gene symbols (row i of the mtx), full 23974
   sub_cell_idx.txt      0-based indices into cells.tsv canonical order (length 3000, sorted)
@@ -14,7 +14,7 @@ import scipy.io as sio
 
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys

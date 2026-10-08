@@ -19,7 +19,7 @@ import scipy.sparse as sp
 warnings.filterwarnings("ignore")
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys
@@ -80,7 +80,7 @@ def main():
     print("\nDevelopmental_stage counts:", dict(zip(*np.unique(stage_str, return_counts=True))))
     print("Replicate_name uniq:", np.unique(meta["Replicate_name"]).tolist())
     print("Library_name uniq (first 20):", np.unique(meta["Library_name"])[:20].tolist())
-    # dissected neural-plate-border cells (Judge caveat): the NPB_dissection replicate is a
+    # dissected neural-plate-border cells: the NPB_dissection replicate is a
     # targeted anatomical dissection (all at Stage_11), NOT whole-embryo → exclude per §2(3).
     # (The dissection label is in Replicate_name, not Library_name.)
     rep = meta["Replicate_name"]

@@ -2,7 +2,7 @@
 # Reference for validating the vectorized x^T A x used at full scale.
 suppressMessages({library(Matrix); library(ORIGINS)})
 # --- repo-relative I/O roots -------------------------------------------------
-# Was an ephemeral agent-session scratchpad under /private/tmp, so this script
+# Was an ephemeral scratch directory under /private/tmp, so this script
 # only ran on one machine on one day. Override with $OWNBASELINE_SCRATCH /
 # $OWNBASELINE_DATA_ROOT; defaults are <repo>/data/scratch and <repo>/data/runs.
 .argv  <- commandArgs(trailingOnly = FALSE)

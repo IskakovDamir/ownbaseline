@@ -3,7 +3,7 @@ run_raw_nnz.py
 ==============
 Session 4 (2026-07-17): Raw-nnz H1 re-run per prereg §3 letter.
 
-Per the Session 3 Judge verdict item 2, the PI chose pathway (2a): re-run H1 on
+Per item 2 of the Session 3 verdict, the PI chose pathway (2a): re-run H1 on
 raw nnz for as many rows as we can obtain. This script does that end-to-end for
 the subset of rows whose raw expression data we can download AND where per-cell
 potency labels can be resolved (either from the matrix cell IDs directly, from

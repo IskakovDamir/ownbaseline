@@ -1,6 +1,6 @@
 # paths.R -- the R half of own_baseline/paths.py.
 #
-# The R score wrappers used to hard-code an ephemeral agent-session scratchpad
+# The R score wrappers used to hard-code an ephemeral scratch directory
 # under /private/tmp. They now resolve the same two roots the Python side uses:
 #
 #   OWNBASELINE_DATA_ROOT   run inputs and outputs   default <repo>/data/runs

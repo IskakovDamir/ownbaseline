@@ -22,7 +22,7 @@ Determination:
   If A1's n=4 raw-nnz Δ ≈ +0.042/+0.088 → n-effect drove the shrinkage.
   If in between → both effects contribute.
 
-Author: researcher-explorer II.7 close-out. No SSOT / FULL-DRAFT writes.
+II.7 close-out.
 """
 from __future__ import annotations
 

@@ -42,7 +42,7 @@ Reproducibility:
   Only inputs are the two STRING files at the URLs above. No RNG. Determinism
   is exact modulo pandas/numpy version drift (structural: LCC is graph-defined).
 
-Build result (locked 2026-07-17 by researcher-builder):
+Build result (locked 2026-07-17):
   full high-conf : 15,971 nodes / 201,860 edges
   LCC            : 15,080 nodes / 201,141 edges
   LCC coverage   : 0.9442 nodes / 0.9964 edges

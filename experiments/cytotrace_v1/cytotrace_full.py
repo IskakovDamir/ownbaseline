@@ -2,7 +2,7 @@
 cytotrace_full.py — full CytoTRACE v1 implementation (Gulati et al. 2020 Science).
 
 =============================================================================
-R-FAITHFUL FIDELITY-FIX REVISION · 2026-07-19 (EXPLORER)
+R-FAITHFUL FIDELITY-FIX REVISION · 2026-07-19
 =============================================================================
 This revision implements a `variant` switch on the pipeline:
 
@@ -12,7 +12,7 @@ This revision implements a `variant` switch on the pipeline:
                                 dossier's JSON outputs; NOT recommended for
                                 new runs)
 
-The R source `similarity_matrix_cleaned` function was re-fetched in-session on
+The R source `similarity_matrix_cleaned` function was re-fetched on
 2026-07-19 to verify the exact operation order:
 
     > "similarity_matrix_cleaned <- function(similarity_matrix){
@@ -78,8 +78,7 @@ ORIGINAL DOCSTRING (from 2026-07-19 first run)
 =============================================================================
 
 This is a faithful port of the 4-step algorithm exposed in the R package
-`gunsagargulati/CytoTRACE` (master, file `R/CytoTRACE.R`), as fetched
-in-session:
+`gunsagargulati/CytoTRACE` (master, file `R/CytoTRACE.R`), as fetched:
   [FETCH: https://raw.githubusercontent.com/gunsagargulati/CytoTRACE/master/R/CytoTRACE.R · 2026-07-19]
 
 The four steps are:
@@ -126,8 +125,6 @@ returns a **genes x cells** submatrix (top-1000 most-variable genes). Then
 end up with a **cell x cell** correlation matrix. That is the intended
 similarity matrix.  See:
   [FETCH: https://raw.githubusercontent.com/gunsagargulati/CytoTRACE/master/R/CytoTRACE.R · 2026-07-19]
-
-Author: EXPLORER agent, 2026-07-19
 """
 
 from __future__ import annotations
@@ -215,7 +212,7 @@ def similarity_matrix_cleaned(X_cells_by_topgenes: np.ndarray,
     """
     Cell-cell similarity matrix.
 
-    R source (verbatim, re-fetched in-session 2026-07-19):
+    R source (verbatim, re-fetched 2026-07-19):
         > "similarity_matrix_cleaned <- function(similarity_matrix){
         >   D <- similarity_matrix
         >   cutoff <- mean(as.vector(D))

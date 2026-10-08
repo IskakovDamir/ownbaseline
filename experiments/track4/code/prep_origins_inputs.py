@@ -4,7 +4,7 @@ x^T A x (Python) run on the IDENTICAL differentiation network + expression.
 Reuses the SAME 500-cell subsample as the SCENT validation (scent_io/adjMC.npz
 sub_idx) for a consistent validation set.
 
-Outputs (scratchpad/origins_io/):
+Outputs (<scratch>/origins_io/):
   sub_expr_cpm.mtx / origins_genes.txt   CPM expression on (diff∩atlas) genes ×
                                           500 subsample cells (genes × cells).
   origins_net.npz                         symmetric adjacency + atlas col idx +
@@ -18,7 +18,7 @@ import scipy.io as sio
 
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys

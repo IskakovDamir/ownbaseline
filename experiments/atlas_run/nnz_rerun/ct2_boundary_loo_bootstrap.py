@@ -1,7 +1,7 @@
 """
 A3 LOO stability + bootstrap 95 % CI on n=4 raw-nnz CT2 boundary.
 
-II.7 close-out FRAMING-CORRECTION cycle (Explorer, 2026-07-17).
+II.7 close-out FRAMING-CORRECTION cycle (2026-07-17).
 
 Purpose: apply the II.3′ prereg §3 decision rule (PASS ≤ 0.05, INCONCLUSIVE
 0.05–0.10, FAIL > 0.10) to the n=4 raw-nnz atlas subset (dossier §S6 A1).
@@ -68,7 +68,7 @@ def main() -> None:
 
     out = {
         "task": "A3 LOO stability + bootstrap CI on n=4 raw-nnz CT2 boundary",
-        "cycle": "II.7 close-out FRAMING-CORRECTION (Explorer 2026-07-17)",
+        "cycle": "II.7 close-out FRAMING-CORRECTION (2026-07-17)",
         "n": 4,
         "labels": labels,
         "delta_scipy": scipy_vals.tolist(),

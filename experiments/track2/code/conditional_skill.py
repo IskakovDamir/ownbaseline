@@ -29,7 +29,7 @@ from scipy.stats import weightedtau, kendalltau, rankdata, spearmanr
 
 # --- repo-relative I/O roots -------------------------------------------------
 # These were absolute paths under the author's home directory and an ephemeral
-# agent-session scratchpad, so the module only imported on one machine.
+# scratch directory, so the module only imported on one machine.
 # Override with $OWNBASELINE_DATA_ROOT / $OWNBASELINE_SCRATCH; defaults are
 # <repo>/data/runs and <repo>/data/scratch. See own_baseline/paths.py.
 import sys as _sys
@@ -183,7 +183,7 @@ def main():
 
     for kind, label in meta:
         if kind == "infra":
-            out["conditional_skill"][label] = {"status": "INCONCLUSIVE-infra (real implementation not available in-session)"}
+            out["conditional_skill"][label] = {"status": "INCONCLUSIVE-infra (real implementation not available)"}
         elif kind == "cond":
             key = [t[0] for t in tasks if t[0].startswith(label)][0]
             out["conditional_skill"][label] = {**results[key], "unit": key}

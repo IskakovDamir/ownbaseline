@@ -372,8 +372,11 @@ MEASURED = [
 # and print their reason.
 BLOCKED = [
     dict(score="MCE", primitive="PCC(x, degree)",
-         art="track4/fix1_mce_ncg_skill.json", status="scores/MCE/status",
-         source="run record"),
+         reason="no implementation could be located; a categorization of the field "
+                "records a MATLAB script in the source paper's supplement, which was "
+                "not obtained",
+         source="run record track4/fix1_mce_ncg_skill.json, scores/MCE/status "
+                "(INCONCLUSIVE-infra); wording as in section 4 of the paper"),
     dict(score="SPIDE", primitive="unresolved",
          reason="source paper paywalled (Zheng 2023); a first-party implementation "
                 "is public and was not run, so no own-baseline is defined here",
@@ -1143,7 +1146,7 @@ def make_fig2_appendix(rows):
              for r in rows]
     floor_txt = [(f"{r.floor:+.4f}" if r.floor is not None else "—")
                  if r.kind == "measured" else "" for r in rows]
-    verdict_txt = [("yes" if r.clears else ("no — negative" if r.tau <= 0 else "no"))
+    verdict_txt = [("yes" if r.clears else ("no, negative" if r.tau <= 0 else "no"))
                    if r.kind == "measured" else _KIND_VERDICT[r.kind] for r in rows]
 
     # ---- measure first: the table columns, the y labels, and how many lines
@@ -1165,7 +1168,7 @@ def make_fig2_appendix(rows):
             heights.append(MEAS_ROW_H)
             continue
         text = (r.reason if r.kind == "by-construction"
-                else f"{_KIND_LEAD[r.kind]} — {r.reason}")
+                else f"{_KIND_LEAD[r.kind]}: {r.reason}")
         lines = pm.wrap(text, wrap_w, pt_reason)
         wrapped[r.score] = lines
         base = BAND_ROW_H if r.kind == "by-construction" else MEAS_ROW_H
@@ -1271,7 +1274,7 @@ def make_fig2_appendix(rows):
         mp.Patch(facecolor=CLEARS, edgecolor="#333", lw=0.5,
                  label="clears its own null floor"),
         mp.Patch(facecolor="none", edgecolor=BLOCKC, hatch="///",
-                 label="blocked — no run artefact; reason on the row"),
+                 label="blocked: no run artefact, reason on the row"),
         mp.Patch(facecolor=FAILS, edgecolor="#333", lw=0.5,
                  label="does not clear its own null floor"),
         mp.Patch(facecolor="none", edgecolor=OFFC, hatch="\\\\",
@@ -1281,9 +1284,9 @@ def make_fig2_appendix(rows):
         mp.Patch(facecolor="none", edgecolor=OUTC, hatch="...",
                  label="outside the unsupervised class audited here"),
         plt.Line2D([0], [0], color="#111", lw=1.0,
-                   label="95% bootstrap interval — sampling precision, not the verdict"),
+                   label="95% bootstrap interval: sampling precision, not the verdict"),
         mp.Patch(facecolor="#f2ecf7", edgecolor="none",
-                 label="by construction, never measured — no value"),
+                 label="by construction, never measured: no value"),
     ]
     fig.legend(handles=handles, fontsize=pt_leg, loc="lower left", frameon=False,
                bbox_to_anchor=(0.006, 0.018 / H), ncol=2, handlelength=2.1,

@@ -248,9 +248,9 @@
       "wtau_null_p97_5": null,
       "clears_own_wtau_floor": null,
       "subsample_3000": false,
-      "reason": "INCONCLUSIVE-infra (no real implementation ran in-session)",
+      "reason": "no implementation could be located; a categorization of the field records a MATLAB script in the source paper's supplement, which was not obtained",
       "sources": {
-        "status": "track4/fix1_mce_ncg_skill.json:scores/MCE/status"
+        "status": "run record track4/fix1_mce_ncg_skill.json, scores/MCE/status (INCONCLUSIVE-infra); wording as in section 4 of the paper"
       }
     },
     {

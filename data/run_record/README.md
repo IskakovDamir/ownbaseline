@@ -13,7 +13,7 @@ file and the field behind every number it draws.
 |---|---|---|---|
 | `track2/gate2_conditional_skill.json` | `experiments/track2/code/gate2_run.py` | 2026-07-20 | the fine-ordinal decider: conditional skill of each score against its declared primitive on GSE106474, 39,505 cells, 12-stage Kimmel ordinal, seed 42, both kernels, with bootstrap CIs and the score-primitive Spearman correlations |
 | `track4/fix1_mce_ncg_skill.json` | `experiments/track4/code/fix1_ncg_skill.py` | 2026-07-21 | NCG against `PCC(x,degree)` on the shared seed-42 3,000-cell subsample, and MCE's `INCONCLUSIVE-infra` status |
-| `w4/c1_gse117498_results.json` | `experiments/w4/scripts/w4_gate2_run.py` | 2026-08-29 | sorted human haematopoiesis (GSE117498): per-population median gene count, per-score marginal gap and conditional skill, AUROC of score and primitive, Kendall tau_b |
+| `w4/c1_gse117498_results.json` | `experiments/w4/scripts/w4_gate2_run.py` | 2026-10-09 | sorted human haematopoiesis (GSE117498): per-population median gene count, per-score marginal gap and conditional skill, AUROC of score and primitive, Kendall tau_b |
 | `w4/c2_gse125970_results.json` | `experiments/w4/scripts/w4_gate2_run.py` | 2026-08-29 | human intestine (GSE125970), same fields |
 | `atlas_run/per_dataset_results.json` | `experiments/atlas_run/atlas_run.py` | 2026-07-17 | the 23-dataset CytoTRACE 2 probe (Kang replication). Read only to establish that CT2 was measured, on human and mouse datasets, and that GSE106474 is not among its accessions, so Figure 2 can give it a row and no bar. |
 | `stemsc/summary.json` | `experiments/stemsc/` | 2026-07-18 | StemSC on the two sorted atlases. Read only to establish that StemSC *was* measured, somewhere other than the staged ordinal, so Figure 2 can give it a row and no bar. |
@@ -22,7 +22,7 @@ sha256:
 
     1ad8f5eb3523939128b27bd06f03f8e762fb39089a0858ca34b64e2e2af3e852  track2/gate2_conditional_skill.json
     885bbc365204f2e5a09a14ca9014310962798138f904d284307dbbb9518896ff  track4/fix1_mce_ncg_skill.json
-    1fc503e5ab8fc45ed93b4e63d4b3bf06efa841fb5dabe7cdba9ba8a333f6d6ec  w4/c1_gse117498_results.json
+    081f1577eb3890daab0ff2ae51da09d542fe7c0756070b13234f22189fb294a4  w4/c1_gse117498_results.json
     d7f03f7200799e5a15ba4920590e146b2f60a794c1895fe66e76f6de14961f5f  w4/c2_gse125970_results.json
     568fa45ed0384e3ca5cc590e125b6960a17318693791e9d409e0adf5138e67c8  stemsc/summary.json
     e5b3f5df607271096780708936672fa44d17a2da090b593efff6ef7248a5fb7f  atlas_run/per_dataset_results.json
@@ -30,6 +30,14 @@ sha256:
 The two `w4` files were recomputed under Kendall tau_b at commit `702ed1a`; the
 weighted-tau versions they replaced are not used by any figure, because every
 figure value in this repository is tau_b.
+
+`w4/c1_gse117498_results.json` was recomputed again on 2026-10-09 with the
+broad-gate files' gene names merged into the sorted files' (`load_c1(...,
+merge_names=True)`; `experiments/w4/DEVIATIONS.md`). The 2026-08-29 copy, sha256
+`1fc503e5ab8fc45ed93b4e63d4b3bf06efa841fb5dabe7cdba9ba8a333f6d6ec`, split 4,137
+genes into two columns each; it is in git history, and
+`experiments/w4_name_split/NOTE.md` sets every value of the two side by side.
+`stemsc/summary.json` is unchanged: StemSC is identical per cell under the merge.
 
 `OWNBASELINE_RUN_RECORD` overrides this directory. `make_paper_a_figures.py
 --crosscheck` additionally re-reads the same fields from

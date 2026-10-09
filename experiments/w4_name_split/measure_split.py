@@ -16,6 +16,7 @@ W4 (tau_b is the run record's, weighted tau the manuscript-era copy's) and at
 weighted tau for StemSC (the kernel of its run record).
 
     python3 experiments/w4_name_split/measure_split.py facts
+    python3 experiments/w4_name_split/measure_split.py loader
     python3 experiments/w4_name_split/measure_split.py w4 split
     python3 experiments/w4_name_split/measure_split.py w4 merged
     python3 experiments/w4_name_split/measure_split.py stemsc split  --stemsc-ref DIR
@@ -58,6 +59,9 @@ RECORD = REPO / "data" / "run_record"
 SUMMARY = HERE / "split_vs_merged.json"
 C1_DIR = data_root() / "w4" / "data" / "c1_gse117498"
 KERNELS = ("kendalltau", "weightedtau")
+# the C1 run record the published numbers came from, replaced on 2026-10-09
+SPLIT_RECORD_REV = "c26b588"
+SPLIT_RECORD_SHA256 = "1fc503e5ab8fc45ed93b4e63d4b3bf06efa841fb5dabe7cdba9ba8a333f6d6ec"
 RANKED_POPS = ["HSC", "MPP", "LinNegCD34PosCD164Pos", "MLP", "CMP", "PreBNK", "MEP", "GMP"]
 
 
@@ -184,6 +188,24 @@ def load(cond):
 def per_pop_medians(arrays, labels):
     return {pop: {k: float(np.nanmedian(v[labels == pop])) for k, v in arrays.items()}
             for pop in RANKED_POPS}
+
+
+def cmd_loader(_args):
+    """load_c1(merge_names=True) against the merged matrix ds_gse117498h builds."""
+    Xm, genes_m, cells_m, labels_m, ranks_m, _info = load("merged")
+    X, genes, cells, labels, ranks = w4.load_c1(C1_DIR, merge_names=True)
+    res = {"genes_equal": list(genes) == list(genes_m),
+           "cells_equal": bool(np.array_equal(cells, cells_m)),
+           "labels_equal": bool(np.array_equal(labels, labels_m)),
+           "ranks_equal": bool(np.array_equal(ranks, ranks_m, equal_nan=True)),
+           "dtype": [str(X.dtype), str(Xm.dtype)],
+           "matrix_equal": bool(X.shape == Xm.shape and np.array_equal(X, Xm)),
+           "n_genes": len(genes)}
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "loader_check.json").write_text(json.dumps(res, indent=2) + "\n")
+    print(json.dumps(res, indent=2))
+    if not all(v for k, v in res.items() if k.endswith("_equal")):
+        raise SystemExit("load_c1(merge_names=True) differs from ds_gse117498h")
 
 
 # ----------------------------------------------------------------------------- #
@@ -361,9 +383,20 @@ def cmd_compare(args):
     out = {"facts": L(OUT / "facts.json"), "reproduction": {}, "w4": {}, "stemsc": {}}
 
     # reproduction: the split recomputation against what the published runs wrote
-    rec_w4 = L(RECORD / "w4" / "c1_gse117498_results.json")
-    d, other = max_abs_diff(rec_w4, L(OUT / "w4_split_kendalltau.json"))
-    out["reproduction"]["w4_tau_b_vs_run_record"] = {"max_abs_diff": d, "non_numeric": other}
+    # (the C1 record before the 2026-10-09 correction, read from git history)
+    import subprocess
+    old = subprocess.run(["git", "-C", str(REPO), "show", f"{SPLIT_RECORD_REV}:"
+                          "data/run_record/w4/c1_gse117498_results.json"],
+                         capture_output=True, check=True).stdout
+    if hashlib.sha256(old).hexdigest() != SPLIT_RECORD_SHA256:
+        raise SystemExit(f"{SPLIT_RECORD_REV}: not the pre-correction C1 record")
+    d, other = max_abs_diff(json.loads(old), L(OUT / "w4_split_kendalltau.json"))
+    out["reproduction"]["w4_tau_b_vs_run_record_before_correction"] = {
+        "record_sha256": SPLIT_RECORD_SHA256, "max_abs_diff": d, "non_numeric": other}
+    cur = RECORD / "w4" / "c1_gse117498_results.json"
+    d, other = max_abs_diff(L(cur), L(OUT / "w4_merged_kendalltau.json"))
+    out["reproduction"]["w4_merged_tau_b_vs_run_record_now"] = {
+        "record_sha256": sha256(cur), "max_abs_diff": d, "non_numeric": other}
     if args.w4_weighted:
         d, other = max_abs_diff(L(args.w4_weighted), L(OUT / "w4_split_weightedtau.json"))
         out["reproduction"]["w4_weighted_vs_original_run"] = {
@@ -451,13 +484,15 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("facts")
+    sub.add_parser("loader")
     p = sub.add_parser("w4"); p.add_argument("cond", choices=["split", "merged"])
     p = sub.add_parser("stemsc"); p.add_argument("cond", choices=["split", "merged"])
     p.add_argument("--stemsc-ref", default=str(REPO / "experiments" / "stemsc"))
     p = sub.add_parser("compare")
     p.add_argument("--w4-weighted", default=None)
     args = ap.parse_args()
-    {"facts": cmd_facts, "w4": cmd_w4, "stemsc": cmd_stemsc, "compare": cmd_compare}[args.cmd](args)
+    {"facts": cmd_facts, "loader": cmd_loader, "w4": cmd_w4, "stemsc": cmd_stemsc,
+     "compare": cmd_compare}[args.cmd](args)
 
 
 if __name__ == "__main__":

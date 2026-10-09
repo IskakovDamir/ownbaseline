@@ -163,7 +163,13 @@
     ]
   },
   "reproduction": {
-    "w4_tau_b_vs_run_record": {
+    "w4_tau_b_vs_run_record_before_correction": {
+      "record_sha256": "1fc503e5ab8fc45ed93b4e63d4b3bf06efa841fb5dabe7cdba9ba8a333f6d6ec",
+      "max_abs_diff": 0.0,
+      "non_numeric": []
+    },
+    "w4_merged_tau_b_vs_run_record_now": {
+      "record_sha256": "081f1577eb3890daab0ff2ae51da09d542fe7c0756070b13234f22189fb294a4",
       "max_abs_diff": 0.0,
       "non_numeric": []
     },

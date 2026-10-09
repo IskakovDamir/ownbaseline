@@ -40,6 +40,12 @@ Contamination discipline:
   Ordinal loaded here BYTE-IDENTICAL from the GATE 1 lock; unmapped labels are
   marked UNRANKED and excluded from skill computation.
 
+Gene names (deviation, 2026-10-09):
+  C1 is loaded with merge_names=True: the broad-gate files' make.names
+  spellings (HLA.A) are merged into the sorted files' HGNC names (HLA-A). The
+  GATE 2 run before that date split each such gene in two. See
+  experiments/w4/DEVIATIONS.md.
+
 Reproducibility:
   seed = 42 fixed. Numbers only from real runs.
 """
@@ -154,7 +160,31 @@ C1_GSM_FILES = {
 }
 
 
-def load_c1(data_dir):
+def c1_name_pairs(per_pop_genes):
+    """
+    The broad-gate make.names spellings of sorted-file gene names, as
+    {broad name: sorted name}.
+
+    The seven sorted-population files name genes in HGNC form (HLA-A); the four
+    broad-gate (LinNeg...) files carry R make.names forms of the same names
+    (HLA.A). A broad-gate name Y pairs with the sorted-file name X when X
+    contains a hyphen, X with every hyphen replaced by a dot equals Y, and Y is
+    not itself a sorted-file name. This is the rule of
+    experiments/w5_new_rows/prepare_inputs.ds_gse117498h (4,137 pairs).
+    """
+    sorted_genes, broad_genes = set(), set()
+    for pop, genes in per_pop_genes.items():
+        (broad_genes if pop.startswith("LinNeg") else sorted_genes).update(genes)
+    pairs = {}
+    for x in sorted_genes:
+        if "-" in x:
+            y = x.replace("-", ".")
+            if y in broad_genes and y not in sorted_genes:
+                pairs[y] = x
+    return pairs
+
+
+def load_c1(data_dir, merge_names=False):
     """
     Load Pellin GSE117498 as a per-cell counts matrix (cells x genes) with
     associated population labels and ranks.
@@ -162,10 +192,18 @@ def load_c1(data_dir):
     Two file groups have different gene indices — union them across files and
     fill missing genes with 0 (a raw-count TSV omitting a gene is equivalent
     to zero expression per Pellin's release format).
+
+    The two groups also spell 4,137 genes differently (HLA-A in the sorted
+    files, HLA.A in the broad-gate files). With merge_names=False the union is
+    by exact name, so each such gene is two columns, zero in one group each.
+    merge_names=True renames the broad-gate spelling to the sorted one before
+    the union (c1_name_pairs), which is what the W4 and StemSC runs use since
+    2026-10-09 (experiments/w4_name_split/NOTE.md). The default stays False so
+    the paths registered before the split was found (the w5 PREREG's GSE117498
+    line among them) read the files as they were registered.
     """
     print("[C1] loading population TSVs...")
     per_pop_frames = {}
-    all_genes = set()
     for fname, pop in C1_GSM_FILES.items():
         p = Path(data_dir) / fname
         # first row is "Barcode\t<cellid>..."; second row is "Library\t1\t1..." — skip
@@ -175,9 +213,22 @@ def load_c1(data_dir):
             df = df.drop(index="Library")
         df.index.name = "gene"
         per_pop_frames[pop] = df
-        all_genes.update(df.index.tolist())
         print(f"  {pop:26s} : {df.shape[1]:>6} cells x {df.shape[0]:>6} genes")
 
+    if merge_names:
+        pairs = c1_name_pairs({pop: df.index for pop, df in per_pop_frames.items()})
+        for pop, df in per_pop_frames.items():
+            if pop.startswith("LinNeg"):
+                df = df.rename(index=pairs)
+                if not df.index.is_unique:
+                    raise ValueError(f"{pop}: merging gene names made the index non-unique")
+                df.index.name = "gene"
+                per_pop_frames[pop] = df
+        print(f"[C1] broad-gate make.names spellings merged into their HGNC twins: {len(pairs):,}")
+
+    all_genes = set()
+    for df in per_pop_frames.values():
+        all_genes.update(df.index.tolist())
     gene_list = sorted(all_genes)
     gene_idx = {g: i for i, g in enumerate(gene_list)}
     n_genes = len(gene_list)
@@ -660,7 +711,7 @@ def main():
 
     if not args.c2_only:
         X, genes, cell_ids, labels, ranks = load_c1(
-            data_root() / "w4" / "data" / "c1_gse117498"
+            data_root() / "w4" / "data" / "c1_gse117498", merge_names=True
         )
         res_c1 = run_atlas(
             "C1_GSE117498",

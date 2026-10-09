@@ -227,7 +227,7 @@ def conditional_skill_report(
                             baseline is a sign correction, not biology. In
                             sorted haematopoietic progenitors the gene-count
                             primitive sits at AUROC 0.378, and CytoTRACE
-                            "beats" it by 0.141.
+                            "beats" it by 0.181 under tau_b.
         conditional_skill   tau(residual, ordinal) with a 95% bootstrap
                             interval and a verdict, under both kernels, plus
                             whether the kernels agree. This is the answer.

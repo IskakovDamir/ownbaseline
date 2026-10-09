@@ -3,12 +3,12 @@
   "n_cells_total": 21412,
   "n_cells_ranked": 12354,
   "n_cells_unranked": 9058,
-  "n_genes_loaded": 29601,
-  "n_genes_after_filter": 19517,
+  "n_genes_loaded": 25464,
+  "n_genes_after_filter": 18819,
   "gene_filter_min_cells": 10,
   "scaffold": {
     "source": "STRING v12.0 human, threshold >=700, LCC free = 15,882 nodes",
-    "intersect_atlas_LCC_nodes": 12952
+    "intersect_atlas_LCC_nodes": 12958
   },
   "kernel": "scipy.stats.kendalltau (variant=b)",
   "per_tier_n": {
@@ -109,84 +109,84 @@
   "per_score": {
     "CT": {
       "n_ranked_cells": 12354,
-      "skill_score": 0.13995481068041593,
+      "skill_score": 0.09150441367958795,
       "skill_score_CI95": [
-        0.12530470825146475,
-        0.1543163961980028
+        0.07701635061178255,
+        0.1060666206364948
       ],
-      "skill_primitive": -0.08891639113762903,
+      "skill_primitive": -0.08907422363061017,
       "skill_primitive_CI95": [
-        -0.10099040878596464,
-        -0.07764674699612584
+        -0.10113681571390656,
+        -0.07781429673499492
       ],
-      "marginal_delta": 0.22887120181804496,
+      "marginal_delta": 0.18057863731019813,
       "marginal_delta_CI95": [
-        0.2165369734665528,
-        0.241845893152049
+        0.1691146720366786,
+        0.19267092257573165
       ],
-      "conditional_skill": 0.2315560807416508,
+      "conditional_skill": 0.1954788278073881,
       "conditional_skill_CI95": [
-        0.2175032244064296,
-        0.24655307558476486
+        0.18152450388933464,
+        0.21000997883046824
       ],
-      "AUROC_score_top_vs_bot": 0.2721336277962664,
-      "AUROC_primitive_top_vs_bot": 0.37837207626848596,
+      "AUROC_score_top_vs_bot": 0.2691079934494005,
+      "AUROC_primitive_top_vs_bot": 0.37831208452600984,
       "verdict": "SCORE-BEATS-PRIMITIVE"
     },
     "SR": {
       "n_ranked_cells": 12354,
-      "skill_score": 0.2798249849466168,
+      "skill_score": 0.18124847863681362,
       "skill_score_CI95": [
-        0.2671649953370289,
-        0.29377560414512915
+        0.16868092068846963,
+        0.19460321657923121
       ],
-      "skill_primitive": -0.10288462036774179,
+      "skill_primitive": 0.007967665135841615,
       "skill_primitive_CI95": [
-        -0.11728460706177445,
-        -0.08795310379278207
+        -0.006578228521198292,
+        0.022725746724082455
       ],
-      "marginal_delta": 0.3827096053143586,
+      "marginal_delta": 0.17328081350097202,
       "marginal_delta_CI95": [
-        0.3564637821055005,
-        0.4099042629981451
+        0.15208503484248145,
+        0.1979207261563069
       ],
-      "conditional_skill": 0.2540839848946631,
+      "conditional_skill": 0.18135349808810247,
       "conditional_skill_CI95": [
-        0.24074496123858233,
-        0.2674233171869437
+        0.16786379708976426,
+        0.19485920463736536
       ],
-      "AUROC_score_top_vs_bot": 0.4559968189136091,
-      "AUROC_primitive_top_vs_bot": 0.7947719898138732,
+      "AUROC_score_top_vs_bot": 0.45599737310984445,
+      "AUROC_primitive_top_vs_bot": 0.7947448341983413,
       "verdict": "SCORE-BEATS-PRIMITIVE"
     },
     "CCAT": {
       "n_ranked_cells": 12354,
-      "skill_score": -0.04540034897378909,
+      "skill_score": -0.0505684754149436,
       "skill_score_CI95": [
-        -0.05762184742552376,
-        -0.033670184507713294
+        -0.06302704845279662,
+        -0.03868867617949519
       ],
-      "skill_primitive": 0.24707346841754171,
+      "skill_primitive": 0.16675631994895046,
       "skill_primitive_CI95": [
-        0.23340760380222766,
-        0.2605996656520461
+        0.15329330255854032,
+        0.18059276570104366
       ],
-      "marginal_delta": -0.2924738173913308,
+      "marginal_delta": -0.21732479536389407,
       "marginal_delta_CI95": [
-        -0.30877635703945067,
-        -0.2764449554404179
+        -0.23186190222808825,
+        -0.20215304752031246
       ],
-      "conditional_skill": -0.13049901959131768,
+      "conditional_skill": -0.12268004715058364,
       "conditional_skill_CI95": [
-        -0.14221970786142632,
-        -0.11929429412688228
+        -0.13489003714976056,
+        -0.11128458335760402
       ],
-      "AUROC_score_top_vs_bot": 0.5229088097804552,
-      "AUROC_primitive_top_vs_bot": 0.4414092656068587,
+      "AUROC_score_top_vs_bot": 0.5229692171701077,
+      "AUROC_primitive_top_vs_bot": 0.441390422934857,
       "verdict": "SIGN-FLIPPED SCAFFOLD"
     }
   },
   "top_tier": 5,
   "bottom_tier": 2,
-  "elapsed_seconds": 50.91
+  "elapsed_seconds": 86.9
 }

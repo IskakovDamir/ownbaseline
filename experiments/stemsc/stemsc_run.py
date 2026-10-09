@@ -324,7 +324,7 @@ def main():
     summary = {}
 
     if not args.c2_only:
-        X, genes, cell_ids, labels, ranks = load_c1(W4_DATA / "c1_gse117498")
+        X, genes, cell_ids, labels, ranks = load_c1(W4_DATA / "c1_gse117498", merge_names=True)
         res_c1 = run_atlas(
             "C1_GSE117498",
             X, genes, cell_ids, labels, ranks,

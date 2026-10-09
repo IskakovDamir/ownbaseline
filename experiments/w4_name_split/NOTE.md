@@ -1,6 +1,8 @@
 # GSE117498 gene-name split: what it does to the W4 rows and StemSC
 
-`w4_gate2_run.load_c1` unions the eleven GSE117498 files by exact gene name. The seven sorted-population files name genes in HGNC form (HLA-A), the four broad-gate files in R `make.names` form (HLA.A), so every such gene becomes two columns, one zero in every broad-gate cell and the other zero in every sorted cell (`experiments/w5_new_rows/DISCOVERY.md` section 1.8). This note measures what that did to the results that went through `load_c1` before the split was found: the W4 rows on C1 (CytoTRACE proxy, SR, CCAT; `data/run_record/w4/c1_gse117498_results.json`, Figure 3) and StemSC on C1 (`data/run_record/stemsc/summary.json`). No paper text, README number, figure or tracked result file is changed by it.
+`w4_gate2_run.load_c1` unions the eleven GSE117498 files by exact gene name. The seven sorted-population files name genes in HGNC form (HLA-A), the four broad-gate files in R `make.names` form (HLA.A), so every such gene becomes two columns, one zero in every broad-gate cell and the other zero in every sorted cell (`experiments/w5_new_rows/DISCOVERY.md` section 1.8). This note measures what that did to the results that went through `load_c1` before the split was found: the W4 rows on C1 (CytoTRACE proxy, SR, CCAT; `data/run_record/w4/c1_gse117498_results.json`, Figure 3) and StemSC on C1 (`data/run_record/stemsc/summary.json`).
+
+**Status, 2026-10-09: applied.** After this measurement the W4 C1 run was redone with the names merged and replaced the run record, Figure 3 was regenerated from it, and the deviation is recorded in `experiments/w4/DEVIATIONS.md`. In the tables below, "split (published)" is the C1 record before that date (sha256 `1fc503e5...6d6ec`, in git history); "merged" is the record now.
 
 ## Answer
 
@@ -29,11 +31,13 @@ Checks before any merged number was read:
 
 | check | result |
 |---|---|
-| split, tau_b, against `data/run_record/w4/c1_gse117498_results.json` | every field equal (max abs difference 0.0; `elapsed_seconds` skipped) |
+| split, tau_b, against the C1 run record before the correction (`git show c26b588:data/run_record/w4/c1_gse117498_results.json`, sha256 `1fc503e5ab8fc45ed93b4e63d4b3bf06efa841fb5dabe7cdba9ba8a333f6d6ec`) | every field equal (max abs difference 0.0; `elapsed_seconds` skipped) |
 | split, weighted tau, against the original run's weighted-tau copy (not in the run record; SHA256 `6e00a41857f024deeb64dfb77f7011b07f1809b82e4e10743504477e272ceb88`) | every field equal (0.0) |
 | split StemSC against `data/run_record/stemsc/summary.json` | every field equal (0.0) |
 | merged gene list after the 10-cell filter against `$OWNBASELINE_DATA_ROOT/w5_new_rows/inputs/GSE117498h/genes.txt` | identical, 18,819 genes |
 | cells, population labels and ordinal, split against merged | identical |
+| `load_c1(merge_names=True)` against the merged matrix of `ds_gse117498h` (`measure_split.py loader`) | same genes in the same order, same cells, every value equal |
+| merged, tau_b, against the C1 run record after the correction (written by `w4_gate2_run.py --c1-only`) | every field equal (0.0) |
 
 ## W4 rows, tau_b (the run record's and the manuscript's kernel)
 
@@ -113,7 +117,7 @@ Manuscript means section 2 ("A primitive that orders below chance") and the Figu
 | CytoTRACE AUROC 0.272 | manuscript, Figure 3 caption | 0.2721 | 0.2691 | **changes to 0.269** |
 | direction check: score and primitive both below 0.5 | manuscript | 0.272, 0.378 | 0.269, 0.378 | unchanged |
 | the marginal gap reads as a pass (Delta > 0.10, SCORE-BEATS-PRIMITIVE) | manuscript; README ("returns the exact false positive"); `cli.py`, `own_baseline.py` docstrings | 0.229 | 0.181 | unchanged |
-| CytoTRACE "beats" gene count by 0.141 (weighted tau) | `own_baseline/conditional_skill.py` docstring; `figures/deprecated/make_paper_a_figures.py` | +0.1411 | +0.1574 | **changes to 0.157** |
+| CytoTRACE "beats" gene count by 0.141 (weighted tau) | `own_baseline/conditional_skill.py` docstring; `figures/deprecated/make_paper_a_figures.py` | +0.1411 | +0.1574 | **changes to 0.157**; the docstring now quotes the tau_b gap, 0.181 |
 | weighted conditional skill +0.190 [+0.138, +0.221], gap +0.141 (listed as manuscript values, not placeable) | `experiments/null_calibration/paper_values.py` | +0.1904 [+0.1382, +0.2213], +0.1411 | +0.2202 [+0.1734, +0.2495], +0.1574 | **changes** |
 | StemSC measured on the sorted atlases; a row in Figure A1 and no bar | Figure A1, appendix | conditional skill +0.3344 | identical | unchanged |
 
@@ -145,6 +149,7 @@ From the repository root, with `$OWNBASELINE_DATA_ROOT` holding `w4/data/c1_gse1
 
 ```
 python3 experiments/w4_name_split/measure_split.py facts
+python3 experiments/w4_name_split/measure_split.py loader
 python3 experiments/w4_name_split/measure_split.py w4 split
 python3 experiments/w4_name_split/measure_split.py w4 merged
 python3 experiments/w4_name_split/measure_split.py stemsc split  --stemsc-ref DIR

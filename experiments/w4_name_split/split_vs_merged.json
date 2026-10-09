@@ -1,0 +1,1008 @@
+{
+  "facts": {
+    "files": [
+      {
+        "file": "GSM3305359_HSC.raw_counts.tsv.gz",
+        "group": "sorted",
+        "n_genes": 25464,
+        "n_unique": 25464,
+        "n_hyphen": 4355,
+        "n_dot": 3862
+      },
+      {
+        "file": "GSM3305360_MPP.raw_counts.tsv.gz",
+        "group": "sorted",
+        "n_genes": 25464,
+        "n_unique": 25464,
+        "n_hyphen": 4355,
+        "n_dot": 3862
+      },
+      {
+        "file": "GSM3305361_MLP.raw_counts.tsv.gz",
+        "group": "sorted",
+        "n_genes": 25464,
+        "n_unique": 25464,
+        "n_hyphen": 4355,
+        "n_dot": 3862
+      },
+      {
+        "file": "GSM3305362_PreBNK.raw_counts.tsv.gz",
+        "group": "sorted",
+        "n_genes": 25464,
+        "n_unique": 25464,
+        "n_hyphen": 4355,
+        "n_dot": 3862
+      },
+      {
+        "file": "GSM3305363_MEP.raw_counts.tsv.gz",
+        "group": "sorted",
+        "n_genes": 25464,
+        "n_unique": 25464,
+        "n_hyphen": 4355,
+        "n_dot": 3862
+      },
+      {
+        "file": "GSM3305364_CMP.raw_counts.tsv.gz",
+        "group": "sorted",
+        "n_genes": 25464,
+        "n_unique": 25464,
+        "n_hyphen": 4355,
+        "n_dot": 3862
+      },
+      {
+        "file": "GSM3305365_GMP.raw_counts.tsv.gz",
+        "group": "sorted",
+        "n_genes": 25464,
+        "n_unique": 25464,
+        "n_hyphen": 4355,
+        "n_dot": 3862
+      },
+      {
+        "file": "GSM3305366_LinNegCD34PosCD164Pos.raw_counts.tsv.gz",
+        "group": "broad-gate",
+        "n_genes": 24719,
+        "n_unique": 24719,
+        "n_hyphen": 0,
+        "n_dot": 4916
+      },
+      {
+        "file": "GSM3305367_LinNegCD34NegCD164high.raw_counts.tsv.gz",
+        "group": "broad-gate",
+        "n_genes": 24719,
+        "n_unique": 24719,
+        "n_hyphen": 0,
+        "n_dot": 4916
+      },
+      {
+        "file": "GSM3305368_LinNegCD34lowCD164high.raw_counts.tsv.gz",
+        "group": "broad-gate",
+        "n_genes": 24719,
+        "n_unique": 24719,
+        "n_hyphen": 0,
+        "n_dot": 4916
+      },
+      {
+        "file": "GSM3305369_LinNegCD34NegCD164low.raw_counts.tsv.gz",
+        "group": "broad-gate",
+        "n_genes": 24719,
+        "n_unique": 24719,
+        "n_hyphen": 0,
+        "n_dot": 4916
+      }
+    ],
+    "n_sorted_union": 25464,
+    "n_broad_union": 24719,
+    "n_union": 29601,
+    "n_common_names": 20582,
+    "n_pairs": 4137,
+    "n_broad_only": 4137,
+    "n_broad_only_not_paired": 0,
+    "n_sorted_only": 4882,
+    "n_sorted_hyphen_not_paired": 218,
+    "sorted_hyphen_not_paired_dot_form_is_sorted_name": 0,
+    "sorted_hyphen_not_paired_dot_form_absent_from_broad": 218,
+    "n_paired_names_in_string_v12_lcc": 127,
+    "n_string_v12_lcc_genes": 15882,
+    "examples": [
+      [
+        "A1BG.AS1",
+        "A1BG-AS1"
+      ],
+      [
+        "A2M.AS1",
+        "A2M-AS1"
+      ],
+      [
+        "AATK.AS1",
+        "AATK-AS1"
+      ],
+      [
+        "ABC7.42404400C24.1",
+        "ABC7-42404400C24.1"
+      ],
+      [
+        "ABCA9.AS1",
+        "ABCA9-AS1"
+      ]
+    ],
+    "mt_pairs": [
+      "MT-ATP6",
+      "MT-ATP8",
+      "MT-CO1",
+      "MT-CO2",
+      "MT-CO3",
+      "MT-CYB",
+      "MT-ND1",
+      "MT-ND2",
+      "MT-ND3",
+      "MT-ND4",
+      "MT-ND4L",
+      "MT-ND5",
+      "MT-ND6"
+    ],
+    "hla_pairs": [
+      "HLA-A",
+      "HLA-B",
+      "HLA-C",
+      "HLA-DMA",
+      "HLA-DMB",
+      "HLA-DOA",
+      "HLA-DOB",
+      "HLA-DPA1",
+      "HLA-DPB1",
+      "HLA-DQA1",
+      "HLA-DQA2",
+      "HLA-DQB1",
+      "HLA-DQB2",
+      "HLA-DRA",
+      "HLA-DRB1",
+      "HLA-DRB5",
+      "HLA-E",
+      "HLA-F",
+      "HLA-G"
+    ]
+  },
+  "reproduction": {
+    "w4_tau_b_vs_run_record": {
+      "max_abs_diff": 0.0,
+      "non_numeric": []
+    },
+    "w4_weighted_vs_original_run": {
+      "file_sha256": "6e00a41857f024deeb64dfb77f7011b07f1809b82e4e10743504477e272ceb88",
+      "max_abs_diff": 0.0,
+      "non_numeric": []
+    },
+    "stemsc_vs_run_record": {
+      "max_abs_diff": 0.0,
+      "non_numeric": []
+    }
+  },
+  "w4": {
+    "kendalltau": {
+      "stats": {
+        "CT": {
+          "skill_score": {
+            "split": 0.13995481068041593,
+            "merged": 0.09150441367958795,
+            "change": -0.04845039700082798
+          },
+          "skill_primitive": {
+            "split": -0.08891639113762903,
+            "merged": -0.08907422363061017,
+            "change": -0.00015783249298113866
+          },
+          "marginal_delta": {
+            "split": 0.22887120181804496,
+            "merged": 0.18057863731019813,
+            "change": -0.04829256450784683
+          },
+          "conditional_skill": {
+            "split": 0.2315560807416508,
+            "merged": 0.1954788278073881,
+            "change": -0.0360772529342627
+          },
+          "AUROC_score_top_vs_bot": {
+            "split": 0.2721336277962664,
+            "merged": 0.2691079934494005,
+            "change": -0.0030256343468658686
+          },
+          "AUROC_primitive_top_vs_bot": {
+            "split": 0.37837207626848596,
+            "merged": 0.37831208452600984,
+            "change": -5.9991742476117604e-05
+          },
+          "skill_score_CI95": {
+            "split": [
+              0.12530470825146475,
+              0.1543163961980028
+            ],
+            "merged": [
+              0.07701635061178255,
+              0.1060666206364948
+            ]
+          },
+          "skill_primitive_CI95": {
+            "split": [
+              -0.10099040878596464,
+              -0.07764674699612584
+            ],
+            "merged": [
+              -0.10113681571390656,
+              -0.07781429673499492
+            ]
+          },
+          "marginal_delta_CI95": {
+            "split": [
+              0.2165369734665528,
+              0.241845893152049
+            ],
+            "merged": [
+              0.1691146720366786,
+              0.19267092257573165
+            ]
+          },
+          "conditional_skill_CI95": {
+            "split": [
+              0.2175032244064296,
+              0.24655307558476486
+            ],
+            "merged": [
+              0.18152450388933464,
+              0.21000997883046824
+            ]
+          },
+          "verdict": {
+            "split": "SCORE-BEATS-PRIMITIVE",
+            "merged": "SCORE-BEATS-PRIMITIVE"
+          }
+        },
+        "SR": {
+          "skill_score": {
+            "split": 0.2798249849466168,
+            "merged": 0.18124847863681362,
+            "change": -0.09857650630980316
+          },
+          "skill_primitive": {
+            "split": -0.10288462036774179,
+            "merged": 0.007967665135841615,
+            "change": 0.1108522855035834
+          },
+          "marginal_delta": {
+            "split": 0.3827096053143586,
+            "merged": 0.17328081350097202,
+            "change": -0.20942879181338658
+          },
+          "conditional_skill": {
+            "split": 0.2540839848946631,
+            "merged": 0.18135349808810247,
+            "change": -0.07273048680656063
+          },
+          "AUROC_score_top_vs_bot": {
+            "split": 0.4559968189136091,
+            "merged": 0.45599737310984445,
+            "change": 5.541962353472485e-07
+          },
+          "AUROC_primitive_top_vs_bot": {
+            "split": 0.7947719898138732,
+            "merged": 0.7947448341983413,
+            "change": -2.7155615531904154e-05
+          },
+          "skill_score_CI95": {
+            "split": [
+              0.2671649953370289,
+              0.29377560414512915
+            ],
+            "merged": [
+              0.16868092068846963,
+              0.19460321657923121
+            ]
+          },
+          "skill_primitive_CI95": {
+            "split": [
+              -0.11728460706177445,
+              -0.08795310379278207
+            ],
+            "merged": [
+              -0.006578228521198292,
+              0.022725746724082455
+            ]
+          },
+          "marginal_delta_CI95": {
+            "split": [
+              0.3564637821055005,
+              0.4099042629981451
+            ],
+            "merged": [
+              0.15208503484248145,
+              0.1979207261563069
+            ]
+          },
+          "conditional_skill_CI95": {
+            "split": [
+              0.24074496123858233,
+              0.2674233171869437
+            ],
+            "merged": [
+              0.16786379708976426,
+              0.19485920463736536
+            ]
+          },
+          "verdict": {
+            "split": "SCORE-BEATS-PRIMITIVE",
+            "merged": "SCORE-BEATS-PRIMITIVE"
+          }
+        },
+        "CCAT": {
+          "skill_score": {
+            "split": -0.04540034897378909,
+            "merged": -0.0505684754149436,
+            "change": -0.005168126441154511
+          },
+          "skill_primitive": {
+            "split": 0.24707346841754171,
+            "merged": 0.16675631994895046,
+            "change": -0.08031714846859125
+          },
+          "marginal_delta": {
+            "split": -0.2924738173913308,
+            "merged": -0.21732479536389407,
+            "change": 0.07514902202743676
+          },
+          "conditional_skill": {
+            "split": -0.13049901959131768,
+            "merged": -0.12268004715058364,
+            "change": 0.00781897244073404
+          },
+          "AUROC_score_top_vs_bot": {
+            "split": 0.5229088097804552,
+            "merged": 0.5229692171701077,
+            "change": 6.040738965251702e-05
+          },
+          "AUROC_primitive_top_vs_bot": {
+            "split": 0.4414092656068587,
+            "merged": 0.441390422934857,
+            "change": -1.8842672001750937e-05
+          },
+          "skill_score_CI95": {
+            "split": [
+              -0.05762184742552376,
+              -0.033670184507713294
+            ],
+            "merged": [
+              -0.06302704845279662,
+              -0.03868867617949519
+            ]
+          },
+          "skill_primitive_CI95": {
+            "split": [
+              0.23340760380222766,
+              0.2605996656520461
+            ],
+            "merged": [
+              0.15329330255854032,
+              0.18059276570104366
+            ]
+          },
+          "marginal_delta_CI95": {
+            "split": [
+              -0.30877635703945067,
+              -0.2764449554404179
+            ],
+            "merged": [
+              -0.23186190222808825,
+              -0.20215304752031246
+            ]
+          },
+          "conditional_skill_CI95": {
+            "split": [
+              -0.14221970786142632,
+              -0.11929429412688228
+            ],
+            "merged": [
+              -0.13489003714976056,
+              -0.11128458335760402
+            ]
+          },
+          "verdict": {
+            "split": "SIGN-FLIPPED SCAFFOLD",
+            "merged": "SIGN-FLIPPED SCAFFOLD"
+          }
+        }
+      },
+      "n_genes_after_filter": [
+        19517,
+        18819
+      ],
+      "n_genes_loaded": [
+        29601,
+        25464
+      ],
+      "string_atlas_lcc_nodes": [
+        12952,
+        12958
+      ],
+      "n_cells_ranked": [
+        12354,
+        12354
+      ],
+      "per_population_depth_max_abs_diff": 0.0
+    },
+    "weightedtau": {
+      "stats": {
+        "CT": {
+          "skill_score": {
+            "split": 0.18409289969916603,
+            "merged": 0.2000698954441737,
+            "change": 0.01597699574500766
+          },
+          "skill_primitive": {
+            "split": 0.04298902576700017,
+            "merged": 0.04268375368968369,
+            "change": -0.00030527207731648187
+          },
+          "marginal_delta": {
+            "split": 0.14110387393216586,
+            "merged": 0.15738614175449,
+            "change": 0.016282267822324142
+          },
+          "conditional_skill": {
+            "split": 0.19039852101542493,
+            "merged": 0.22021088275132572,
+            "change": 0.029812361735900794
+          },
+          "AUROC_score_top_vs_bot": {
+            "split": 0.2721336277962664,
+            "merged": 0.2691079934494005,
+            "change": -0.0030256343468658686
+          },
+          "AUROC_primitive_top_vs_bot": {
+            "split": 0.37837207626848596,
+            "merged": 0.37831208452600984,
+            "change": -5.9991742476117604e-05
+          },
+          "skill_score_CI95": {
+            "split": [
+              0.15668433834773104,
+              0.2023480495092664
+            ],
+            "merged": [
+              0.17306380221215328,
+              0.21842923745339984
+            ]
+          },
+          "skill_primitive_CI95": {
+            "split": [
+              -0.007147076383679322,
+              0.09803778363836738
+            ],
+            "merged": [
+              -0.008150481601327846,
+              0.09776038377268215
+            ]
+          },
+          "marginal_delta_CI95": {
+            "split": [
+              0.07097631609416839,
+              0.19230788552523553
+            ],
+            "merged": [
+              0.08872317649463413,
+              0.20861920192926192
+            ]
+          },
+          "conditional_skill_CI95": {
+            "split": [
+              0.1381879112143189,
+              0.22130215725428354
+            ],
+            "merged": [
+              0.1734279833384254,
+              0.24949628215854558
+            ]
+          },
+          "verdict": {
+            "split": "SCORE-BEATS-PRIMITIVE",
+            "merged": "SCORE-BEATS-PRIMITIVE"
+          }
+        },
+        "SR": {
+          "skill_score": {
+            "split": 0.21983588783159724,
+            "merged": 0.3228476537912843,
+            "change": 0.10301176595968703
+          },
+          "skill_primitive": {
+            "split": 0.37596108930055316,
+            "merged": 0.39864801618015466,
+            "change": 0.0226869268796015
+          },
+          "marginal_delta": {
+            "split": -0.15612520146895592,
+            "merged": -0.07580036238887039,
+            "change": 0.08032483908008553
+          },
+          "conditional_skill": {
+            "split": 0.35067495070230226,
+            "merged": 0.2837974550379871,
+            "change": -0.06687749566431517
+          },
+          "AUROC_score_top_vs_bot": {
+            "split": 0.4559968189136091,
+            "merged": 0.45599737310984445,
+            "change": 5.541962353472485e-07
+          },
+          "AUROC_primitive_top_vs_bot": {
+            "split": 0.7947719898138732,
+            "merged": 0.7947448341983413,
+            "change": -2.7155615531904154e-05
+          },
+          "skill_score_CI95": {
+            "split": [
+              0.1973640821819821,
+              0.2380746353855387
+            ],
+            "merged": [
+              0.30170513894816114,
+              0.33969192817234456
+            ]
+          },
+          "skill_primitive_CI95": {
+            "split": [
+              0.25279730378986887,
+              0.4567874716108542
+            ],
+            "merged": [
+              0.27521635852482457,
+              0.4791747903249246
+            ]
+          },
+          "marginal_delta_CI95": {
+            "split": [
+              -0.23697069352855302,
+              -0.030960252046166703
+            ],
+            "merged": [
+              -0.15542394472577728,
+              0.053861702435131546
+            ]
+          },
+          "conditional_skill_CI95": {
+            "split": [
+              0.2886240000152287,
+              0.389719818816197
+            ],
+            "merged": [
+              0.23612663478302232,
+              0.3481737859222294
+            ]
+          },
+          "verdict": {
+            "split": "SIGN-FLIPPED SCAFFOLD",
+            "merged": "inconclusive"
+          }
+        },
+        "CCAT": {
+          "skill_score": {
+            "split": 0.22171817126818105,
+            "merged": 0.16054294317093415,
+            "change": -0.0611752280972469
+          },
+          "skill_primitive": {
+            "split": 0.2851747849483197,
+            "merged": 0.3398861090089921,
+            "change": 0.05471132406067236
+          },
+          "marginal_delta": {
+            "split": -0.06345661368013866,
+            "merged": -0.17934316583805793,
+            "change": -0.11588655215791926
+          },
+          "conditional_skill": {
+            "split": 0.14676091094061494,
+            "merged": 0.16783866206289966,
+            "change": 0.021077751122284716
+          },
+          "AUROC_score_top_vs_bot": {
+            "split": 0.5229088097804552,
+            "merged": 0.5229692171701077,
+            "change": 6.040738965251702e-05
+          },
+          "AUROC_primitive_top_vs_bot": {
+            "split": 0.4414092656068587,
+            "merged": 0.441390422934857,
+            "change": -1.8842672001750937e-05
+          },
+          "skill_score_CI95": {
+            "split": [
+              0.15208759603596506,
+              0.25555452755582275
+            ],
+            "merged": [
+              0.07511951279025779,
+              0.2128376086794969
+            ]
+          },
+          "skill_primitive_CI95": {
+            "split": [
+              0.25385811801416364,
+              0.30654760180779683
+            ],
+            "merged": [
+              0.31238347291095125,
+              0.3588881267388004
+            ]
+          },
+          "marginal_delta_CI95": {
+            "split": [
+              -0.13609909167769896,
+              -0.015793764145744602
+            ],
+            "merged": [
+              -0.26769874966816776,
+              -0.11774428695817615
+            ]
+          },
+          "conditional_skill_CI95": {
+            "split": [
+              0.05302107089190976,
+              0.19584079421858466
+            ],
+            "merged": [
+              0.0698027661584495,
+              0.22020216600141138
+            ]
+          },
+          "verdict": {
+            "split": "inconclusive",
+            "merged": "SIGN-FLIPPED SCAFFOLD"
+          }
+        }
+      },
+      "n_genes_after_filter": [
+        19517,
+        18819
+      ],
+      "n_genes_loaded": [
+        29601,
+        25464
+      ],
+      "string_atlas_lcc_nodes": [
+        12952,
+        12958
+      ],
+      "n_cells_ranked": [
+        12354,
+        12354
+      ],
+      "per_population_depth_max_abs_diff": 0.0
+    },
+    "ct_top200": {
+      "overlap_after_name_normalisation": 198,
+      "split_top200_hgnc_paired_names": 0,
+      "split_top200_dot_names": 4,
+      "merged_top200_paired_names": 5,
+      "only_split": [
+        "G3BP1",
+        "RP11-620J15.3"
+      ],
+      "only_merged": [
+        "MT-ATP6",
+        "MT-CO3"
+      ]
+    },
+    "scaffold": {
+      "split_paired_hgnc_names": 36,
+      "split_dot_names": 0,
+      "merged_paired_hgnc_names": 42
+    },
+    "per_population_median": {
+      "split": {
+        "HSC": {
+          "CT_score": 1.9982858625144935,
+          "CT_primitive": 913.0,
+          "SR_score": 0.7836844864903239,
+          "SR_primitive": 424085.6076417443,
+          "CCAT_score": 0.36263716061055595,
+          "CCAT_primitive": 0.2880740796170349
+        },
+        "MPP": {
+          "CT_score": 1.9840841914702967,
+          "CT_primitive": 1034.0,
+          "SR_score": 0.7809571118330205,
+          "SR_primitive": 422028.578552001,
+          "CCAT_score": 0.36614705987356644,
+          "CCAT_primitive": 0.2816958451944243
+        },
+        "LinNegCD34PosCD164Pos": {
+          "CT_score": 2.588374063192601,
+          "CT_primitive": 1017.0,
+          "SR_score": 0.8216474420738151,
+          "SR_primitive": 349670.45927601797,
+          "CCAT_score": 0.35490010294179813,
+          "CCAT_primitive": 0.3384218811539937
+        },
+        "MLP": {
+          "CT_score": 1.9089614441684675,
+          "CT_primitive": 1348.0,
+          "SR_score": 0.7692059144524713,
+          "SR_primitive": 358091.4227976756,
+          "CCAT_score": 0.3357419189395096,
+          "CCAT_primitive": 0.2653479060056584
+        },
+        "CMP": {
+          "CT_score": 2.103678969936905,
+          "CT_primitive": 1061.0,
+          "SR_score": 0.7865153455035027,
+          "SR_primitive": 414474.32157611963,
+          "CCAT_score": 0.3698626288801672,
+          "CCAT_primitive": 0.29245604713396706
+        },
+        "PreBNK": {
+          "CT_score": 1.9820043260972708,
+          "CT_primitive": 988.0,
+          "SR_score": 0.7683306330765218,
+          "SR_primitive": 357074.5308954201,
+          "CCAT_score": 0.33041443773344514,
+          "CCAT_primitive": 0.2667797374819726
+        },
+        "MEP": {
+          "CT_score": 2.093797180571962,
+          "CT_primitive": 881.0,
+          "SR_score": 0.7875877636992413,
+          "SR_primitive": 410786.728243021,
+          "CCAT_score": 0.3587551851435542,
+          "CCAT_primitive": 0.2967411205019263
+        },
+        "GMP": {
+          "CT_score": 2.3919300525487732,
+          "CT_primitive": 1401.0,
+          "SR_score": 0.7926983244083705,
+          "SR_primitive": 379969.11330696876,
+          "CCAT_score": 0.37999495239384246,
+          "CCAT_primitive": 0.3018506982550031
+        }
+      },
+      "merged": {
+        "HSC": {
+          "CT_score": 2.1379203932694066,
+          "CT_primitive": 914.0,
+          "SR_score": 0.7836844763990097,
+          "SR_primitive": 424137.9109587959,
+          "CCAT_score": 0.36264447432093416,
+          "CCAT_primitive": 0.2880692261592118
+        },
+        "MPP": {
+          "CT_score": 2.1216635659265766,
+          "CT_primitive": 1038.0,
+          "SR_score": 0.7809571017768228,
+          "SR_primitive": 421947.3582340754,
+          "CCAT_score": 0.366182724109938,
+          "CCAT_primitive": 0.28167446603848467
+        },
+        "LinNegCD34PosCD164Pos": {
+          "CT_score": 2.6690850691885544,
+          "CT_primitive": 1017.0,
+          "SR_score": 0.8065849412024432,
+          "SR_primitive": 373184.14307811257,
+          "CCAT_score": 0.3543130310046167,
+          "CCAT_primitive": 0.3211670855892704
+        },
+        "MLP": {
+          "CT_score": 2.040937052825091,
+          "CT_primitive": 1348.0,
+          "SR_score": 0.7692059045475922,
+          "SR_primitive": 358040.2471453461,
+          "CCAT_score": 0.33576108196732307,
+          "CCAT_primitive": 0.26533613673428974
+        },
+        "CMP": {
+          "CT_score": 2.255317764222348,
+          "CT_primitive": 1061.0,
+          "SR_score": 0.7865153353757388,
+          "SR_primitive": 414557.86225994246,
+          "CCAT_score": 0.3698547735033275,
+          "CCAT_primitive": 0.29244468145062347
+        },
+        "PreBNK": {
+          "CT_score": 2.118757184671874,
+          "CT_primitive": 988.0,
+          "SR_score": 0.7683306231829179,
+          "SR_primitive": 357163.92489342985,
+          "CCAT_score": 0.33041616769435467,
+          "CCAT_primitive": 0.26676808706505967
+        },
+        "MEP": {
+          "CT_score": 2.2392505157220564,
+          "CT_primitive": 881.0,
+          "SR_score": 0.7875877535576649,
+          "SR_primitive": 410736.01345977385,
+          "CCAT_score": 0.35872894484660656,
+          "CCAT_primitive": 0.29671923052875243
+        },
+        "GMP": {
+          "CT_score": 2.5676533856545687,
+          "CT_primitive": 1402.5,
+          "SR_score": 0.7926983142009887,
+          "SR_primitive": 380038.07078844716,
+          "CCAT_score": 0.3799968091510398,
+          "CCAT_primitive": 0.3018404211766795
+        }
+      }
+    },
+    "merged_info": {
+      "n_gene_pairs_merged": 4137,
+      "n_genes_after_filter_ds_gse117498h": 18819,
+      "genes_after_filter_equal_w5_inputs_GSE117498h": true,
+      "n_genes_after_filter": 18819
+    }
+  },
+  "stemsc": {
+    "stats": {
+      "StemSC": {
+        "skill_score": {
+          "split": 0.273575516347566,
+          "merged": 0.273575516347566,
+          "change": 0.0
+        },
+        "skill_primitive": {
+          "split": 0.0919931692688934,
+          "merged": 0.0919931692688934,
+          "change": 0.0
+        },
+        "marginal_delta": {
+          "split": 0.1815823470786726,
+          "merged": 0.1815823470786726,
+          "change": 0.0
+        },
+        "conditional_skill": {
+          "split": 0.3343568330508691,
+          "merged": 0.3343568330508691,
+          "change": 0.0
+        },
+        "AUROC_score_top_vs_bot": {
+          "split": 0.5006223623722924,
+          "merged": 0.5006223623722924,
+          "change": 0.0
+        },
+        "AUROC_primitive_top_vs_bot": {
+          "split": 0.35097427698173644,
+          "merged": 0.35097427698173644,
+          "change": 0.0
+        },
+        "skill_score_CI95": {
+          "split": [
+            0.20150823594202882,
+            0.3282586632740832
+          ],
+          "merged": [
+            0.20150823594202882,
+            0.3282586632740832
+          ]
+        },
+        "skill_primitive_CI95": {
+          "split": [
+            0.013383174266894345,
+            0.14045663465807595
+          ],
+          "merged": [
+            0.013383174266894345,
+            0.14045663465807595
+          ]
+        },
+        "marginal_delta_CI95": {
+          "split": [
+            0.08888421623430372,
+            0.2751170789173655
+          ],
+          "merged": [
+            0.08888421623430372,
+            0.2751170789173655
+          ]
+        },
+        "conditional_skill_CI95": {
+          "split": [
+            0.266385052791175,
+            0.37648943318274714
+          ],
+          "merged": [
+            0.266385052791175,
+            0.37648943318274714
+          ]
+        },
+        "verdict": {
+          "split": "SCORE-BEATS-PRIMITIVE",
+          "merged": "SCORE-BEATS-PRIMITIVE"
+        }
+      }
+    },
+    "kernel": "scipy.stats.weightedtau (tie-handled via lexicographic averaging)",
+    "ref_pairs_present": [
+      15670,
+      15670
+    ],
+    "ref_genes_present": [
+      421,
+      421
+    ],
+    "n_genes_mapped_to_entrez": [
+      17077,
+      17238
+    ],
+    "n_ref_genes_with_hyphenated_symbol_in_atlas": [
+      0,
+      0
+    ],
+    "sha256_ref_pairs": "e1767adc92e42e519c6c95c0343a2d18ef9203f122f154ee6aad8ab58399422e",
+    "sha256_gene_info": "7f63e0bac7ec3d75ad213a655da90e5ce33d8944a29bfb207e5b20447ca4a1fe",
+    "per_population_median": {
+      "split": {
+        "HSC": {
+          "StemSC": 0.8864989752744353,
+          "REO_primitive": 0.2612954690491385
+        },
+        "MPP": {
+          "StemSC": 0.8831553973902728,
+          "REO_primitive": 0.27338864071474156
+        },
+        "LinNegCD34PosCD164Pos": {
+          "StemSC": 0.8891312250090876,
+          "REO_primitive": 0.31837906828334395
+        },
+        "MLP": {
+          "StemSC": 0.8342925183568168,
+          "REO_primitive": 0.2870453095086152
+        },
+        "CMP": {
+          "StemSC": 0.8916273361966676,
+          "REO_primitive": 0.31218889597957883
+        },
+        "PreBNK": {
+          "StemSC": 0.8725297772164484,
+          "REO_primitive": 0.26458200382897257
+        },
+        "MEP": {
+          "StemSC": 0.894310141509434,
+          "REO_primitive": 0.2740268028079132
+        },
+        "GMP": {
+          "StemSC": 0.8846828294922335,
+          "REO_primitive": 0.40446713465220163
+        }
+      },
+      "merged": {
+        "HSC": {
+          "StemSC": 0.8864989752744353,
+          "REO_primitive": 0.2612954690491385
+        },
+        "MPP": {
+          "StemSC": 0.8831553973902728,
+          "REO_primitive": 0.27338864071474156
+        },
+        "LinNegCD34PosCD164Pos": {
+          "StemSC": 0.8891312250090876,
+          "REO_primitive": 0.31837906828334395
+        },
+        "MLP": {
+          "StemSC": 0.8342925183568168,
+          "REO_primitive": 0.2870453095086152
+        },
+        "CMP": {
+          "StemSC": 0.8916273361966676,
+          "REO_primitive": 0.31218889597957883
+        },
+        "PreBNK": {
+          "StemSC": 0.8725297772164484,
+          "REO_primitive": 0.26458200382897257
+        },
+        "MEP": {
+          "StemSC": 0.894310141509434,
+          "REO_primitive": 0.2740268028079132
+        },
+        "GMP": {
+          "StemSC": 0.8846828294922335,
+          "REO_primitive": 0.40446713465220163
+        }
+      }
+    }
+  }
+}

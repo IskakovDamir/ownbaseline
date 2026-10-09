@@ -1,0 +1,545 @@
+{
+  "prereg_commit": "71605a4 2026-10-09 15:28:14 +0500",
+  "prereg_commits_newest_first": [
+    "71605a4 2026-10-09 15:28:14 +0500 audit: pre-register the four new rows before any score meets a label"
+  ],
+  "origin_fetched_now": true,
+  "plan_sha256": "e2d30f3abcde806f2719cb990a67c03d71ec9d6b35f83d07977b04e4db8695f5",
+  "seed": 42,
+  "n_boot": {
+    "kang_wdm_taub": 1000,
+    "scipy_weightedtau": 300
+  },
+  "rows": {
+    "MCE_GSE106474": {
+      "row": "MCE",
+      "dataset": "GSE106474",
+      "class": "unsupervised",
+      "status": "NOT RUN",
+      "reason": "waiting for the author: MCE.m is not in reference/, so no validated port has written w5_new_rows/scores/GSE106474/mce.csv"
+    },
+    "StemFinder_GSE106474": {
+      "row": "StemFinder",
+      "dataset": "GSE106474",
+      "class": "unsupervised",
+      "sensitivity_of": null,
+      "caveats": [
+        "nothing is fitted, but the authors chose among method variants (Gini, SD, variance; the k range) on a benchmark that includes the Farrell zebrafish set GSE106587, the SuperSeries of GSE106474"
+      ],
+      "n": 39505,
+      "levels": 12,
+      "decisive_value": "declared",
+      "primitive": "cell-cycle gene-set score",
+      "rho": -0.5684103172059323,
+      "marginal_taub": 0.2924144467496958,
+      "conditional_taub": 0.09767963485191018,
+      "conditional_taub_CI95": [
+        0.09116188941900158,
+        0.10428830548617461
+      ],
+      "floor_taub": 0.024699989425226325,
+      "floor_taub_source": "python3 -m own_baseline.cli floors --n 39505 --rho 0.5684 --kernel taub --covariates 1 --levels 12 --json",
+      "floor_taub_L12": null,
+      "verdict_taub": "ABOVE FLOOR",
+      "weighted": 0.43888213545573607,
+      "weighted_CI95": [
+        0.39203421990764903,
+        0.48099583160109627
+      ],
+      "floor_weighted": 0.2238306330972379,
+      "weighted_vs_floor": "above",
+      "joint4_rho": 0.5684103172059323,
+      "joint4_taub": 0.16692213196443675,
+      "joint4_taub_CI95": [
+        0.16246615767541767,
+        0.1714953032033542
+      ],
+      "joint4_floor_taub": 0.017087757564997804,
+      "joint4_verdict_taub": "ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = later stage, so potency = -ordinal",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": 0.4544217981352392,
+            "orders_below_chance": false
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.516418478241046,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.6287553353444192,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": 0.32209912051689826,
+            "orders_below_chance": false
+          },
+          "cell-cycle gene-set score": {
+            "spearman_vs_potency": 0.6024008602289933,
+            "orders_below_chance": false
+          }
+        },
+        "score": {
+          "spearman_vs_potency": -0.4446553644604767,
+          "authors_polarity": "higher = more differentiated",
+          "runs_as_authors_state": true
+        }
+      }
+    },
+    "mRNAsi_GSE117498": {
+      "row": "mRNAsi",
+      "dataset": "GSE117498",
+      "class": "trained",
+      "sensitivity_of": null,
+      "caveats": [
+        "GSE117498 through the stemsc code path: the four broad-gate files name genes in R make.names form (HLA.A) and the seven sorted files in HGNC form (HLA-A); load_c1 unions by exact name, so in broad-gate cells (tier 4 among them) those genes read zero. The GSE117498h line is the registered sensitivity with the names merged."
+      ],
+      "n": 12354,
+      "levels": 4,
+      "decisive_value": "joint4",
+      "primitive": "joint: gene count, PCC(x, degree), Shannon entropy, log10 library size",
+      "rho": 0.6335464453265919,
+      "marginal_taub": -0.014778884455950339,
+      "conditional_taub": 0.07996104482089134,
+      "conditional_taub_CI95": [
+        0.06714377044356269,
+        0.09145000824540454
+      ],
+      "floor_taub": 0.02634467680397799,
+      "floor_taub_source": "run_missing_cells.py --design n=12354,rho=0.634,levels=4,k=4",
+      "floor_taub_L12": 0.02452509548339274,
+      "verdict_taub": "ABOVE FLOOR",
+      "weighted": 0.4114614738403875,
+      "weighted_CI95": [
+        0.38831360166979895,
+        0.4302432122386543
+      ],
+      "floor_weighted": 0.2819824392724096,
+      "weighted_vs_floor": "above",
+      "joint4_rho": 0.6335464453265919,
+      "joint4_taub": 0.07996104482089134,
+      "joint4_taub_CI95": [
+        0.06714377044356269,
+        0.09145000824540454
+      ],
+      "joint4_floor_taub": 0.02634467680397799,
+      "joint4_verdict_taub": "ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = more potent",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": -0.11785956353637363,
+            "orders_below_chance": true
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.06789770967278101,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.015748131128428995,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": -0.1863506137477303,
+            "orders_below_chance": true
+          }
+        },
+        "score": {
+          "spearman_vs_potency": -0.021494687197693506,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": false
+        }
+      }
+    },
+    "mRNAsi_GSE117498h": {
+      "row": "mRNAsi",
+      "dataset": "GSE117498h",
+      "class": "trained",
+      "sensitivity_of": "mRNAsi_GSE117498",
+      "caveats": [
+        "registered sensitivity: gene names merged (prepare_inputs.ds_gse117498h)"
+      ],
+      "n": 12354,
+      "levels": 4,
+      "decisive_value": "joint4",
+      "primitive": "joint: gene count, PCC(x, degree), Shannon entropy, log10 library size",
+      "rho": 0.6484973285119533,
+      "marginal_taub": 0.00950849791099158,
+      "conditional_taub": -0.05776232425291671,
+      "conditional_taub_CI95": [
+        -0.06927199433037988,
+        -0.04463611764462119
+      ],
+      "floor_taub": 0.025587533200450402,
+      "floor_taub_source": "run_missing_cells.py --design n=12354,rho=0.648,levels=4,k=4",
+      "floor_taub_L12": 0.025437026382090836,
+      "verdict_taub": "NOT ABOVE FLOOR",
+      "weighted": 0.1991653548622174,
+      "weighted_CI95": [
+        0.12395712940009995,
+        0.2641090829471095
+      ],
+      "floor_weighted": 0.2889439309180367,
+      "weighted_vs_floor": "not above",
+      "joint4_rho": 0.6484973285119533,
+      "joint4_taub": -0.05776232425291671,
+      "joint4_taub_CI95": [
+        -0.06927199433037988,
+        -0.04463611764462119
+      ],
+      "joint4_floor_taub": 0.025587533200450402,
+      "joint4_verdict_taub": "NOT ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = more potent",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": -0.11806689376768288,
+            "orders_below_chance": true
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.07233241819224234,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.015479070644550546,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": -0.1864017212401475,
+            "orders_below_chance": true
+          }
+        },
+        "score": {
+          "spearman_vs_potency": 0.009659290344481606,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": true
+        }
+      }
+    },
+    "FitDevo_GSE106474": {
+      "row": "FitDevo",
+      "dataset": "GSE106474",
+      "class": "trained",
+      "sensitivity_of": null,
+      "caveats": [
+        "not in the training set, but the authors evaluated their weights on this study's stage labels once (Spearman 0.228, GSE106587)",
+        "zebrafish symbols matched to human by upper case; the authors left zebrafish out of training for too few homologous genes"
+      ],
+      "n": 39505,
+      "levels": 12,
+      "decisive_value": "joint4",
+      "primitive": "joint: gene count, PCC(x, degree), Shannon entropy, log10 library size",
+      "rho": 0.9420127140318123,
+      "marginal_taub": -0.2731341072489838,
+      "conditional_taub": 0.06313306113156236,
+      "conditional_taub_CI95": [
+        0.05801170563533527,
+        0.06789203709265018
+      ],
+      "floor_taub": 0.022733543356388358,
+      "floor_taub_source": "python3 -m own_baseline.cli floors --n 39505 --rho 0.9420 --kernel taub --covariates 4 --levels 12 --json",
+      "floor_taub_L12": null,
+      "verdict_taub": "ABOVE FLOOR",
+      "weighted": 0.3467185352617782,
+      "weighted_CI95": [
+        0.25900810242497085,
+        0.38579422667350394
+      ],
+      "floor_weighted": 0.32340400907535605,
+      "weighted_vs_floor": "above",
+      "joint4_rho": 0.9420127140318123,
+      "joint4_taub": 0.06313306113156236,
+      "joint4_taub_CI95": [
+        0.05801170563533527,
+        0.06789203709265018
+      ],
+      "joint4_floor_taub": 0.022733543356388358,
+      "joint4_verdict_taub": "ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = later stage, so potency = -ordinal",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": 0.4544217981352392,
+            "orders_below_chance": false
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.516418478241046,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.6287553353444192,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": 0.32209912051689826,
+            "orders_below_chance": false
+          }
+        },
+        "score": {
+          "spearman_vs_potency": 0.37687350784678586,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": true
+        }
+      }
+    },
+    "FitDevo_GSE117498": {
+      "row": "FitDevo",
+      "dataset": "GSE117498",
+      "class": "trained",
+      "sensitivity_of": null,
+      "caveats": [
+        "GSE117498 through the stemsc code path: the four broad-gate files name genes in R make.names form (HLA.A) and the seven sorted files in HGNC form (HLA-A); load_c1 unions by exact name, so in broad-gate cells (tier 4 among them) those genes read zero. The GSE117498h line is the registered sensitivity with the names merged."
+      ],
+      "n": 12354,
+      "levels": 4,
+      "decisive_value": "joint4",
+      "primitive": "joint: gene count, PCC(x, degree), Shannon entropy, log10 library size",
+      "rho": 0.7821727019824007,
+      "marginal_taub": -0.06503330342295933,
+      "conditional_taub": 0.14943770250373792,
+      "conditional_taub_CI95": [
+        0.13593005282380827,
+        0.16173786011873828
+      ],
+      "floor_taub": 0.0300531230563975,
+      "floor_taub_source": "run_missing_cells.py --design n=12354,rho=0.782,levels=4,k=4",
+      "floor_taub_L12": 0.02659786934156444,
+      "verdict_taub": "ABOVE FLOOR",
+      "weighted": 0.47036109300879375,
+      "weighted_CI95": [
+        0.4518156693364076,
+        0.48521834616524395
+      ],
+      "floor_weighted": 0.29809651646064317,
+      "weighted_vs_floor": "above",
+      "joint4_rho": 0.7821727019824007,
+      "joint4_taub": 0.14943770250373792,
+      "joint4_taub_CI95": [
+        0.13593005282380827,
+        0.16173786011873828
+      ],
+      "joint4_floor_taub": 0.0300531230563975,
+      "joint4_verdict_taub": "ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = more potent",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": -0.11785956353637363,
+            "orders_below_chance": true
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.06789770967278101,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.015748131128428995,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": -0.1863506137477303,
+            "orders_below_chance": true
+          }
+        },
+        "score": {
+          "spearman_vs_potency": -0.08736323875607269,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": false
+        }
+      }
+    },
+    "FitDevo_GSE117498h": {
+      "row": "FitDevo",
+      "dataset": "GSE117498h",
+      "class": "trained",
+      "sensitivity_of": "FitDevo_GSE117498",
+      "caveats": [
+        "registered sensitivity: gene names merged (prepare_inputs.ds_gse117498h)"
+      ],
+      "n": 12354,
+      "levels": 4,
+      "decisive_value": "joint4",
+      "primitive": "joint: gene count, PCC(x, degree), Shannon entropy, log10 library size",
+      "rho": 0.7842651919064085,
+      "marginal_taub": -0.06575296752644258,
+      "conditional_taub": 0.14245422106209069,
+      "conditional_taub_CI95": [
+        0.12897752551343006,
+        0.15497135016758784
+      ],
+      "floor_taub": 0.030283957029612635,
+      "floor_taub_source": "run_missing_cells.py --design n=12354,rho=0.784,levels=4,k=4",
+      "floor_taub_L12": 0.027367142124051343,
+      "verdict_taub": "ABOVE FLOOR",
+      "weighted": 0.46972238785205156,
+      "weighted_CI95": [
+        0.4498501641597139,
+        0.4840653646364774
+      ],
+      "floor_weighted": 0.2911244523230214,
+      "weighted_vs_floor": "above",
+      "joint4_rho": 0.7842651919064085,
+      "joint4_taub": 0.14245422106209069,
+      "joint4_taub_CI95": [
+        0.12897752551343006,
+        0.15497135016758784
+      ],
+      "joint4_floor_taub": 0.030283957029612635,
+      "joint4_verdict_taub": "ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = more potent",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": -0.11806689376768288,
+            "orders_below_chance": true
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.07233241819224234,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.015479070644550546,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": -0.1864017212401475,
+            "orders_below_chance": true
+          }
+        },
+        "score": {
+          "spearman_vs_potency": -0.08820467087534484,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": false
+        }
+      }
+    },
+    "FitDevo_GSE125970": {
+      "row": "FitDevo",
+      "dataset": "GSE125970",
+      "class": "trained",
+      "sensitivity_of": null,
+      "caveats": [],
+      "n": 14537,
+      "levels": 3,
+      "decisive_value": "joint4",
+      "primitive": "joint: gene count, PCC(x, degree), Shannon entropy, log10 library size",
+      "rho": 0.9440257931335737,
+      "marginal_taub": 0.56211601270926,
+      "conditional_taub": 0.15274918589673642,
+      "conditional_taub_CI95": [
+        0.14248390527603064,
+        0.16303355286834767
+      ],
+      "floor_taub": 0.02456499319844561,
+      "floor_taub_source": "run_missing_cells.py --design n=14537,rho=0.944,levels=3,k=4",
+      "floor_taub_L12": 0.02346046579066374,
+      "verdict_taub": "ABOVE FLOOR",
+      "weighted": 0.35719537826121994,
+      "weighted_CI95": [
+        0.3108356861193665,
+        0.3862090692239241
+      ],
+      "floor_weighted": 0.3296299220233075,
+      "weighted_vs_floor": "above",
+      "joint4_rho": 0.9440257931335737,
+      "joint4_taub": 0.15274918589673642,
+      "joint4_taub_CI95": [
+        0.14248390527603064,
+        0.16303355286834767
+      ],
+      "joint4_floor_taub": 0.02456499319844561,
+      "joint4_verdict_taub": "ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = more potent",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": 0.5507235697577897,
+            "orders_below_chance": false
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": 0.6847476264923855,
+            "orders_below_chance": false
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.45271473610250745,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": 0.5557658460368835,
+            "orders_below_chance": false
+          }
+        },
+        "score": {
+          "spearman_vs_potency": 0.7084275593465068,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": true
+        }
+      }
+    },
+    "FitDevo_GSE113074": {
+      "row": "FitDevo",
+      "dataset": "GSE113074",
+      "class": "trained",
+      "sensitivity_of": null,
+      "caveats": [
+        "Xenopus symbols matched to human by upper case; the homology concern the authors raised for zebrafish applies here too"
+      ],
+      "n": 127607,
+      "levels": 10,
+      "decisive_value": "joint4",
+      "primitive": "joint: gene count, PCC(x, degree), Shannon entropy, log10 library size",
+      "rho": 0.8143181529403982,
+      "marginal_taub": 0.0811354254484535,
+      "conditional_taub": -0.06813687697207547,
+      "conditional_taub_CI95": [
+        -0.07109669841525618,
+        -0.06505282738006526
+      ],
+      "floor_taub": 0.02146410734475259,
+      "floor_taub_source": "run_missing_cells.py --design n=127607,rho=0.814,levels=10,k=4",
+      "floor_taub_L12": 0.021629670820043103,
+      "verdict_taub": "NOT ABOVE FLOOR",
+      "weighted": 0.22735052324881544,
+      "weighted_CI95": [
+        0.16373434232384262,
+        0.2592945408551049
+      ],
+      "floor_weighted": 0.29020914574894013,
+      "weighted_vs_floor": "not above",
+      "joint4_rho": 0.8143181529403982,
+      "joint4_taub": -0.06813687697207547,
+      "joint4_taub_CI95": [
+        -0.07109669841525618,
+        -0.06505282738006526
+      ],
+      "joint4_floor_taub": 0.02146410734475259,
+      "joint4_verdict_taub": "NOT ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = later stage, so potency = -ordinal",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": -0.03953975710332063,
+            "orders_below_chance": true
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.6706008582644838,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.08571534606833332,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": -0.142931894791565,
+            "orders_below_chance": true
+          }
+        },
+        "score": {
+          "spearman_vs_potency": -0.11602562847747988,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": false
+        }
+      }
+    }
+  }
+}

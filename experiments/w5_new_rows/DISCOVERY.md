@@ -184,7 +184,7 @@ The brief specifies the stemsc code path, so the GSE117498 lines use it unchange
 | file | what |
 |---|---|
 | `scores/mce.py` | MCE from the published equations |
-| `tests/test_mce.py` | analytic and optimizer checks, run by `tests/run_tests.py` |
+| `tests/test_mce.py` | analytic and optimizer checks; run standalone (`python3 tests/test_mce.py`) and by pytest in CI, not by `tests/run_tests.py` |
 | `experiments/w5_new_rows/validate_mce.py` | toy validation, timing, Octave hook |
 | `experiments/w5_new_rows/fetch_sources.py` | clones FitDevo, stemFinder and TCGAbiolinks at the pinned commits |
 | `experiments/w5_new_rows/discovery_facts.py` | recomputes the weight-vector and overlap counts above |

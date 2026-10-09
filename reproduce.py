@@ -100,7 +100,26 @@ LEDGER = [
      "two rows give, and no output JSON of this step ships. The four values in "
      "the paper, one of them in the abstract, therefore rest on a run record "
      "and not on anything this script can recompute."),
-    ("MCE", "BLOCKED", "no public implementation exists (Shi 2020)"),
+    ("MCE", "BLOCKED",
+     "waiting for the author to place MCE.m in reference/; the authors' MATLAB code "
+     "is public, in the supplement of Shi et al. 2020 (bby093_supp.zip, located by "
+     "Qingyang Wang, 9 Oct 2026), but OUP serves it only through a browser past a "
+     "human check. scores/mce.py implements the published equations meanwhile; the "
+     "row is pre-registered in experiments/w5_new_rows/PREREG.md and runs once "
+     "MCE.m is validated against it in GNU Octave"),
+    ("StemFinder    (unsupervised; cell-cycle score)", "RUNS-SEPARATELY",
+     "experiments/w5_new_rows: the authors' R code (CahanLab/stemfinder db8ef0e) "
+     "on Seurat 5 in a project-local library, on GSE106474; result and verdict in "
+     "experiments/w5_new_rows/REPORT.md"),
+    ("mRNAsi        (trained; boundary row)", "RUNS-SEPARATELY",
+     "experiments/w5_new_rows: TCGAbiolinks 2.40.0 TCGAanalyze_Stemness with the "
+     "published PCBC weights, base R only, on GSE117498; not retrained; outside the "
+     "unsupervised tally; result in experiments/w5_new_rows/REPORT.md"),
+    ("FitDevo       (trained; boundary row)", "RUNS-SEPARATELY",
+     "experiments/w5_new_rows: fitdevo.R v1.2 (jumphone/FitDevo 0c757e6) with the "
+     "shipped BGW, Seurat 5 and qlcMatrix, on the four audit datasets absent from "
+     "its training set; not retrained; outside the unsupervised tally; results in "
+     "experiments/w5_new_rows/REPORT.md"),
     ("SPIDE", "BLOCKED", "the source paper is paywalled (Zheng 2023); a first-party\n     Python implementation is public and was not run here"),
     ("scEnergy", "BLOCKED", "requires MATLAB; its network step uses the Statistics\n     toolbox and graph objects GNU Octave does not provide"),
     ("StemID, cmEntropy", "NOT-A-MEASUREMENT",

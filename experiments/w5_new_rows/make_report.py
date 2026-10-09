@@ -101,11 +101,21 @@ def main():
     L = ["# W5 new rows: report\n"]
     if mce_ran:
         held = mce["verdict_taub"] == "ABOVE FLOOR"
-        L.append(f"**P1 is {'confirmed' if held else 'refuted'}**: MCE's tau_b conditional "
-                 f"skill on PCC(x, degree) is {f4(mce['conditional_taub'])} against a floor of "
-                 f"{f4(mce['floor_taub'])} at n = {mce['n']:,}, so it is "
-                 f"{mce['verdict_taub']}, as the registered entropy-rate branch "
-                 f"{'predicted' if held else 'did not predict'}.\n")
+        dm = residual_direction("MCE_GSE106474", mce, rowj["MCE_GSE106474"])
+        why = ""
+        if not held and dm and dm["rel_ci"][0] > 0:
+            why = (f"; the refutation comes from the rule's alignment step, not from a "
+                   f"missing residual: MCE's marginal Spearman with the stage ordinal is "
+                   f"{dm['marginal_spearman']:+.3f}, so it was "
+                   f"{'negated' if dm['flipped'] else 'kept as it is'}, and its residual "
+                   f"beyond PCC(x, degree) orders cells in the direction its authors state "
+                   f"at {dm['rel']:+.4f} [{dm['rel_ci'][0]:+.4f}, {dm['rel_ci'][1]:+.4f}], "
+                   "which a direction-aware reading would count as skill")
+        L.append(f"**P1 is {'confirmed' if held else 'refuted under the registered rule'}**: "
+                 f"MCE's tau_b conditional skill on PCC(x, degree) is "
+                 f"{f4(mce['conditional_taub'])} against a floor of {f4(mce['floor_taub'])} "
+                 f"at n = {mce['n']:,}, {mce['verdict_taub']}, where the entropy-rate branch "
+                 f"predicted ABOVE FLOOR{why}.\n")
     else:
         L.append("**P1 is not testable in this session**: the MCE row needs MCE.m, which "
                  "Qingyang Wang reports is in the supplement of Shi et al. 2020 (not "
@@ -283,26 +293,51 @@ def main():
         L.append("- none\n")
 
     L.append("## MCE port validation\n")
-    L.append("`scores/mce.py` implements the published equations (Eqs 3 to 8). Against "
-             "analytic answers (`discovery/mce_validation.json`):\n")
+    ref, tm, cv = val["reference"], val["timing"], val.get("convergence", {})
+    L.append("`scores/mce.py` is a port of the authors' MCE.m (default rule \"mce_m\": "
+             "MCE.m's start, iteration, 1e-2 stopping rule and returned pair, each cell "
+             "stopping on its own). Its fixed point, solved to convergence, against analytic "
+             "answers (`discovery/mce_validation.json`):\n")
     L.append("| case | expected | got | abs. deviation |")
     L.append("|---|---|---|---|")
-    for t in val["toy"]:
-        L.append(f"| {t['case']} | {t['expected']:.12g} | {t['got']:.12g} | {t['abs_dev']:.1e} |")
-    t = val["timing"]
+    for x in val["toy"]:
+        L.append(f"| {x['case']} | {x['expected']:.12g} | {x['got']:.12g} | {x['abs_dev']:.1e} |")
     L.append("")
-    L.append(f"Against MCE.m in Octave: **{val['reference']['status']}**. "
-             f"{val['reference']['reason']} Spearman and maximum absolute deviation will "
-             "be reported here when it runs.\n")
-    L.append(f"Timing: {t['seconds_per_iteration_per_cell']:.3e} s per iteration per cell "
-             f"on {t['n_cells_timed']} cells over {t['n_network_genes']:,} network genes "
-             "(one core). Iterations to each stopping tolerance come from a convergence "
-             f"trace of {t['trace_cells']} cells, which can underestimate the slowest cell "
-             "of a 500-cell chunk. Projection to 39,505 cells: " + "; ".join(
-                 f"tolerance {k}: {v['iterations']:,} iterations, {v['projected_hours_39505']:.2f} h"
-                 for k, v in t["projection_by_tol"].items())
-             + f". Tighter tolerances were not reached in {t['trace_cap']:,} iterations. "
-             "Which applies is MCE.m's stopping rule.\n")
+    if ref.get("status") == "RUN":
+        L.append(f"Against MCE.m (SHA256 `{ref['mce_m_sha256']}`) run unmodified in "
+                 f"{ref['octave']}, on {ref['n_cells']} cells of GSE106474 (the SCENT "
+                 "validation subsample, seed 42), SR's input and network, as was done for SCENT:\n")
+        L.append("| comparison | value |")
+        L.append("|---|---|")
+        L.append(f"| Spearman, port against MCE.m | {ref['spearman_port_vs_mce_m']:.6f} |")
+        L.append(f"| Pearson, port against MCE.m | {ref['pearson_port_vs_mce_m']:.6f} |")
+        L.append(f"| maximum absolute deviation | {ref['max_abs_dev']:.1e} |")
+        L.append(f"| identical step counts, all cells | {'yes' if ref['steps_identical'] else 'no'} |")
+        L.append(f"| seconds inside Octave | {ref['seconds_inside_octave']:.1f} |")
+        L.append("")
+        if cv:
+            L.append(f"MCE.m's 1e-2 rule leaves the score within "
+                     f"{cv['max_abs_dev_mce_m_vs_converged']:.1e} of the fixed point solved to a "
+                     f"residual of 1e-6 (Spearman {cv['spearman_mce_m_vs_converged']:.6f}).\n")
+    else:
+        L.append(f"Against MCE.m in Octave: **{ref.get('status')}**. {ref.get('reason', '')}\n")
+    timing = (f"Timing under MCE.m's rule, one core: {tm['n_cells']} cells in {tm['seconds']:.1f} s, "
+              f"{tm['steps_min']} to {tm['steps_max']} steps per cell (median "
+              f"{tm['steps_median']:g}), projected {tm['projected_hours_39505_single_core']:.2f} h "
+              "for 39,505 cells, under 8 hours, so the MCE row uses every cell (PREREG.md, "
+              "Amendment 1).")
+    mi = info("GSE106474", "mce")
+    if mi:
+        timing += (f" The full run took {float(mi['seconds']):,.0f} s on {mi['procs']} processes, "
+                   f"{mi['steps_min']} to {mi['steps_max']} steps per cell, {mi['n_nan']} NaN.")
+    L.append(timing + "\n")
+    if "provisional" in val:
+        pv = val["provisional"]
+        L.append("Before MCE.m arrived, the equations-based solver was timed by stopping "
+                 "tolerance (" + "; ".join(
+                     f"{k}: {v['iterations']:,} iterations, {v['projected_hours_39505']:.2f} h"
+                     for k, v in pv["projection_by_tol"].items())
+                 + "); that projection is superseded by the one above.\n")
 
     L.append("## Commands\n")
     L.append("From the repository root, in this order, with `$OWNBASELINE_DATA_ROOT` and "
@@ -323,12 +358,13 @@ def main():
         "python3 tests/test_mce.py",
         "python3 experiments/w5_new_rows/fetch_sources.py",
         "python3 experiments/w5_new_rows/discovery_facts.py",
-        "python3 experiments/w5_new_rows/validate_mce.py",
+        "python3 experiments/w5_new_rows/validate_mce.py      # needs reference/MCE.m and octave-cli",
         "python3 experiments/w5_new_rows/prepare_inputs.py",
         "printf 'CC=clang -std=gnu17\\nCC17=clang -std=gnu17\\nCC23=clang -std=gnu17\\n' > data/scratch/Makevars.w5",
         "R_MAKEVARS_USER=$PWD/data/scratch/Makevars.w5 Rscript --vanilla -e 'lib <- \"data/scratch/Rlib\"; "
         ".libPaths(c(lib, .libPaths())); install.packages(c(\"Seurat\", \"qlcMatrix\"), lib = lib, "
         "repos = \"https://cloud.r-project.org\", Ncpus = 8)'",
+        "python3 experiments/w5_new_rows/score_mce.py --procs 8",
         "Rscript --vanilla experiments/w5_new_rows/score_stemfinder.R GSE106474",
         "Rscript --vanilla experiments/w5_new_rows/score_mrnasi.R GSE117498",
         "Rscript --vanilla experiments/w5_new_rows/score_mrnasi.R GSE117498h",
@@ -344,7 +380,8 @@ def main():
         "python3 experiments/w5_new_rows/make_report.py",
     ]
     L.append("```\n")
-    L.append("Per row: StemFinder needs `prepare_inputs.py`, `score_stemfinder.R GSE106474`, "
+    L.append("Per row: MCE needs `validate_mce.py` (with MCE.m in `reference/`) and "
+             "`score_mce.py`; StemFinder needs `prepare_inputs.py`, `score_stemfinder.R GSE106474`, "
              "then `run_rows.py plan`, `nulls`, `values`; mRNAsi needs `score_mrnasi.R` on "
              "GSE117498 and GSE117498h; FitDevo needs `score_fitdevo.R` on the five inputs; "
              "every row is read by the same `run_rows.py values`. Homebrew's R 4.6.1 asks "
@@ -380,7 +417,7 @@ def main():
     L.append(f"| FitDevo BGW.rds SHA256 | {bg['sha256']} ({facts['bgw_n']:,} genes) |")
     L.append("")
     L.append("Per-score run records (runtime, genes matched, parameters chosen by rule):\n")
-    for ds, row in [("GSE106474", "stemfinder"), ("GSE117498", "mrnasi"),
+    for ds, row in [("GSE106474", "mce"), ("GSE106474", "stemfinder"), ("GSE117498", "mrnasi"),
                     ("GSE117498h", "mrnasi"), ("GSE106474", "fitdevo"),
                     ("GSE117498", "fitdevo"), ("GSE117498h", "fitdevo"),
                     ("GSE125970", "fitdevo"), ("GSE113074", "fitdevo")]:

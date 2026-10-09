@@ -100,13 +100,13 @@ LEDGER = [
      "two rows give, and no output JSON of this step ships. The four values in "
      "the paper, one of them in the abstract, therefore rest on a run record "
      "and not on anything this script can recompute."),
-    ("MCE", "BLOCKED",
-     "waiting for the author to place MCE.m in reference/; the authors' MATLAB code "
-     "is public, in the supplement of Shi et al. 2020 (bby093_supp.zip, located by "
-     "Qingyang Wang, 9 Oct 2026), but OUP serves it only through a browser past a "
-     "human check. scores/mce.py implements the published equations meanwhile; the "
-     "row is pre-registered in experiments/w5_new_rows/PREREG.md and runs once "
-     "MCE.m is validated against it in GNU Octave"),
+    ("MCE           (entropy rate + H(pi), unsupervised)", "RUNS-SEPARATELY",
+     "experiments/w5_new_rows: scores/mce.py, a port of the authors' MCE.m (public, in "
+     "the supplement of Shi et al. 2020, bby093_supp.zip, located by Qingyang Wang, "
+     "9 Oct 2026) that matches it in GNU Octave to 1.8e-13; the port runs in Python. "
+     "OUP serves the supplement only through a browser past a human check, so MCE.m "
+     "is placed by hand in reference/ (git-ignored) and is needed only to repeat the "
+     "validation; result in experiments/w5_new_rows/REPORT.md"),
     ("StemFinder    (unsupervised; cell-cycle score)", "RUNS-SEPARATELY",
      "experiments/w5_new_rows: the authors' R code (CahanLab/stemfinder db8ef0e) "
      "on Seurat 5 in a project-local library, on GSE106474; result and verdict in "

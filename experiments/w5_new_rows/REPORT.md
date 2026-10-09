@@ -1,8 +1,8 @@
 # W5 new rows: report
 
-**P1 is not testable in this session**: the MCE row needs MCE.m, which Qingyang Wang reports is in the supplement of Shi et al. 2020 (not verified here), and OUP serves that supplement only through a signed link behind a human-verification page that was not attempted; the dataset, primitive and prediction are registered (entropy-rate branch: MCE keeps tau_b conditional skill above its floor on PCC(x, degree), switching to the static-entropy branch if MCE.m computes only H(pi)), and MCE.m's SHA256, the port's settings and the cell set are to be fixed by dated amendment before the row runs.
+**P1 is refuted under the registered rule**: MCE's tau_b conditional skill on PCC(x, degree) is -0.4898 against a floor of +0.0325 at n = 39,505, NOT ABOVE FLOOR, where the entropy-rate branch predicted ABOVE FLOOR; the refutation comes from the rule's alignment step, not from a missing residual: MCE's marginal Spearman with the stage ordinal is +0.035, so it was kept as it is, and its residual beyond PCC(x, degree) orders cells in the direction its authors state at +0.4898 [+0.4850, +0.4948], which a direction-aware reading would count as skill.
 
-Pre-registration: `PREREG.md`, first added in commit 71605a4 2026-10-09 15:28:14 +0500 and pushed before any new score met a label; no amendment since. Seed 42; bootstrap 1000 resamples for tau_b and 300 for weighted tau; plan.json SHA256 e2d30f3abcde806f2719cb990a67c03d71ec9d6b35f83d07977b04e4db8695f5.
+Pre-registration: `PREREG.md`, first added in commit 71605a4 2026-10-09 15:28:14 +0500 and pushed before any new score met a label; later commits to it: 9eded68 2026-10-09 16:30:58 +0500 audit: amend PREREG for MCE now that MCE.m is in hand, before the row runs. Seed 42; bootstrap 1000 resamples for tau_b and 300 for weighted tau; plan.json SHA256 943e68952b02af815ec789847cccd1509b0490dd1b673fa8a3f2b294456dfda0.
 
 ## Results
 
@@ -10,7 +10,7 @@ Conditional skill is Kendall tau_b of the aligned score's rank residual on the d
 
 | score | class | dataset | n | rho with primitive | marginal tau_b | conditional tau_b [95% CI] | floor | verdict under tau_b | weighted tau [95% CI] / floor | joint four-primitive residual tau_b [95% CI] / floor | direction check |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| MCE | unsupervised (in tally) | GSE106474 | - | - | - | - | - | not run: waiting for the author: MCE.m is not in reference/, so no validated port has written w5_new_rows/scores/GSE106474/mce.csv | - | - | - |
+| MCE | unsupervised (in tally) | GSE106474 (12 levels) | 39,505 | +0.802 with PCC(x, degree) | +0.0215 | -0.4898 [-0.4948, -0.4850] | +0.0325 | NOT ABOVE FLOOR | -0.3480 [-0.3611, -0.3353] / +0.2959 (not above) | -0.1311 [-0.1363, -0.1260] / +0.0233 (NOT ABOVE FLOOR) | score runs AGAINST its authors' stated direction (Spearman vs potency -0.035); primitives below chance: PCC(x, degree) |
 | StemFinder [1] | unsupervised (in tally) | GSE106474 (12 levels) | 39,505 | -0.568 with cell-cycle gene-set score | +0.2924 | +0.0977 [+0.0912, +0.1043] | +0.0247 | ABOVE FLOOR | +0.4389 [+0.3920, +0.4810] / +0.2238 (above) | +0.1669 [+0.1625, +0.1715] / +0.0171 (ABOVE FLOOR) | score runs as its authors state (Spearman vs potency -0.445); primitives below chance: PCC(x, degree) |
 | mRNAsi [2] | trained (boundary, outside tally) | GSE117498 (4 levels) | 12,354 | +0.634 (largest single: Shannon entropy) | -0.0148 | +0.0800 [+0.0671, +0.0915] | +0.0263 (12 levels: +0.0245) | ABOVE FLOOR | +0.4115 [+0.3883, +0.4302] / +0.2820 (above) | +0.0800 [+0.0671, +0.0915] / +0.0263 (ABOVE FLOOR) | score runs AGAINST its authors' stated direction (Spearman vs potency -0.021); primitives below chance: gene count, PCC(x, degree), log10 library size |
 | mRNAsi [3] | trained (boundary, outside tally), sensitivity line | GSE117498h (4 levels) | 12,354 | +0.648 (largest single: Shannon entropy) | +0.0095 | -0.0578 [-0.0693, -0.0446] | +0.0256 (12 levels: +0.0254) | NOT ABOVE FLOOR | +0.1992 [+0.1240, +0.2641] / +0.2889 (not above) | -0.0578 [-0.0693, -0.0446] / +0.0256 (NOT ABOVE FLOOR) | score runs as its authors state (Spearman vs potency +0.010); primitives below chance: gene count, PCC(x, degree), log10 library size |
@@ -33,6 +33,7 @@ StemFinder's joint value sits at its declared primitive's rho; its weighted join
 
 The verdicts are the registered rule's. The notes are derived from the same registered numbers and change none of them. The estimator is sign-agnostic: it points each score the way its marginal Spearman correlation with the ordinal runs, then residualizes. Because the rank residual and tau_b are both odd in the score's sign, the raw score's residual is the aligned value, negated when the score was negated. Read against the authors' stated polarity:
 
+- MCE on GSE106474: the raw score's residual beyond its declared primitive orders cells in the direction its authors state (tau_b +0.4898 [+0.4850, +0.4948] with the authors' polarity counted positive); the marginal Spearman with the ordinal is +0.035, so the score was kept as it is before residualizing, and the registered verdict is NOT ABOVE FLOOR.
 - StemFinder on GSE106474: the raw score's residual beyond its declared primitive orders cells in the direction its authors state (tau_b +0.0977 [+0.0912, +0.1043] with the authors' polarity counted positive); the marginal Spearman with the ordinal is +0.445, so the score was kept as it is before residualizing, and the registered verdict is ABOVE FLOOR.
 - mRNAsi on GSE117498: the raw score's residual beyond the four primitives orders cells against the direction its authors state (tau_b -0.0800 [-0.0915, -0.0671] with the authors' polarity counted positive); the marginal Spearman with the ordinal is -0.021, so the score was negated before residualizing, and the registered verdict is ABOVE FLOOR.
 - mRNAsi on GSE117498h: the raw score's residual beyond the four primitives orders cells against the direction its authors state (tau_b -0.0578 [-0.0693, -0.0446] with the authors' polarity counted positive); the marginal Spearman with the ordinal is +0.010, so the score was kept as it is before residualizing, and the registered verdict is NOT ABOVE FLOOR.
@@ -45,12 +46,14 @@ The verdicts are the registered rule's. The notes are derived from the same regi
 - mRNAsi: the verdict differs between GSE117498 (ABOVE FLOOR) and the name-harmonized GSE117498h (NOT ABOVE FLOOR), but what the score carries beyond the primitives does not change direction: relative to the authors' polarity the residual is -0.0800 and -0.0578. The split moves the marginal Spearman from -0.021 to +0.010, which flips the alignment, and the registered rule reads only an aligned residual above its floor. The decisive verdict therefore rests on the sign of a marginal correlation close to zero.
 - FitDevo: the GSE117498 line and its name-harmonized sensitivity GSE117498h agree (ABOVE FLOOR, conditional tau_b +0.1494 and +0.1425); the gene-name split does not move the verdict.
 
-Audit tally, unsupervised rows only: MCE not run; StemFinder ABOVE FLOOR. mRNAsi and FitDevo are trained and stay outside it.
+Audit tally, unsupervised rows only: MCE NOT ABOVE FLOOR; StemFinder ABOVE FLOOR. mRNAsi and FitDevo are trained and stay outside it.
 
 ### Floors
 
 | value | n | k | levels | rho | floor source |
 |---|---|---|---|---|---|
+| MCE_GSE106474 declared | 39,505 | 1 | 12 | +0.8024 | shipped grid: Null B, align on, 12 levels, n=39,505, rho=0.9, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds |
+| MCE_GSE106474 joint4 | 39,505 | 4 | 12 | +0.8024 | shipped grid: Null B, align on, 12 levels, n=39,505, rho=0.9, kendalltau, 4 covariates, 1 coupling strength, 200 seeds |
 | StemFinder_GSE106474 declared | 39,505 | 1 | 12 | -0.5684 | shipped grid: Null B, align on, 12 levels, n=39,505, rho=0.5, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds |
 | StemFinder_GSE106474 joint4 | 39,505 | 4 | 12 | +0.5684 | shipped grid: Null B, align on, 12 levels, n=39,505, rho=0.5, kendalltau, 4 covariates, 1 coupling strength, 200 seeds |
 | mRNAsi_GSE117498 joint4 | 12,354 | 4 | 4 | +0.6335 | design point `n=12354,rho=0.634,levels=4,k=4` (run_missing_cells.py, 200 seeds) |
@@ -71,11 +74,11 @@ Audit tally, unsupervised rows only: MCE not run; StemFinder ABOVE FLOOR. mRNAsi
 
 ## Blocked rows
 
-- **MCE**: not run. Qingyang Wang reports the authors' MATLAB file in `bby093_supp.zip`, the supplement on the article page https://academic.oup.com/bib/article/21/1/248/5115275#supplementary-data (that the zip holds MCE.m is not verified). The CDN link is signed per page view and the page sits behind an interactive Cloudflare check, which was not attempted, so neither a script nor the built-in browser could fetch it. What the author has to provide: the zip saved into `reference/`, unzipped, and MCE.m copied to `reference/MCE.m` (commands in DISCOVERY.md 1.2). Then the steps under MCE in PREREG.md run in order.
+- none
 
 ## MCE port validation
 
-`scores/mce.py` implements the published equations (Eqs 3 to 8). Against analytic answers (`discovery/mce_validation.json`):
+`scores/mce.py` is a port of the authors' MCE.m (default rule "mce_m": MCE.m's start, iteration, 1e-2 stopping rule and returned pair, each cell stopping on its own). Its fixed point, solved to convergence, against analytic answers (`discovery/mce_validation.json`):
 
 | case | expected | got | abs. deviation |
 |---|---|---|---|
@@ -84,9 +87,21 @@ Audit tally, unsupervised rows only: MCE not run; StemFinder ABOVE FLOOR. mRNAsi
 | pi proportional to self-loop degree: normalised MCE = 1 | 1 | 1 | 2.2e-16 |
 | random 6-node graph vs SLSQP on Eq 3 | 2.67829421109 | 2.67829421109 | 0.0e+00 |
 
-Against MCE.m in Octave: **NOT RUN**. reference/MCE.m is absent: the supplement of Shi et al. 2020 could not be downloaded in this session (see DISCOVERY.md). Waiting for the author. Spearman and maximum absolute deviation will be reported here when it runs.
+Against MCE.m (SHA256 `c8ad11f2cdadc979cc303a21785f65eba77a41dfe565ace2beffaeae265fdce2`) run unmodified in GNU Octave (aarch64-apple-darwin25.4.0) version 11.3.0, on 500 cells of GSE106474 (the SCENT validation subsample, seed 42), SR's input and network, as was done for SCENT:
 
-Timing: 1.689e-04 s per iteration per cell on 500 cells over 8,468 network genes (one core). Iterations to each stopping tolerance come from a convergence trace of 50 cells, which can underestimate the slowest cell of a 500-cell chunk. Projection to 39,505 cells: tolerance 1e-06: 480 iterations, 0.89 h; tolerance 1e-08: 16,950 iterations, 31.42 h. Tighter tolerances were not reached in 20,000 iterations. Which applies is MCE.m's stopping rule.
+| comparison | value |
+|---|---|
+| Spearman, port against MCE.m | 1.000000 |
+| Pearson, port against MCE.m | 1.000000 |
+| maximum absolute deviation | 1.8e-13 |
+| identical step counts, all cells | yes |
+| seconds inside Octave | 158.7 |
+
+MCE.m's 1e-2 rule leaves the score within 8.3e-08 of the fixed point solved to a residual of 1e-6 (Spearman 1.000000).
+
+Timing under MCE.m's rule, one core: 500 cells in 26.2 s, 137 to 547 steps per cell (median 263), projected 0.58 h for 39,505 cells, under 8 hours, so the MCE row uses every cell (PREREG.md, Amendment 1). The full run took 1,944 s on 8 processes, 109 to 659 steps per cell, 0 NaN.
+
+Before MCE.m arrived, the equations-based solver was timed by stopping tolerance (1e-06: 480 iterations, 0.89 h; 1e-08: 16,950 iterations, 31.42 h); that projection is superseded by the one above.
 
 ## Commands
 
@@ -99,10 +114,11 @@ python3 tests/run_tests.py
 python3 tests/test_mce.py
 python3 experiments/w5_new_rows/fetch_sources.py
 python3 experiments/w5_new_rows/discovery_facts.py
-python3 experiments/w5_new_rows/validate_mce.py
+python3 experiments/w5_new_rows/validate_mce.py      # needs reference/MCE.m and octave-cli
 python3 experiments/w5_new_rows/prepare_inputs.py
 printf 'CC=clang -std=gnu17\nCC17=clang -std=gnu17\nCC23=clang -std=gnu17\n' > data/scratch/Makevars.w5
 R_MAKEVARS_USER=$PWD/data/scratch/Makevars.w5 Rscript --vanilla -e 'lib <- "data/scratch/Rlib"; .libPaths(c(lib, .libPaths())); install.packages(c("Seurat", "qlcMatrix"), lib = lib, repos = "https://cloud.r-project.org", Ncpus = 8)'
+python3 experiments/w5_new_rows/score_mce.py --procs 8
 Rscript --vanilla experiments/w5_new_rows/score_stemfinder.R GSE106474
 Rscript --vanilla experiments/w5_new_rows/score_mrnasi.R GSE117498
 Rscript --vanilla experiments/w5_new_rows/score_mrnasi.R GSE117498h
@@ -118,7 +134,7 @@ python3 experiments/w5_new_rows/run_rows.py values
 python3 experiments/w5_new_rows/make_report.py
 ```
 
-Per row: StemFinder needs `prepare_inputs.py`, `score_stemfinder.R GSE106474`, then `run_rows.py plan`, `nulls`, `values`; mRNAsi needs `score_mrnasi.R` on GSE117498 and GSE117498h; FitDevo needs `score_fitdevo.R` on the five inputs; every row is read by the same `run_rows.py values`. Homebrew's R 4.6.1 asks for `-std=gnu23`, which the Command Line Tools clang 15 rejects; the Makevars line works around it for this install only.
+Per row: MCE needs `validate_mce.py` (with MCE.m in `reference/`) and `score_mce.py`; StemFinder needs `prepare_inputs.py`, `score_stemfinder.R GSE106474`, then `run_rows.py plan`, `nulls`, `values`; mRNAsi needs `score_mrnasi.R` on GSE117498 and GSE117498h; FitDevo needs `score_fitdevo.R` on the five inputs; every row is read by the same `run_rows.py values`. Homebrew's R 4.6.1 asks for `-std=gnu23`, which the Command Line Tools clang 15 rejects; the Makevars line works around it for this install only.
 
 ## Software and provenance
 
@@ -128,7 +144,7 @@ Per row: StemFinder needs `prepare_inputs.py`, `score_stemfinder.R GSE106474`, t
 | R | R version 4.6.1 (2026-06-24) |
 | Seurat, SeuratObject, qlcMatrix | 5.6.0, 5.4.0, 0.9.9 |
 | GNU Octave | GNU Octave (aarch64-apple-darwin25.4.0) version 11.3.0 |
-| SHA256 of MCE.m | not available: MCE.m not obtained (waiting for the author) |
+| SHA256 of MCE.m | c8ad11f2cdadc979cc303a21785f65eba77a41dfe565ace2beffaeae265fdce2 |
 | FitDevo commit | 0c757e609489867e83f32f6571ebcfce704c3124, 2024-04-07 11:06:59 +0800 |
 | stemFinder commit | db8ef0e1b4ad02d03165c734954bc9beb28e5900 (version 0.1.0), 2024-09-21 09:12:17 -0400 |
 | TCGAbiolinks | 2f9d2496241af1ad3950a23bfce7d434d1834516 (version 2.40.0), 2026-04-28 08:41:41 -0400 |
@@ -137,6 +153,7 @@ Per row: StemFinder needs `prepare_inputs.py`, `score_stemfinder.R GSE106474`, t
 
 Per-score run records (runtime, genes matched, parameters chosen by rule):
 
+- mce on GSE106474: seconds 1944.3, procs 8, n_cells 39505, rule mce_m (epsilon 0.01, max_iter 1000000), steps_min 109, steps_median 262, steps_max 659, err_max 1.000e-02, n_nan 0, numpy 2.4.3, scipy 1.18.0, python 3.14.3
 - stemfinder on GSE106474: seconds 1352.2, n_cells 39505, n_genes_after_gene_steps 20576, n_markers 82, n_markers_unique 81, n_markers_listed 98, n_variable_features_used_for_pca 2487, pcs 7, k 199
 - mrnasi on GSE117498: seconds 50.9, n_cells 21412, n_weights 12956, n_weights_matched 12160, n_nan 0
 - mrnasi on GSE117498h: seconds 49.5, n_cells 21412, n_weights 12956, n_weights_matched 12161, n_nan 0

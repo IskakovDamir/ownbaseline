@@ -1,10 +1,11 @@
 {
   "prereg_commit": "71605a4 2026-10-09 15:28:14 +0500",
   "prereg_commits_newest_first": [
+    "9eded68 2026-10-09 16:30:58 +0500 audit: amend PREREG for MCE now that MCE.m is in hand, before the row runs",
     "71605a4 2026-10-09 15:28:14 +0500 audit: pre-register the four new rows before any score meets a label"
   ],
   "origin_fetched_now": true,
-  "plan_sha256": "e2d30f3abcde806f2719cb990a67c03d71ec9d6b35f83d07977b04e4db8695f5",
+  "plan_sha256": "943e68952b02af815ec789847cccd1509b0490dd1b673fa8a3f2b294456dfda0",
   "seed": 42,
   "n_boot": {
     "kang_wdm_taub": 1000,
@@ -15,8 +16,64 @@
       "row": "MCE",
       "dataset": "GSE106474",
       "class": "unsupervised",
-      "status": "NOT RUN",
-      "reason": "waiting for the author: MCE.m is not in reference/, so no validated port has written w5_new_rows/scores/GSE106474/mce.csv"
+      "sensitivity_of": null,
+      "caveats": [],
+      "n": 39505,
+      "levels": 12,
+      "decisive_value": "declared",
+      "primitive": "PCC(x, degree)",
+      "rho": 0.8024325803382074,
+      "marginal_taub": 0.02154509271877238,
+      "conditional_taub": -0.48984369555531565,
+      "conditional_taub_CI95": [
+        -0.4948442322147662,
+        -0.4850087610708608
+      ],
+      "floor_taub": 0.032534076821059216,
+      "floor_taub_source": "python3 -m own_baseline.cli floors --n 39505 --rho 0.8024 --kernel taub --covariates 1 --levels 12 --json",
+      "floor_taub_L12": null,
+      "verdict_taub": "NOT ABOVE FLOOR",
+      "weighted": -0.34797866398981003,
+      "weighted_CI95": [
+        -0.3611258139080316,
+        -0.33525977557420683
+      ],
+      "floor_weighted": 0.2959429051208657,
+      "weighted_vs_floor": "not above",
+      "joint4_rho": 0.8024325803382074,
+      "joint4_taub": -0.13110805043778231,
+      "joint4_taub_CI95": [
+        -0.1363375361674394,
+        -0.12597338853568074
+      ],
+      "joint4_floor_taub": 0.023328595131182423,
+      "joint4_verdict_taub": "NOT ABOVE FLOOR",
+      "direction_check": {
+        "ordinal_orientation": "higher = later stage, so potency = -ordinal",
+        "primitives": {
+          "gene count": {
+            "spearman_vs_potency": 0.4544217981352392,
+            "orders_below_chance": false
+          },
+          "PCC(x, degree)": {
+            "spearman_vs_potency": -0.516418478241046,
+            "orders_below_chance": true
+          },
+          "Shannon entropy": {
+            "spearman_vs_potency": 0.6287553353444192,
+            "orders_below_chance": false
+          },
+          "log10 library size": {
+            "spearman_vs_potency": 0.32209912051689826,
+            "orders_below_chance": false
+          }
+        },
+        "score": {
+          "spearman_vs_potency": -0.03480191552229823,
+          "authors_polarity": "higher = more potent",
+          "runs_as_authors_state": false
+        }
+      }
     },
     "StemFinder_GSE106474": {
       "row": "StemFinder",

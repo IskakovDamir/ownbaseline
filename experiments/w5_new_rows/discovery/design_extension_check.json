@@ -1,0 +1,66 @@
+[
+  {
+    "cell": "n=3000,rho=0.5,levels=12,k=1",
+    "kernel": "kendalltau",
+    "design_p97.5": 0.038144625429582996,
+    "grid_p97.5": 0.04105038460480451,
+    "grid_cell": "Null B, align on, 12 levels, n=3,000, rho=0.5, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds",
+    "difference": -0.0029057591752215117
+  },
+  {
+    "cell": "n=3000,rho=0.5,levels=12,k=1",
+    "kernel": "weightedtau_rankTrue",
+    "design_p97.5": 0.2152234751998779,
+    "grid_p97.5": 0.24165248583920024,
+    "grid_cell": "Null B, align on, 12 levels, n=3,000, rho=0.5, weightedtau_rankTrue, 1 covariate, 3 coupling strengths, 600 seeds",
+    "difference": -0.026429010639322348
+  },
+  {
+    "cell": "n=3000,rho=0.93,levels=4,k=1",
+    "kernel": "kendalltau",
+    "design_p97.5": 0.049897346128254236,
+    "grid_p97.5": 0.047487238346618936,
+    "grid_cell": "Null B, align on, 4 levels, n=3,000, rho=0.93, kendalltau, 1 covariate, 1 coupling strength, 600 seeds",
+    "difference": 0.0024101077816352998
+  },
+  {
+    "cell": "n=3000,rho=0.93,levels=4,k=1",
+    "kernel": "weightedtau_rankTrue",
+    "design_p97.5": 0.32461900220072354,
+    "grid_p97.5": 0.31488478681690374,
+    "grid_cell": "Null B, align on, 4 levels, n=3,000, rho=0.93, weightedtau_rankTrue, 1 covariate, 1 coupling strength, 600 seeds",
+    "difference": 0.0097342153838198
+  },
+  {
+    "cell": "n=3000,rho=0.5,levels=12,k=4",
+    "kernel": "kendalltau",
+    "design_p97.5": 0.02873324262165273,
+    "grid_p97.5": 0.03250528697474413,
+    "grid_cell": "Null B, align on, 12 levels, n=3,000, rho=0.5, kendalltau, 4 covariates, 1 coupling strength, 200 seeds",
+    "difference": -0.0037720443530913986
+  },
+  {
+    "cell": "n=3000,rho=0.5,levels=12,k=4",
+    "kernel": "weightedtau_rankTrue",
+    "design_p97.5": 0.22840663346598677,
+    "grid_p97.5": 0.23293220409031531,
+    "grid_cell": "Null B, align on, 12 levels, n=3,000, rho=0.5, weightedtau_rankTrue, 4 covariates, 1 coupling strength, 200 seeds",
+    "difference": -0.00452557062432854
+  },
+  {
+    "cell": "n=39505,rho=0.93,levels=12,k=4",
+    "kernel": "kendalltau",
+    "design_p97.5": 0.02196835113022595,
+    "grid_p97.5": 0.022733543356388358,
+    "grid_cell": "Null B, align on, 12 levels, n=39,505, rho=0.93, kendalltau, 4 covariates, 1 coupling strength, 200 seeds",
+    "difference": -0.0007651922261624096
+  },
+  {
+    "cell": "n=39505,rho=0.93,levels=12,k=4",
+    "kernel": "weightedtau_rankTrue",
+    "design_p97.5": 0.3077582417970338,
+    "grid_p97.5": 0.32340400907535605,
+    "grid_cell": "Null B, align on, 12 levels, n=39,505, rho=0.93, weightedtau_rankTrue, 4 covariates, 1 coupling strength, 200 seeds",
+    "difference": -0.01564576727832223
+  }
+]

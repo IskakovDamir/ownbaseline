@@ -1,0 +1,89 @@
+{
+  "script": "experiments/w5_new_rows/validate_mce.py",
+  "implementation": "scores/mce.py (from the published equations; not yet a port of MCE.m)",
+  "toy": [
+    {
+      "case": "self-loops only (P = I): MCE = H(pi)",
+      "n_nodes": 7,
+      "expected": 1.7471706669021203,
+      "got": 1.7471706669021203,
+      "abs_dev": 0.0
+    },
+    {
+      "case": "complete graph: MCE = 2 H(pi)",
+      "n_nodes": 6,
+      "expected": 2.875399806014551,
+      "got": 2.875399806014551,
+      "abs_dev": 0.0
+    },
+    {
+      "case": "pi proportional to self-loop degree: normalised MCE = 1",
+      "n_nodes": 30,
+      "expected": 1.0,
+      "got": 1.0000000000000002,
+      "abs_dev": 2.220446049250313e-16
+    },
+    {
+      "case": "random 6-node graph vs SLSQP on Eq 3",
+      "n_nodes": 6,
+      "expected": 2.678294211089346,
+      "got": 2.678294211089346,
+      "abs_dev": 0.0,
+      "optimizer_success": true
+    }
+  ],
+  "timing": {
+    "n_cells_timed": 500,
+    "n_network_genes": 8468,
+    "n_edges_without_loops": 101889,
+    "iterations_timed": 50,
+    "seconds_timed": 4.223103041993454,
+    "seconds_per_iteration_per_cell": 0.00016892412167973816,
+    "trace_cells": 50,
+    "trace_cap": 20000,
+    "trace_seconds": 202.63599350000732,
+    "trace_final": {
+      "iteration": 20000,
+      "residual": 5.879106828210641e-09
+    },
+    "iterations_to_tol": {
+      "1e-06": 480,
+      "1e-08": 16950,
+      "1e-10": null,
+      "1e-12": null
+    },
+    "mce_max_abs_dev_vs_tightest_reached_tol": {
+      "reference_tol": "1e-08",
+      "1e-06": 1.596758592015135e-08,
+      "1e-08": 0.0
+    },
+    "projection_by_tol": {
+      "1e-06": {
+        "iterations": 480,
+        "projected_hours_39505": 0.8897796569277406,
+        "under_8_hours": true
+      },
+      "1e-08": {
+        "iterations": 16950,
+        "projected_hours_39505": 31.420344135260844,
+        "under_8_hours": false
+      }
+    },
+    "machine": "arm64 Darwin 25.2.0",
+    "numpy": "2.4.3",
+    "scipy": "1.18.0",
+    "python": "3.14.3",
+    "input": "log2(CPM + 1.1) over the network genes of SR's STRING v12 object, CPM target sum = median library size (3798)",
+    "mce_summary_trace_cells": {
+      "min": 0.8699082207793204,
+      "median": 0.8902532793795529,
+      "max": 0.9104019082635177,
+      "n_nan": 0
+    }
+  },
+  "reference": {
+    "status": "NOT RUN",
+    "reason": "reference/MCE.m is absent: the supplement of Shi et al. 2020 could not be downloaded in this session (see DISCOVERY.md). Waiting for the author.",
+    "octave": "GNU Octave (aarch64-apple-darwin25.4.0) version 11.3.0"
+  }
+}

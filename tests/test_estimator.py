@@ -480,13 +480,14 @@ def test_no_source_file_hard_codes_an_absolute_home_path():
     """
     import subprocess
 
-    import pytest
-
     from own_baseline.paths import repo_root
     root = repo_root()
     tracked = subprocess.run(["git", "-C", str(root), "ls-files", "-z"],
                              capture_output=True, text=True)
     if tracked.returncode != 0:
+        # imported here, not at the top: run_tests.py promises the suite needs
+        # no test runner, and only this branch uses one
+        import pytest
         pytest.skip("not a git checkout, so there is no tracked-file list to read")
     # Assembled from fragments so this file does not match its own guard.
     needles = ("/Us" + "ers/", "/priv" + "ate/tmp/", "/ho" + "me/")

@@ -1,0 +1,49 @@
+{
+  "bgw_n": 14717,
+  "bgw_ones": 11387,
+  "bgw_zeros": 3330,
+  "w_n": 12956,
+  "w_pos": 7018,
+  "w_neg": 5938,
+  "w_zero": 0,
+  "w_dup": 0,
+  "cc_objects": [
+    "g2m_genes_human",
+    "s_genes_human"
+  ],
+  "cc_lengths": [
+    55,
+    43
+  ],
+  "cc_unique_genes": 97,
+  "overlap": {
+    "GSE106474": {
+      "n_genes": 23974,
+      "FitDevo_BGW_uppercase_match": 9622,
+      "mRNAsi_weights_exact_match": 8280,
+      "stemFinder_human_cc_exact_match": 81,
+      "stemFinder_human_cc_uppercase_match": 81
+    },
+    "GSE117498": {
+      "n_genes": 29601,
+      "FitDevo_BGW_uppercase_match": 14426,
+      "mRNAsi_weights_exact_match": 12612,
+      "stemFinder_human_cc_exact_match": 96,
+      "stemFinder_human_cc_uppercase_match": 96
+    },
+    "GSE125970": {
+      "n_genes": 19525,
+      "FitDevo_BGW_uppercase_match": 12751,
+      "mRNAsi_weights_exact_match": 11809,
+      "stemFinder_human_cc_exact_match": 96,
+      "stemFinder_human_cc_uppercase_match": 96
+    },
+    "GSE113074": {
+      "n_genes": 26550,
+      "FitDevo_BGW_uppercase_match": 9682,
+      "mRNAsi_weights_exact_match": 1,
+      "stemFinder_human_cc_exact_match": 0,
+      "stemFinder_human_cc_uppercase_match": 67
+    }
+  }
+}

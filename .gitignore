@@ -37,6 +37,15 @@ reproduction/
 !experiments/null_calibration/results/*.csv
 !experiments/null_calibration/results/*.log
 
+# the w5 new-row summaries are small and are the record; per-row JSON stays
+# under $OWNBASELINE_DATA_ROOT
+!experiments/w5_new_rows/results/
+!experiments/w5_new_rows/results/*.json
+
+# third-party reference code (MCE.m and its supplement): fetched by URL, see
+# experiments/w5_new_rows/DISCOVERY.md
+/reference/
+
 # packaging build artefacts, not evidence
 own_baseline.egg-info/
 *.egg-info/

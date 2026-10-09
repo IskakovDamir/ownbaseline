@@ -8,7 +8,7 @@
 
 - **StemSC does not move.** No hyphenated atlas symbol maps to any of its 437 reference genes, so its 15,670 pairs read the same columns in both conditions; the score and the REO primitive are identical in every cell.
 - **The depth facts and the AUROCs do not move at printed precision.** Per-population median detected genes (916 HSC, 1,404 GMP, ...) are identical, the 12,354 ranked cells are the same, and the gene-count primitive's AUROC is 0.378 either way (0.37837 split, 0.37831 merged).
-- **Every tau_b value moves, and no tau_b verdict changes.** For CytoTRACE the marginal gap falls from 0.229 to 0.181, the marginal skill from +0.140 to +0.092, the conditional skill from 0.232 [0.218, 0.247] to 0.196 [0.182, 0.210], and the score's AUROC from 0.272 to 0.269. Those four printed numbers of the manuscript's section 2 change; the argument they carry does not (the table below goes statement by statement). SR and CCAT move more (SR marginal gap 0.383 to 0.173; SR's primitive goes from -0.103 to +0.008), but no published sentence quotes them.
+- **Every tau_b value moves, and no tau_b verdict changes.** For CytoTRACE the marginal gap falls from 0.229 to 0.181, the marginal skill from +0.140 to +0.092, the conditional skill from 0.232 [0.218, 0.247] to 0.195 [0.182, 0.210], and the score's AUROC from 0.272 to 0.269. Those four printed numbers of the manuscript's section 2 change; the argument they carry does not (the table below goes statement by statement). SR and CCAT move more (SR marginal gap 0.383 to 0.173; SR's primitive goes from -0.103 to +0.008), but no published sentence quotes them.
 - **Under weighted tau two verdicts swap**: SR from SIGN-FLIPPED SCAFFOLD to inconclusive, CCAT from inconclusive to SIGN-FLIPPED SCAFFOLD. Weighted tau is the kernel of the manuscript-era copy of the W4 run, not of the run record or the current manuscript, and neither verdict is quoted in the paper or a tracked file. The weighted CytoTRACE marginal gap, 0.141, is quoted in the `own_baseline/conditional_skill.py` docstring and becomes 0.157.
 
 ## The split
@@ -112,7 +112,7 @@ Manuscript means section 2 ("A primitive that orders below chance") and the Figu
 | gene-count tau_b -0.089 | manuscript | -0.0889 | -0.0891 | unchanged |
 | CytoTRACE marginal skill +0.140 | manuscript | +0.1400 | +0.0915 | **changes to +0.092** |
 | marginal gap 0.229 | manuscript; Figure 3 note ("CT marginal delta = +0.229") | +0.2289 | +0.1806 | **changes to 0.181** |
-| conditional skill 0.232, interval 0.218 to 0.247 | manuscript | +0.2316 [+0.2175, +0.2466] | +0.1955 [+0.1815, +0.2100] | **changes to 0.196, 0.182 to 0.210** |
+| conditional skill 0.232, interval 0.218 to 0.247 | manuscript | +0.2316 [+0.2175, +0.2466] | +0.1955 [+0.1815, +0.2100] | **changes to 0.195, 0.182 to 0.210** |
 | it clears every tau_b floor measured, the largest 0.0804 | manuscript | yes | yes, lower bound 0.1815 | unchanged |
 | CytoTRACE AUROC 0.272 | manuscript, Figure 3 caption | 0.2721 | 0.2691 | **changes to 0.269** |
 | direction check: score and primitive both below 0.5 | manuscript | 0.272, 0.378 | 0.269, 0.378 | unchanged |

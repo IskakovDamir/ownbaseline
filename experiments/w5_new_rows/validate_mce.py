@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 """
-validate_mce.py — step 1.4 of the w5 new-row audit: check scores/mce.py, time
-it, and compare it with the authors' MCE.m in GNU Octave when that file is
-present.
+validate_mce.py — step 1.4 of the w5 new-row audit: check scores/mce.py
+against analytic answers and against the authors' MCE.m run in GNU Octave,
+and time it under MCE.m's own stopping rule.
 
 Reads no stage label. Inputs are the 500-cell SCENT validation subsample
 (seed 42, <scratch>/scent_io/adjMC.npz: the network object SR uses and its
-cell indices) and the post-QC count matrix of GSE106474.
+cell indices) and the post-QC count matrix of GSE106474, in SR's units,
+log2(CPM + 1.1) over the network genes.
 
-Three parts, each recorded in the output JSON:
+Parts, each recorded in discovery/mce_validation.json:
 
-  toy        analytic answers on small networks (static-entropy limit,
-             complete-graph limit, maximum at pi proportional to degree) and
-             a generic constrained optimizer on a random graph
-  timing     wall time of scores/mce.py on the 500 cells, the input SR uses
-             (log2(CPM + 1.1) over the network genes), projected linearly to
-             39,505 cells
-  reference  MCE.m run by Octave on the same 500 cells, Spearman and max
-             absolute deviation against the port; or the reason it did not run
+  toy          analytic answers on small networks and a generic constrained
+               optimizer (rule="residual", the converged fixed point)
+  reference    reference/MCE.m run by octave-cli on the 500 cells; Spearman,
+               Pearson and maximum absolute deviation against the port
+               (rule="mce_m"), and whether each cell took the same number of
+               steps
+  timing       wall time of the port on the 500 cells under MCE.m's rule, one
+               core, projected linearly to 39,505 cells
+  convergence  how far MCE.m's 1e-2 stopping rule leaves the score from the
+               fixed point solved to a stationarity residual of 1e-6
+  provisional  the per-tolerance trace measured before MCE.m was available,
+               carried over unchanged from the earlier file
 
     python3 experiments/w5_new_rows/validate_mce.py
 """
@@ -26,6 +31,7 @@ from __future__ import annotations
 import hashlib
 import json
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -34,7 +40,9 @@ from pathlib import Path
 
 import numpy as np
 import scipy
+import scipy.io as sio
 import scipy.sparse as sp
+from scipy.stats import pearsonr, spearmanr
 
 HERE = Path(__file__).resolve().parent
 REPO = next(p for p in HERE.parents if (p / "own_baseline" / "paths.py").is_file())
@@ -43,11 +51,12 @@ sys.path.insert(0, str(REPO / "scores"))
 sys.path.insert(0, str(REPO / "experiments" / "track2" / "code"))
 sys.path.insert(0, str(REPO / "tests"))
 
-from own_baseline.paths import data_root, scratch_root  # noqa: E402
-from mce import mce, mce_one, with_self_loops  # noqa: E402
+from own_baseline.paths import data_root  # noqa: E402
+from mce import mce, mce_one, with_self_loops, MCE_M_EPSILON, MCE_M_MAX_ITER  # noqa: E402
 
 OUT = HERE / "discovery" / "mce_validation.json"
 REF = REPO / "reference" / "MCE.m"
+WORK = data_root() / "w5_new_rows" / "mce_octave"
 N_FULL = 39505
 
 
@@ -65,21 +74,21 @@ def _H(p):
 
 
 def toy():
-    """Analytic and optimizer checks; returns value pairs and deviations."""
+    """Analytic and optimizer checks of the fixed point, solved to convergence."""
     import test_mce as T
-    rng = np.random.default_rng(T.SEED)
     rows = []
+    kw = {"rule": "residual"}
 
     n = 7
     pi = T._pi(n, T.SEED)
-    got = mce_one(pi, sp.csr_matrix((n, n)), normalize=False)
+    got = mce_one(pi, sp.csr_matrix((n, n)), normalize=False, **kw)
     rows.append({"case": "self-loops only (P = I): MCE = H(pi)", "n_nodes": n,
                  "expected": _H(pi), "got": got, "abs_dev": abs(got - _H(pi))})
 
     n = 6
     pi = T._pi(n, T.SEED + 1)
     A = sp.csr_matrix(np.ones((n, n)) - np.eye(n))
-    got = mce_one(pi, A, normalize=False)
+    got = mce_one(pi, A, normalize=False, **kw)
     rows.append({"case": "complete graph: MCE = 2 H(pi)", "n_nodes": n,
                  "expected": 2 * _H(pi), "got": got,
                  "abs_dev": abs(got - 2 * _H(pi))})
@@ -91,12 +100,11 @@ def toy():
         M[i, i + 1] = 1.0
     A = sp.csr_matrix(M + M.T)
     d = np.asarray(with_self_loops(A).sum(axis=1)).ravel()
-    got = mce_one(d, A, normalize=True)
+    got = mce_one(d, A, normalize=True, **kw)
     rows.append({"case": "pi proportional to self-loop degree: normalised MCE = 1",
                  "n_nodes": n, "expected": 1.0, "got": got,
                  "abs_dev": abs(got - 1.0)})
 
-    # the optimizer comparison, rerun here so its numbers are recorded
     from scipy.optimize import minimize
     rng = np.random.default_rng(T.SEED + 3)
     n = 6
@@ -120,7 +128,7 @@ def toy():
                    q0, jac=lambda q: np.log(np.clip(q, 1e-300, None)) + 1.0,
                    constraints=cons, method="SLSQP", bounds=[(0, 1)] * len(edges),
                    options={"ftol": 1e-15, "maxiter": 2000})
-    got = mce_one(pi, A, normalize=False)
+    got = mce_one(pi, A, normalize=False, **kw)
     rows.append({"case": "random 6-node graph vs SLSQP on Eq 3", "n_nodes": n,
                  "expected": float(-res.fun), "got": got,
                  "abs_dev": abs(got - float(-res.fun)),
@@ -141,137 +149,124 @@ def subsample_input():
     return A, Xn, sub_idx, target_sum
 
 
-TOLS = (1e-6, 1e-8, 1e-10, 1e-12)
-N_TRACE = 50          # cells whose convergence is traced to the tightest tol
-TRACE_CAP = 20000     # iteration cap for the trace
-N_ITER_TIMED = 50     # iterations timed on the full 500-cell block
-
-
-def timing(A, Xn):
-    """
-    The stopping rule of MCE.m is not known, so the cost is measured in two
-    parts and projected per tolerance: seconds per iteration per cell on the
-    full 500-cell block, and iterations to each tolerance on the first 50
-    cells. The projection assumes 500-cell chunks iterate as long as their
-    slowest cell, which the 50-cell trace can underestimate.
-    """
-    from mce import _scale
-    AL = with_self_loops(A)
-    Pi = Xn / Xn.sum(axis=1, keepdims=True)
-
-    t0 = time.perf_counter()
-    _scale(Pi, AL, tol=0.0, max_iter=N_ITER_TIMED, check_every=N_ITER_TIMED + 1)
-    secs = time.perf_counter() - t0
-    per_iter_cell = secs / N_ITER_TIMED / Xn.shape[0]
-
-    hist = []
-    t1 = time.perf_counter()
-    _scale(Pi[:N_TRACE], AL, tol=TOLS[-1], max_iter=TRACE_CAP, check_every=10,
-           history=hist)
-    trace_secs = time.perf_counter() - t1
-    reached = {}
-    for tol in TOLS:
-        hit = next((it for it, err in hist if err < tol), None)
-        reached[f"{tol:g}"] = hit
-
-    vals = {}
-    for tol in TOLS:
-        if reached[f"{tol:g}"] is not None:
-            vals[f"{tol:g}"] = mce(Xn[:N_TRACE], A, tol=tol, max_iter=TRACE_CAP)
-    ref_key = next((f"{t:g}" for t in reversed(TOLS) if f"{t:g}" in vals), None)
-    dev_vs_tightest = {k: float(np.max(np.abs(v - vals[ref_key])))
-                       for k, v in vals.items()} if ref_key else {}
-
-    proj = {}
-    for k, it in reached.items():
-        if it is not None:
-            s = it * per_iter_cell * N_FULL
-            proj[k] = {"iterations": it, "projected_hours_39505": s / 3600.0,
-                       "under_8_hours": bool(s < 8 * 3600)}
-    return {
-        "n_cells_timed": int(Xn.shape[0]), "n_network_genes": int(A.shape[0]),
-        "n_edges_without_loops": int(A.nnz // 2),
-        "iterations_timed": N_ITER_TIMED, "seconds_timed": secs,
-        "seconds_per_iteration_per_cell": per_iter_cell,
-        "trace_cells": N_TRACE, "trace_cap": TRACE_CAP,
-        "trace_seconds": trace_secs,
-        "trace_final": {"iteration": hist[-1][0], "residual": hist[-1][1]} if hist else None,
-        "iterations_to_tol": reached,
-        "mce_max_abs_dev_vs_tightest_reached_tol": {"reference_tol": ref_key,
-                                                    **dev_vs_tightest},
-        "projection_by_tol": proj,
-        "machine": f"{platform.machine()} {platform.system()} {platform.release()}",
-        "numpy": np.__version__, "scipy": scipy.__version__,
-        "python": platform.python_version(),
-    }, (vals[ref_key] if ref_key else None)
-
-
-def reference(A, Xn, port_vals):
-    """Run MCE.m in Octave on the same cells, if both exist."""
+def run_octave(A, Xn):
+    """reference/MCE.m on the same cells, through octave-cli."""
     octave = shutil.which("octave-cli") or shutil.which("octave")
     if not REF.is_file():
-        return {"status": "NOT RUN",
-                "reason": "reference/MCE.m is absent: the supplement of Shi et "
-                          "al. 2020 could not be downloaded in this session "
-                          "(see DISCOVERY.md). Waiting for the author.",
-                "octave": (subprocess.run([octave, "--version"], capture_output=True,
-                                          text=True).stdout.splitlines()[0]
-                           if octave else None)}
+        return {"status": "NOT RUN", "reason": "reference/MCE.m is absent"}, None, None
     if octave is None:
         return {"status": "NOT RUN", "reason": "GNU Octave is not installed",
-                "mce_m_sha256": sha256(REF)}
-    # MCE.m's calling convention is only known once the file is read; the
-    # driver below is filled in at that point (amendment recorded in PREREG.md)
-    return {"status": "NOT RUN",
-            "reason": "MCE.m is present but no Octave driver has been written "
-                      "for its calling convention yet",
-            "mce_m_sha256": sha256(REF)}
+                "mce_m_sha256": sha256(REF)}, None, None
+    WORK.mkdir(parents=True, exist_ok=True)
+    mat = WORK / "mce_input.mat"
+    sio.savemat(mat, {"data": np.ascontiguousarray(Xn.T),          # genes x cells
+                      "net": sp.csc_matrix(A, dtype=np.float64)}, do_compression=False)
+    out = WORK / "mce_octave_ge.txt"
+    log = WORK / "mce_octave.log"
+    script = (f"addpath('{REF.parent}'); load('{mat}'); t0 = tic; "
+              f"ge = MCE(data, net); secs = toc(t0); "
+              f"fid = fopen('{out}', 'w'); fprintf(fid, '%.17g\\n', ge); fclose(fid); "
+              f"printf('OCTAVE_SECONDS %.3f\\n', secs);")
+    t0 = time.perf_counter()
+    r = subprocess.run([octave, "--no-gui", "--quiet", "--eval", script],
+                       capture_output=True, text=True)
+    wall = time.perf_counter() - t0
+    log.write_text(r.stdout + r.stderr)
+    if r.returncode != 0:
+        return {"status": "FAILED", "reason": r.stderr.strip()[-2000:],
+                "mce_m_sha256": sha256(REF)}, None, None
+    ge = np.loadtxt(out)
+    steps = np.array([int(m) for m in re.findall(r"Sample \d+/\d+: (\d+) iterations", r.stdout)])
+    secs = float(re.search(r"OCTAVE_SECONDS ([0-9.]+)", r.stdout).group(1))
+    version = subprocess.run([octave, "--version"], capture_output=True,
+                             text=True).stdout.splitlines()[0]
+    return {"status": "RUN", "octave": version, "mce_m_sha256": sha256(REF),
+            "seconds_inside_octave": secs, "seconds_wall": wall,
+            "n_cells": int(len(ge))}, ge, steps
 
 
 def main():
-    if "--reference-only" in sys.argv:
-        # refresh only the MCE.m comparison block; the toy checks and the timing
-        # in the existing file are kept as they were measured. Once MCE.m is in
-        # place the Octave comparison needs the full run, not this.
-        out = json.loads(OUT.read_text())
-        if REF.is_file():
-            raise SystemExit("MCE.m is present: run the full validation")
-        out["reference"] = reference(None, None, None)
-        OUT.write_text(json.dumps(out, indent=2) + "\n")
-        print(f"[reference] {out['reference']['status']}: {out['reference']['reason']}")
-        print(f"wrote {OUT}")
-        return
     out = {"script": "experiments/w5_new_rows/validate_mce.py",
-           "implementation": "scores/mce.py (from the published equations; "
-                             "not yet a port of MCE.m)",
+           "implementation": "scores/mce.py, a port of MCE.m (rule='mce_m'); "
+                             "rule='residual' solves the same fixed point to convergence",
+           "mce_m_sha256": sha256(REF) if REF.is_file() else None,
            "toy": toy()}
     for r in out["toy"]:
         print(f"[toy] {r['case']}: expected {r['expected']:.12g} got "
               f"{r['got']:.12g} |dev| {r['abs_dev']:.2e}", flush=True)
+    if OUT.is_file():
+        old = json.loads(OUT.read_text())
+        if "timing" in old and "projection_by_tol" in old["timing"]:
+            out["provisional"] = {"note": "measured on the equations-based solver before "
+                                          "MCE.m was available; superseded by 'timing'",
+                                  **old["timing"]}
+        elif "provisional" in old:
+            out["provisional"] = old["provisional"]
+
     A, Xn, sub_idx, target_sum = subsample_input()
-    t, vals = timing(A, Xn)
-    t["input"] = ("log2(CPM + 1.1) over the network genes of SR's STRING v12 "
-                  f"object, CPM target sum = median library size ({target_sum:g})")
-    if vals is not None:
-        t["mce_summary_trace_cells"] = {"min": float(np.min(vals)),
-                                        "median": float(np.median(vals)),
-                                        "max": float(np.max(vals)),
-                                        "n_nan": int(np.isnan(vals).sum())}
-    out["timing"] = t
-    out["reference"] = reference(A, Xn, vals)
+    out["input"] = ("the 500-cell SCENT validation subsample (seed 42), "
+                    f"log2(CPM + 1.1) over the {A.shape[0]:,} network genes of SR's "
+                    f"STRING v12 object, CPM target sum = median library size ({target_sum:g})")
+
+    t0 = time.perf_counter()
+    port, info = mce(Xn, A, return_info=True)          # rule = MCE.m's
+    secs = time.perf_counter() - t0
+    per_cell = secs / Xn.shape[0]
+    out["timing"] = {
+        "rule": "mce_m", "epsilon": MCE_M_EPSILON, "max_iter": MCE_M_MAX_ITER,
+        "n_cells": int(Xn.shape[0]), "n_network_genes": int(A.shape[0]),
+        "n_edges_without_loops": int(A.nnz // 2), "log_d": info["log_d"],
+        "steps_min": int(info["iterations"].min()),
+        "steps_median": float(np.median(info["iterations"])),
+        "steps_max": int(info["iterations"].max()),
+        "seconds": secs, "seconds_per_cell": per_cell,
+        "projected_hours_39505_single_core": per_cell * N_FULL / 3600.0,
+        "under_8_hours": bool(per_cell * N_FULL < 8 * 3600),
+        "machine": f"{platform.machine()} {platform.system()} {platform.release()}",
+        "numpy": np.__version__, "scipy": scipy.__version__,
+        "python": platform.python_version(),
+    }
+    print(f"[timing] {Xn.shape[0]} cells in {secs:.1f} s, steps "
+          f"{out['timing']['steps_min']}-{out['timing']['steps_max']} (median "
+          f"{out['timing']['steps_median']:g}); projected "
+          f"{out['timing']['projected_hours_39505_single_core']:.2f} h for {N_FULL:,} cells",
+          flush=True)
+
+    ref, ge, steps = run_octave(A, Xn)
+    if ge is not None:
+        ref.update({
+            "spearman_port_vs_mce_m": float(spearmanr(port, ge).statistic),
+            "pearson_port_vs_mce_m": float(pearsonr(port, ge)[0]),
+            "max_abs_dev": float(np.max(np.abs(port - ge))),
+            "steps_identical": bool(len(steps) == len(port)
+                                    and np.array_equal(steps, info["iterations"])),
+            "n_steps_parsed": int(len(steps)),
+        })
+        print(f"[reference] MCE.m in {ref['octave']}: Spearman "
+              f"{ref['spearman_port_vs_mce_m']:.6f}, max |dev| {ref['max_abs_dev']:.3e}, "
+              f"steps identical {ref['steps_identical']}, "
+              f"{ref['seconds_inside_octave']:.1f} s in Octave", flush=True)
+    else:
+        print(f"[reference] {ref['status']}: {ref['reason']}", flush=True)
+    out["reference"] = ref
+
+    conv, cinfo = mce(Xn, A, rule="residual", tol=1e-6, return_info=True)
+    out["convergence"] = {
+        "converged_rule": "residual, tol 1e-6 (the 1e-6 solution was within 1.6e-8 of "
+                          "the 1e-8 one in the provisional trace)",
+        "converged_steps_max": int(cinfo["iterations"].max()),
+        "max_abs_dev_mce_m_vs_converged": float(np.max(np.abs(port - conv))),
+        "median_abs_dev": float(np.median(np.abs(port - conv))),
+        "spearman_mce_m_vs_converged": float(spearmanr(port, conv).statistic),
+        "port_summary": {"min": float(np.min(port)), "median": float(np.median(port)),
+                         "max": float(np.max(port))},
+    }
+    print(f"[convergence] MCE.m rule vs converged: max |dev| "
+          f"{out['convergence']['max_abs_dev_mce_m_vs_converged']:.3e}, Spearman "
+          f"{out['convergence']['spearman_mce_m_vs_converged']:.6f}", flush=True)
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2) + "\n")
-    print(f"[timing] {t['seconds_per_iteration_per_cell']:.3e} s per iteration "
-          f"per cell ({t['n_cells_timed']} cells, {t['iterations_timed']} "
-          f"iterations); trace on {t['trace_cells']} cells ended at iteration "
-          f"{t['trace_final']['iteration']} residual {t['trace_final']['residual']:.1e}")
-    for k, it in t["iterations_to_tol"].items():
-        p = t["projection_by_tol"].get(k)
-        print(f"[timing]   tol {k}: iterations {it}"
-              + (f", projected {p['projected_hours_39505']:.2f} h for {N_FULL:,} "
-                 f"cells, max |MCE - tightest| {t['mce_max_abs_dev_vs_tightest_reached_tol'].get(k, float('nan')):.1e}"
-                 if p else ", not reached within the cap"))
-    print(f"[reference] {out['reference']['status']}: {out['reference'].get('reason', '')}")
     print(f"wrote {OUT}")
 
 

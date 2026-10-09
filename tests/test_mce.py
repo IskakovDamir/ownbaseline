@@ -1,10 +1,13 @@
 """
 Tests of scores/mce.py against answers known in advance.
 
-Each expected value is a closed form for a network whose maximum-entropy chain
+The analytic tests solve the fixed point to convergence (rule="residual"):
+each expected value is a closed form for a network whose maximum-entropy chain
 can be written down by hand, or the optimum of the same problem solved by a
-generic constrained optimizer that shares no code with the fixed point. None
-of them asserts the current output.
+generic constrained optimizer that shares no code with the fixed point. The
+MCE.m tests check the default rule against a line-by-line transcription of
+the authors' MCE.m, run one sample at a time as MCE.m runs. None of them
+asserts the current output.
 
     python3 tests/test_mce.py          # standalone, same harness as run_tests.py
     pytest tests/test_mce.py           # or collected with the rest by pytest
@@ -45,7 +48,7 @@ def test_mce_with_only_self_loops_is_the_static_entropy_of_pi():
     n = 7
     pi = _pi(n, SEED)
     A = sp.csr_matrix((n, n))
-    got = mce_one(pi, A, normalize=False)
+    got = mce_one(pi, A, normalize=False, rule="residual")
     assert abs(got - _H(pi)) < 1e-10, (got, _H(pi))
 
 
@@ -58,7 +61,7 @@ def test_mce_on_the_complete_graph_is_twice_the_entropy_of_pi():
     n = 6
     pi = _pi(n, SEED + 1)
     A = sp.csr_matrix(np.ones((n, n)) - np.eye(n))
-    got = mce_one(pi, A, normalize=False)
+    got = mce_one(pi, A, normalize=False, rule="residual")
     assert abs(got - 2 * _H(pi)) < 1e-10, (got, 2 * _H(pi))
 
 
@@ -75,7 +78,7 @@ def test_normalised_mce_is_one_when_pi_is_proportional_to_self_loop_degree():
         M[i, i + 1] = 1.0
     A = sp.csr_matrix(M + M.T)
     d = np.asarray(with_self_loops(A).sum(axis=1)).ravel()
-    got = mce_one(d, A, normalize=True)
+    got = mce_one(d, A, normalize=True, rule="residual")
     assert abs(got - 1.0) < 1e-10, got
 
 
@@ -120,7 +123,7 @@ def test_mce_matches_a_generic_constrained_optimizer_on_a_random_network():
                    options={"ftol": 1e-15, "maxiter": 2000})
     assert res.success, res.message
     want = -res.fun
-    got = mce_one(pi, A, normalize=False)
+    got = mce_one(pi, A, normalize=False, rule="residual")
     assert abs(got - want) < 1e-6, (got, want)
 
 
@@ -136,11 +139,78 @@ def test_mce_chain_is_stochastic_with_pi_invariant_and_rows_are_independent():
         M[i, i + 1] = 1.0
     A = sp.csr_matrix(M + M.T)
     X = rng.gamma(1.5, 1.0, (9, n))
-    together, info = mce(X, A, return_info=True, chunk=9)
-    alone = np.array([mce_one(x, A) for x in X])
-    assert np.all(info["residual"] < 1e-12), info["residual"]
+    together, info = mce(X, A, return_info=True, chunk=9, rule="residual")
+    alone = np.array([mce_one(x, A, rule="residual") for x in X])
+    assert np.all(info["err"] < 1e-12), info["err"]
     assert np.max(np.abs(together - alone)) < 1e-10
     assert np.all((together > 0) & (together <= 1 + 1e-12))
+
+
+def _mce_m_literal(data, net):
+    """
+    MCE.m transcribed line by line (SHA256 c8ad11f2...), one sample at a time,
+    dense, as the authors' loop runs: data is genes x samples.
+    """
+    p, n = data.shape
+    net = net.copy()
+    np.fill_diagonal(net, 1.0)                                   # line 19
+    nx = np.count_nonzero(net)                                   # line 21
+    ge = np.zeros(n)
+    steps = np.zeros(n, dtype=int)
+    for i in range(n):
+        p0 = data[:, i] / data[:, i].sum()                       # line 26
+        B = net * p0[:, None]                                    # line 27
+        lambda0, theta0, n_it = p0.copy(), np.ones(p), 0         # lines 63-65
+        while True:
+            n_it += 1
+            lam = 1.0 / (net @ theta0)                           # line 69
+            theta = p0 / (B.T @ lam)                             # line 72
+            err = np.max(np.abs(np.concatenate([lam - lambda0, theta - theta0])))
+            stop = (err < 1e-2) or (n_it > 10 ** 6)              # lines 62, 75
+            lambda0, theta0 = lam, theta
+            if stop:
+                break
+        ge[i] = -np.dot(p0, np.log(lambda0 * theta0))            # line 30
+        ge[i] -= np.sum(p0[p0 > 0] * np.log(p0[p0 > 0]))         # line 32
+        steps[i] = n_it
+    return ge / np.log(nx), steps                                # lines 36-37
+
+
+def test_default_rule_reproduces_a_literal_transcription_of_mce_m():
+    """
+    The vectorized port, with every cell stopping on its own, gives the same
+    scores and the same step counts as MCE.m's per-sample loop.
+    """
+    rng = np.random.default_rng(SEED + 6)
+    n = 60
+    M = np.triu((rng.random((n, n)) < 0.08).astype(float), 1)
+    for i in range(n - 1):
+        M[i, i + 1] = 1.0
+    A = M + M.T
+    X = rng.gamma(1.2, 1.0, (17, n)) + 0.05                      # cells x genes, > 0
+    want, want_steps = _mce_m_literal(X.T, A)
+    got, info = mce(X, sp.csr_matrix(A), return_info=True, chunk=5)
+    assert np.array_equal(info["iterations"], want_steps), (info["iterations"], want_steps)
+    assert np.max(np.abs(got - want)) < 1e-12, np.max(np.abs(got - want))
+
+
+def test_mce_m_rule_stops_each_cell_on_its_own_and_lands_near_the_fixed_point():
+    """
+    Cells that converge at different speeds stop at different steps, and the
+    1e-2 rule leaves the score close to, but not at, the converged value.
+    """
+    rng = np.random.default_rng(SEED + 7)
+    n = 50
+    M = np.triu((rng.random((n, n)) < 0.1).astype(float), 1)
+    for i in range(n - 1):
+        M[i, i + 1] = 1.0
+    A = sp.csr_matrix(M + M.T)
+    X = np.vstack([rng.gamma(0.3, 1.0, n) + 1e-3, np.ones(n), rng.gamma(5.0, 1.0, n)])
+    got, info = mce(X, A, return_info=True)
+    conv = mce(X, A, rule="residual", tol=1e-13)
+    assert len(set(info["iterations"].tolist())) > 1, info["iterations"]
+    assert np.all(info["err"] < 1e-2)
+    assert np.max(np.abs(got - conv)) < 1e-2, np.abs(got - conv)
 
 
 if __name__ == "__main__":

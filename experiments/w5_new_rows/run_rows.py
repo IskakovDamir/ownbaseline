@@ -73,7 +73,9 @@ KERNELS = ("kendalltau", "weightedtau_rankTrue", "weightedtau_rankFalse")
 
 # MCE's cell set is fixed by the amendment PREREG.md requires before its row
 # runs: "full" (all 39,505) or "subsample" (make_subsample.py, seed 42).
-MCE_CELLS = None
+# Amendment 1 (2026-10-09): the port under MCE.m's stopping rule projects to
+# 0.58 h on one core for 39,505 cells, under 8 hours, so "full".
+MCE_CELLS = "full"
 
 SPLIT = ("GSE117498 through the stemsc code path: the four broad-gate files name "
          "genes in R make.names form (HLA.A) and the seven sorted files in HGNC form "

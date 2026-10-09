@@ -97,7 +97,25 @@ Every value the rows will report, as `run_rows.py plan` measured it before this 
 
 Any change to a primitive, subsample, kernel, threshold, seed, input, parameter or dataset is written here with its date and reason before the rerun, and the first result stays in the report.
 
-(none)
+### Amendment 1, 2026-10-09: MCE.m arrived; the MCE row's settings, fixed before it runs
+
+**Reason.** After the PREREG commit (71605a4) the author downloaded the supplement and placed it in `reference/bby093_supp/`. The steps this file required before the MCE row runs were then carried out, without any label, and are recorded here before the row runs.
+
+- **MCE.m.** `reference/MCE.m`, SHA256 `c8ad11f2cdadc979cc303a21785f65eba77a41dfe565ace2beffaeae265fdce2` (the zip's other file, `ADF1.pdf`, is the supplementary tables and legends).
+- **DISCOVERY.md 1.3 against MCE.m.** Line 30 computes the entropy rate h(P) of P_ij = lambda_i theta_j A_ij and line 32 adds the static entropy H(p0): MCE.m computes h(P*) + H(pi), as 1.3 found from the equations. The switch condition above (MCE.m computing only H(pi)) is not met, so **P1 stays on the entropy-rate branch: MCE keeps tau_b conditional skill above its floor on PCC(x, degree).**
+- **The port's settings, taken from MCE.m** (`scores/mce.py`, `rule="mce_m"`): start lambda0 = p0, theta0 = 1; each step lambda = 1 ./ (A theta0), theta = p0 ./ (B' lambda); stop when the infinity norm of the change in (lambda, theta) is below 1e-2 or after more than 1e6 steps, each cell on its own; the score of lines 30 and 32, divided by log(nnz(A + I)).
+- **Input transform.** MCE.m prescribes none: it divides by the sum and needs strictly positive entries, and ADF1.pdf names no preprocessing. So the registered default stands: SR's input, log2(CPM + 1.1) over SR's 8,468 network genes, CPM target = median library size.
+- **Validation** (`discovery/mce_validation.json`). On the 500 SCENT validation cells, the port against MCE.m run unmodified in GNU Octave (aarch64-apple-darwin25.4.0) version 11.3.0: Spearman 1.000000, maximum absolute deviation 1.8e-13, step counts identical in all 500 cells. MCE.m's 1e-2 rule leaves the score within 8.3e-08 of the converged fixed point (Spearman 1.000000).
+- **Timing and cell set.** The port scored the 500 cells in 26.2 s on one core under MCE.m's rule, 137 to 547 steps per cell, which projects to 0.58 h for 39,505 cells. That is under 8 hours, so the MCE row uses all 39,505 cells: `MCE_CELLS = "full"` in `run_rows.py`. The full run (`score_mce.py`, 8 processes on a machine shared with two other jobs) then took 1,944 s, 109 to 659 steps per cell, no NaN; the projection, not the run, decided the cell set, as registered.
+- **The MCE values, from `run_rows.py plan`** after `scores/GSE106474/mce.csv` was written (SHA256 `3e8f92f7dbe93296e52b33250269b90ac4f6980e9db3a4894d37c17668db095b`), with the ordinal used only to know which cells are ranked. Both grid points are within the registered distance, so no design point was needed. The joint value sits at the declared primitive's rho, as the paper's joint rows do.
+
+| row | dataset | value | n | levels | k | rho | floor source |
+|---|---|---|---|---|---|---|---|
+| MCE | GSE106474 | declared primitive (PCC(x, degree)) | 39,505 | 12 | 1 | +0.8024 | grid: Null B, align on, 12 levels, n=39,505, rho=0.9, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds |
+| MCE | GSE106474 | joint four-primitive residual | 39,505 | 12 | 4 | +0.8024 | grid: Null B, align on, 12 levels, n=39,505, rho=0.9, kendalltau, 4 covariates, 1 coupling strength, 200 seeds |
+
+- **The plan.** `plan.json` now has SHA256 `943e68952b02af815ec789847cccd1509b0490dd1b673fa8a3f2b294456dfda0` (it was `e2d30f3abcde806f2719cb990a67c03d71ec9d6b35f83d07977b04e4db8695f5` at 71605a4). Every other row's entry is unchanged: same input hashes, n, rho and floor sources.
+- **The other rows.** `run_rows.py values` recomputes every row. Its inputs and its seed (42) are unchanged, so it reproduces their first results exactly; that is checked against the committed `results/summary.json` and reported. The first results stay in the report.
 
 ## Outputs
 

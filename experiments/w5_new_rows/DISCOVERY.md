@@ -17,7 +17,7 @@ Every count below comes from a script run in this session. Where a number is a f
 | R | 4.6.1 (Homebrew, arm64) |
 | GNU Octave | 11.3.0, installed through Homebrew in this session for step 1.4 (it was not present before). The install also upgraded openssl@4, which unlinked the openssl@3 command-line symlinks; the openssl@3 keg is still installed. |
 
-## 1.2 MCE.m: blocked, waiting for the author
+## 1.2 MCE.m: blocked in this session, then placed by the author
 
 `reference/` did not exist. The supplement could not be downloaded:
 
@@ -36,7 +36,9 @@ shasum -a 256 MCE.m
 
 `reference/` is git-ignored; MCE.m stays local and its SHA256 goes in the report. That the zip contains a file named MCE.m rests on Qingyang Wang's message. The article's main text does not mention code or MATLAB, so it could not be checked.
 
-**Status: MCE is waiting for the author.** The MCE row is pre-registered in full (PREREG.md) and runs once MCE.m is in place.
+**Status, first pass: MCE was waiting for the author.** The MCE row was pre-registered (PREREG.md) to run once MCE.m was in place.
+
+**Update, 2026-10-09, after the PREREG commit.** The author downloaded the supplement and placed it, unzipped, in `reference/bby093_supp/`. It holds two files: `MCE.m` (2,338 bytes, SHA256 `c8ad11f2cdadc979cc303a21785f65eba77a41dfe565ace2beffaeae265fdce2`) and `ADF1.pdf` (1,925,087 bytes, SHA256 `6bc953734294b71947ea1f6234a79b3ed9d554111c13f669818e9df85dceef76`), the supplementary tables S1 to S5 and figure legends S1 to S11, which say nothing about preprocessing. MCE.m was copied to `reference/MCE.m`. So the zip does contain MCE.m, as Qingyang Wang said. Sections 1.3 and 1.4 below were then checked against it, still without any label.
 
 ## 1.3 What MCE computes
 
@@ -63,13 +65,22 @@ The static part is not small. Since 0 <= h(P*) <= H(pi) (a conditional entropy i
 
 **Declared primitive.** PCC(x, degree): Shi et al., Results "Cellular potency encoded by the Pearson correlation of transcriptome and connectome", attribute about 70% of MCE's variance to it; the Fig 4D panel prints R2 = 0.67 (Wang et al. NPC and neuron data, MCE on the y axis, PCC(mRNA, Degree) on the x axis).
 
-**Class.** Unsupervised. The score depends on one cell's expression and a fixed network; nothing is fitted to labelled data. Whether MCE.m hard-codes a starting point, tolerance or iteration cap is unknown.
+**Class.** Unsupervised. The score depends on one cell's expression and a fixed network; nothing is fitted to labelled data. MCE.m hard-codes its start, threshold and step cap (below); none is fitted to anything.
 
-**Functions MCE.m calls.** Unknown until the file is read. The published algorithm needs only matrix products, element-wise division, `log` and `sum`, all in core GNU Octave.
+**Functions MCE.m calls.** `size`, `logical`, `speye`, `find`, `nnz`, `zeros`, `sum`, `sparse`, `dot`, `log`, `fprintf`, `ones`, `norm` (infinity norm), and element-wise arithmetic. All are core GNU Octave; Octave 11.3.0 ran the file unmodified (1.4).
+
+### Checked against MCE.m
+
+Read in full (79 lines). It confirms the table above, line by line, and adds what the Methods leave open:
+
+- **Network.** `net(logical(speye(size(net)))) = 1` (line 19): A_ii = 1, as Wang et al. say. `maxMCE = log(nx)`, nx = nnz of that matrix (lines 21, 36).
+- **Input.** `p0 = data(:, i); p0 = p0/sum(p0)` (line 26). No transform, no log: MCE.m uses whatever it is given, divided by its sum. A zero entry makes `0 * log(0)`, which is NaN, at line 30, so the input must be strictly positive. Neither the code nor ADF1.pdf names the transform the authors used.
+- **Iteration** (`fun_iteration`, lines 43 to 79). Start lambda0 = p0, theta0 = 1. Each step: lambda = 1 ./ (A theta0), theta = p0 ./ (B' lambda) with B_ij = p0_i A_ij, err = the infinity norm of the change in [lambda; theta]. It stops when err < 1e-2 or after more than 1e6 steps (line 62) and returns the last (lambda, theta). The stopping rule is an absolute change in the multipliers, not a residual of the constraints.
+- **Score.** `ge(i) = - dot(p0, log(out(1:p).*out((p+1):end)))` (line 30), then `ge(i) = ge(i) - sum(p0(p0>0).*log(p0(p0>0)))` (line 32). Line 30 is the entropy rate h(P) of P_ij = lambda_i theta_j A_ij, and line 32 adds the static entropy H(p0). **So MCE.m computes MCE = h(P*) + H(pi), the entropy-rate construction plus the static term, exactly as 1.3 found from the equations.** The classification used for P1 stands, and PREREG.md's switch condition (MCE.m computing only H(pi)) is not met.
 
 ## 1.4 scores/mce.py
 
-`scores/mce.py` implements the published equations, not yet MCE.m, and says so in its header. It runs on the network object SR uses (`<scratch>/scent_io/adjMC.npz`, STRING v12 at 700, atlas intersection, largest component, no self-loops) and adds the identity itself, so MCE and SR share one scaffold. Choices MCE.m may make differently (input transform, start, tolerance, iteration cap) are arguments, so the port can take the authors' values without changing the algorithm.
+`scores/mce.py` was first written from the published equations (this paragraph and the analytic table below). Once MCE.m arrived it became a port of it: the default `rule="mce_m"` reproduces MCE.m's start, iteration, stopping rule and returned pair, each cell stopping on its own as MCE.m's per-sample loop does; `rule="residual"` keeps the converged solver for the analytic tests. It runs on the network object SR uses (`<scratch>/scent_io/adjMC.npz`, STRING v12 at 700, atlas intersection, largest component, no self-loops) and adds the identity itself, so MCE and SR share one scaffold. Choices MCE.m may make differently (input transform, start, tolerance, iteration cap) are arguments, so the port can take the authors' values without changing the algorithm.
 
 **Validation against analytic answers** (`experiments/w5_new_rows/validate_mce.py`, `discovery/mce_validation.json`):
 
@@ -82,7 +93,23 @@ The static part is not small. Since 0 <= h(P*) <= H(pi) (a conditional entropy i
 
 `tests/test_mce.py` asserts these four, plus that the fitted chain keeps pi invariant to 1e-12 and that cells solved together and alone agree to 1e-10. All five pass.
 
-**Validation against MCE.m in Octave: not run**, because MCE.m is absent (1.2). Octave 11.3.0 is installed and `validate_mce.py` has the hook. When MCE.m is in `reference/`, the Octave driver is written for its calling convention, MCE.m runs on the same 500 cells, and the Spearman correlation and maximum absolute deviation are reported as for SCENT.
+**Validation against MCE.m in Octave** (`discovery/mce_validation.json`, after MCE.m arrived). `validate_mce.py` writes the 500 SCENT validation cells, log2(CPM + 1.1) over SR's 8,468 network genes, and SR's network (no self-loops; MCE.m adds them) to a MAT file, runs `MCE(data, net)` from `reference/MCE.m` in `octave-cli` 11.3.0 unmodified, and compares it with the port under MCE.m's rule on the same matrix:
+
+| comparison | value |
+|---|---|
+| Spearman, port against MCE.m | 1.000000 |
+| Pearson, port against MCE.m | 1.000000 |
+| maximum absolute deviation | 1.8e-13 |
+| step counts identical in every one of the 500 cells | yes |
+| time inside Octave | 158.7 s |
+
+`tests/test_mce.py` also checks the port against a line-by-line transcription of MCE.m on random networks: same scores to 1e-12, same step counts.
+
+**Timing under MCE.m's rule** (one core, arm64, numpy 2.4.3, scipy 1.18.0): the port scored the 500 cells in 26.2 s, 137 to 547 steps per cell (median 263), which projects to 0.58 h for 39,505 cells. That is under 8 hours, so the MCE row uses all 39,505 cells (PREREG.md, Amendments).
+
+**How far MCE.m's 1e-2 rule stops from the fixed point.** On the same 500 cells the MCE.m-rule score differs from the fixed point solved to a stationarity residual of 1e-6 by at most 8.3e-8 (median 1.1e-8), Spearman 1.000000. The loose threshold does not change the ranking.
+
+The timing below was measured before MCE.m arrived, on the equations-based solver, and is superseded by the timing above.
 
 **Timing** (`discovery/mce_validation.json`; arm64, numpy 2.4.3, scipy 1.18.0, one core). Input: the 500 cells SR was validated on, log2(CPM + 1.1) over SR's 8,468 network genes (101,889 edges before self-loops). One fixed-point iteration costs 1.689e-4 s per cell (50 iterations on all 500 cells, 4.2 s). How many iterations a cell needs depends on the stopping rule, which only MCE.m can fix, so the cost is projected per tolerance from a trace of the first 50 cells (stationarity residual max_j |(pi P)_j - pi_j|):
 

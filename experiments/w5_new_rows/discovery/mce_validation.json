@@ -1,6 +1,7 @@
 {
   "script": "experiments/w5_new_rows/validate_mce.py",
-  "implementation": "scores/mce.py (from the published equations; not yet a port of MCE.m)",
+  "implementation": "scores/mce.py, a port of MCE.m (rule='mce_m'); rule='residual' solves the same fixed point to convergence",
+  "mce_m_sha256": "c8ad11f2cdadc979cc303a21785f65eba77a41dfe565ace2beffaeae265fdce2",
   "toy": [
     {
       "case": "self-loops only (P = I): MCE = H(pi)",
@@ -32,7 +33,8 @@
       "optimizer_success": true
     }
   ],
-  "timing": {
+  "provisional": {
+    "note": "measured on the equations-based solver before MCE.m was available; superseded by 'timing'",
     "n_cells_timed": 500,
     "n_network_genes": 8468,
     "n_edges_without_loops": 101889,
@@ -81,9 +83,50 @@
       "n_nan": 0
     }
   },
+  "input": "the 500-cell SCENT validation subsample (seed 42), log2(CPM + 1.1) over the 8,468 network genes of SR's STRING v12 object, CPM target sum = median library size (3798)",
+  "timing": {
+    "rule": "mce_m",
+    "epsilon": 0.01,
+    "max_iter": 1000000,
+    "n_cells": 500,
+    "n_network_genes": 8468,
+    "n_edges_without_loops": 101889,
+    "log_d": 12.265501258295187,
+    "steps_min": 137,
+    "steps_median": 263.0,
+    "steps_max": 547,
+    "seconds": 26.22028616606258,
+    "seconds_per_cell": 0.05244057233212516,
+    "projected_hours_39505_single_core": 0.5754624472168345,
+    "under_8_hours": true,
+    "machine": "arm64 Darwin 25.2.0",
+    "numpy": "2.4.3",
+    "scipy": "1.18.0",
+    "python": "3.14.3"
+  },
   "reference": {
-    "status": "NOT RUN",
-    "reason": "reference/MCE.m is absent: the supplement of Shi et al. 2020 could not be downloaded in this session (see DISCOVERY.md). Waiting for the author.",
-    "octave": "GNU Octave (aarch64-apple-darwin25.4.0) version 11.3.0"
+    "status": "RUN",
+    "octave": "GNU Octave (aarch64-apple-darwin25.4.0) version 11.3.0",
+    "mce_m_sha256": "c8ad11f2cdadc979cc303a21785f65eba77a41dfe565ace2beffaeae265fdce2",
+    "seconds_inside_octave": 158.704,
+    "seconds_wall": 159.53271545900498,
+    "n_cells": 500,
+    "spearman_port_vs_mce_m": 1.0,
+    "pearson_port_vs_mce_m": 1.0,
+    "max_abs_dev": 1.794120407794253e-13,
+    "steps_identical": true,
+    "n_steps_parsed": 500
+  },
+  "convergence": {
+    "converged_rule": "residual, tol 1e-6 (the 1e-6 solution was within 1.6e-8 of the 1e-8 one in the provisional trace)",
+    "converged_steps_max": 760,
+    "max_abs_dev_mce_m_vs_converged": 8.349036095811613e-08,
+    "median_abs_dev": 1.0727171817492831e-08,
+    "spearman_mce_m_vs_converged": 1.0,
+    "port_summary": {
+      "min": 0.8695997502496312,
+      "median": 0.899195426151407,
+      "max": 0.9209198914134971
+    }
   }
 }

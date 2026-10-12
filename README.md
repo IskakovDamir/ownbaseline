@@ -358,7 +358,7 @@ statistic, so that agreement between such scores across contexts is guaranteed
 by construction rather than by biology. That holds for the identity and entropy
 constructions, CCAT is its primitive by definition; StemID and cmEntropy equal
 a transcriptome entropy by construction; SLICE tracks one it does not improve
-on, and it is false for signalling entropy, CytoTRACE and StemFinder.
+on, and it is false for the six scores that clear their floors.
 Signalling entropy sits at ρ = 0.93 with the degree correlation and keeps skill
 after four primitives are removed at once. MCE, a second entropy-rate
 construction, was registered in advance as one that would keep skill, and under

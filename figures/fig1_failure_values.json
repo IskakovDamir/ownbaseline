@@ -1,0 +1,62 @@
+{
+  "toy": {
+    "model": "d, b, e ~ N(0,1) iid; ordinal = 12 equal-occupancy bins of 0.6 d + 0.8 b; A = d + 0.3 e_A; B = d + 0.5 b + s e_B",
+    "n": 3000,
+    "seed": 20261012,
+    "noise_s_for_B": 1.271626652458068,
+    "primitive_marginal_taub": 0.4308898806877536,
+    "A": {
+      "marginal_taub": 0.4043578803798227,
+      "rho_primitive": 0.9531178987908774,
+      "conditional_taub": 0.004177167374277367,
+      "conditional_CI95": [
+        -0.015171899852870587,
+        0.025883549788794414
+      ],
+      "floor": 0.04786519848013857,
+      "floor_cell": "Null B, align on, 12 levels, n=3,000, rho=0.93, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds",
+      "clears": false
+    },
+    "B": {
+      "marginal_taub": 0.40435815746572534,
+      "rho_primitive": 0.5721634834150718,
+      "conditional_taub": 0.1976913986476108,
+      "conditional_CI95": [
+        0.1783451049348415,
+        0.2166872992283391
+      ],
+      "floor": 0.04105038460480451,
+      "floor_cell": "Null B, align on, 12 levels, n=3,000, rho=0.5, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds",
+      "clears": true
+    }
+  },
+  "real": {
+    "source": "data/run_record/track2/gate2_conditional_skill.json",
+    "n": 39505,
+    "primitive_marginal_taub": 0.38267833306838844,
+    "CCAT": {
+      "marginal_taub": 0.3664259017676799,
+      "rho_primitive": 0.9981774880514592,
+      "conditional_taub": -0.22089922162381936,
+      "conditional_CI95": [
+        -0.22674002852176528,
+        -0.21506133815121636
+      ],
+      "floor": 0.011498206981037101,
+      "floor_cell": "Null B, align on, 12 levels, n=39,505, rho=0.998, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds",
+      "clears": false
+    },
+    "SR": {
+      "marginal_taub": 0.5323773171872959,
+      "rho_primitive": 0.9305466517130603,
+      "conditional_taub": 0.4299684120579581,
+      "conditional_CI95": [
+        0.4248333182971235,
+        0.43499266719511614
+      ],
+      "floor": 0.031050650679017557,
+      "floor_cell": "Null B, align on, 12 levels, n=39,505, rho=0.93, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds",
+      "clears": true
+    }
+  }
+}

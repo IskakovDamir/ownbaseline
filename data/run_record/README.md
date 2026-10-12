@@ -12,11 +12,12 @@ file and the field behind every number it draws.
 | file | written by | run | what it holds |
 |---|---|---|---|
 | `track2/gate2_conditional_skill.json` | `experiments/track2/code/gate2_run.py` | 2026-07-20 | the fine-ordinal decider: conditional skill of each score against its declared primitive on GSE106474, 39,505 cells, 12-stage Kimmel ordinal, seed 42, both kernels, with bootstrap CIs and the score-primitive Spearman correlations |
-| `track4/fix1_mce_ncg_skill.json` | `experiments/track4/code/fix1_ncg_skill.py` | 2026-07-21 | NCG against `PCC(x,degree)` on the shared seed-42 3,000-cell subsample, and MCE's `INCONCLUSIVE-infra` status |
+| `track4/fix1_mce_ncg_skill.json` | `experiments/track4/code/fix1_ncg_skill.py` | 2026-07-21 | NCG against `PCC(x,degree)` on the shared seed-42 3,000-cell subsample, and MCE's `INCONCLUSIVE-infra` status of that date (MCE has since run: `w5/summary.json`) |
 | `w4/c1_gse117498_results.json` | `experiments/w4/scripts/w4_gate2_run.py` | 2026-10-09 | sorted human haematopoiesis (GSE117498): per-population median gene count, per-score marginal gap and conditional skill, AUROC of score and primitive, Kendall tau_b |
 | `w4/c2_gse125970_results.json` | `experiments/w4/scripts/w4_gate2_run.py` | 2026-08-29 | human intestine (GSE125970), same fields |
 | `atlas_run/per_dataset_results.json` | `experiments/atlas_run/atlas_run.py` | 2026-07-17 | the 23-dataset CytoTRACE 2 probe (Kang replication). Read only to establish that CT2 was measured, on human and mouse datasets, and that GSE106474 is not among its accessions, so Figure 2 can give it a row and no bar. |
 | `stemsc/summary.json` | `experiments/stemsc/` | 2026-07-18 | StemSC on the two sorted atlases. Read only to establish that StemSC *was* measured, somewhere other than the staged ordinal, so Figure 2 can give it a row and no bar. |
+| `w5/summary.json` | `experiments/w5_new_rows/run_rows.py values` | 2026-10-09 | the four rows added after Qingyang Wang's feedback (MCE, StemFinder, mRNAsi, FitDevo), run as `experiments/w5_new_rows/PREREG.md` and its Amendment 1 register them: per row the cells used, the score-primitive rho, the marginal and conditional tau_b with bootstrap CI, the floor and its source, weighted tau, the joint four-primitive residual and the direction check. A byte-for-byte copy of `experiments/w5_new_rows/results/summary.json` at commit `c26b588`. |
 
 sha256:
 
@@ -26,6 +27,7 @@ sha256:
     d7f03f7200799e5a15ba4920590e146b2f60a794c1895fe66e76f6de14961f5f  w4/c2_gse125970_results.json
     568fa45ed0384e3ca5cc590e125b6960a17318693791e9d409e0adf5138e67c8  stemsc/summary.json
     e5b3f5df607271096780708936672fa44d17a2da090b593efff6ef7248a5fb7f  atlas_run/per_dataset_results.json
+    647c8ce574de589911ac2020600810e95b010a132e72c81cac714a0af0abc344  w5/summary.json
 
 The two `w4` files were recomputed under Kendall tau_b at commit `702ed1a`; the
 weighted-tau versions they replaced are not used by any figure, because every

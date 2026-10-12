@@ -1,0 +1,636 @@
+{
+ "written_by": "experiments/w6_direction/direction_check.py",
+ "status": "post hoc sensitivity analysis, 2026-10-12; registered verdicts unchanged",
+ "ordinal": "GSE106474 stage rank, stored early (1) to late (12); earlier = more potent",
+ "inputs_sha256": {
+  "track2/data/prepared/primitives.npz": "e9e467db02381fa461e7b292b2dfbedbe05bdd805ffced6d02460cf333f197ac",
+  "track2/data/prepared/cells.tsv": "543319e6462d891770ce9c22bc4d13558155b4e0d9b5b7dbd4af49dd6b61bf9f",
+  "track2/results/cytotrace_scores.npz": "383b543851eb7ef36671e298ed3538dcde84fc6134a2d9d45d093435d322a5e2",
+  "track2/results/scent_scores.npz": "9f42fc5e3fda20eaf416b21cacb0867b762bc83bda617d10831c52924f9beddf",
+  "track2/results/origins_scores.npz": "7605fc4763908b55a49b7e78a99e99599e2840bc641c03071effbbff0aa9c85f",
+  "track2/results/ncg_scores.npz": "330794b21c6c200e38156ec3a6232cd65e15316c0a0ead57c649865160b9b533",
+  "track2/results/dpath_scores.npz": "1da1ea12bd5d0ec196cc54ca9e2d383fabae1d316f26c20be658b082c6b72ec4",
+  "track2/results/slice_scores.npz": "4ddd45e4cc2dfb3a4797c04eee19ecf88630345cbee625277e1ad0b2c6c60eb7",
+  "w5_new_rows/scores/GSE106474/mce.csv": "3e8f92f7dbe93296e52b33250269b90ac4f6980e9db3a4894d37c17668db095b",
+  "w5_new_rows/scores/GSE106474/stemfinder.csv": "8b48bf2c38bb45208b4864d31048279f2229d3c5e7449941de9e30e54ccf40c1"
+ },
+ "null_table_sha256": "d88b1ed10b87ea2b07edea007aef406cee731265c48e5c98590516bb66c9231a",
+ "clear_registered": [
+  "CytoTRACE v1",
+  "SCENT SR",
+  "ORIGINS",
+  "NCG",
+  "dpath",
+  "StemFinder"
+ ],
+ "clear_authors_polarity": [
+  "CytoTRACE v1",
+  "NCG",
+  "dpath",
+  "StemFinder",
+  "CCAT",
+  "MCE"
+ ],
+ "clear_both": [
+  "CytoTRACE v1",
+  "NCG",
+  "dpath",
+  "StemFinder"
+ ],
+ "verdict_differs": [
+  "SCENT SR",
+  "ORIGINS",
+  "CCAT",
+  "MCE"
+ ],
+ "runs_against_authors": [
+  "SCENT SR",
+  "ORIGINS",
+  "CCAT",
+  "MCE"
+ ],
+ "rows": [
+  {
+   "score": "CytoTRACE v1",
+   "n": 39505,
+   "primitive": "gene count",
+   "rhoS_score_stage": -0.9328459390006424,
+   "taub_score_stage": -0.8092852744922946,
+   "rhoS_primitive_stage": -0.4544217981352392,
+   "rho_score_primitive": 0.48435464052856564,
+   "authors_polarity": 1,
+   "polarity_source": "Gulati et al. 2020: '0 = more differentiated; 1 = less differentiated' (quoted at scores/cytotrace_full.py:384-385)",
+   "marginal_runs_with_authors": true,
+   "align_sign": -1.0,
+   "cs_registered": 0.6530681030073291,
+   "cs_registered_CI95": [
+    0.6479361189145809,
+    0.6578909422465541
+   ],
+   "floor_registered": 0.024699989425226325,
+   "null_cell_align_on": {
+    "n": 39505,
+    "rho": 0.5,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.024699989425226325,
+    "p2_5_min": 0.00924787838277195,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": true,
+   "cs_authors_polarity": 0.6530681030073291,
+   "cs_authors_polarity_CI95": [
+    0.6479361189145809,
+    0.6578909422465541
+   ],
+   "floor_align_off": 0.024914753268416114,
+   "null_cell_align_off": {
+    "n": 39505,
+    "rho": 0.5,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.024914753268416114,
+    "p2_5_min": 0.009038274007996843,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": true,
+   "below_null_p2_5_align_on": false,
+   "joint4": {
+    "cs_registered": 0.28811998409761913,
+    "cs_authors_polarity": 0.28811998409761913,
+    "floor_registered_k4": 0.017087757564997804,
+    "null_cell_k4": {
+     "n": 39505,
+     "rho": 0.5,
+     "align": true,
+     "k": 4,
+     "p97_5_max": 0.017087757564997804,
+     "p2_5_min": 0.005397490690668799,
+     "strengths": [
+      "0.55"
+     ]
+    }
+   }
+  },
+  {
+   "score": "SCENT SR",
+   "n": 39505,
+   "primitive": "PCC(x, degree)",
+   "rhoS_score_stage": 0.6916631342483601,
+   "taub_score_stage": 0.5323773171872959,
+   "rhoS_primitive_stage": 0.516418478241046,
+   "rho_score_primitive": 0.9305466517130603,
+   "authors_polarity": 1,
+   "polarity_source": "Teschendorff and Enver 2017; Teschendorff et al. 2021 s2.2, SR 'correlates with cell potency'",
+   "marginal_runs_with_authors": false,
+   "align_sign": 1.0,
+   "cs_registered": 0.4299684120579581,
+   "cs_registered_CI95": [
+    0.4248333182971235,
+    0.43499266719511614
+   ],
+   "floor_registered": 0.031050650679017557,
+   "null_cell_align_on": {
+    "n": 39505,
+    "rho": 0.93,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.031050650679017557,
+    "p2_5_min": 0.014805794328504939,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": true,
+   "cs_authors_polarity": -0.4299684120579581,
+   "cs_authors_polarity_CI95": [
+    -0.43499266719511614,
+    -0.4248333182971235
+   ],
+   "floor_align_off": 0.03258543150814101,
+   "null_cell_align_off": {
+    "n": 39505,
+    "rho": 0.93,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.03258543150814101,
+    "p2_5_min": 0.01452166919189409,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": false,
+   "below_null_p2_5_align_on": false,
+   "joint4": {
+    "cs_registered": 0.18289502716579958,
+    "cs_authors_polarity": -0.18289502716579958,
+    "floor_registered_k4": 0.022733543356388358,
+    "null_cell_k4": {
+     "n": 39505,
+     "rho": 0.93,
+     "align": true,
+     "k": 4,
+     "p97_5_max": 0.022733543356388358,
+     "p2_5_min": 0.010829205591912236,
+     "strengths": [
+      "0.55"
+     ]
+    }
+   }
+  },
+  {
+   "score": "ORIGINS",
+   "n": 39505,
+   "primitive": "PCC(x, degree)",
+   "rhoS_score_stage": 0.7118702713704558,
+   "taub_score_stage": 0.5534228507833244,
+   "rhoS_primitive_stage": 0.516418478241046,
+   "rho_score_primitive": 0.433862186232707,
+   "authors_polarity": 1,
+   "polarity_source": "Senra et al. 2022: root set at 'the cells with the highest differentiation PPI network activity'",
+   "marginal_runs_with_authors": false,
+   "align_sign": 1.0,
+   "cs_registered": 0.40187689819718914,
+   "cs_registered_CI95": [
+    0.3966610766104692,
+    0.4068400233100355
+   ],
+   "floor_registered": 0.024699989425226325,
+   "null_cell_align_on": {
+    "n": 39505,
+    "rho": 0.5,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.024699989425226325,
+    "p2_5_min": 0.00924787838277195,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": true,
+   "cs_authors_polarity": -0.40187689819718914,
+   "cs_authors_polarity_CI95": [
+    -0.4068400233100355,
+    -0.3966610766104692
+   ],
+   "floor_align_off": 0.024914753268416114,
+   "null_cell_align_off": {
+    "n": 39505,
+    "rho": 0.5,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.024914753268416114,
+    "p2_5_min": 0.009038274007996843,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": false,
+   "below_null_p2_5_align_on": false,
+   "joint4": {
+    "cs_registered": 0.15635723618515354,
+    "cs_authors_polarity": -0.15635723618515354,
+    "floor_registered_k4": 0.017087757564997804,
+    "null_cell_k4": {
+     "n": 39505,
+     "rho": 0.5,
+     "align": true,
+     "k": 4,
+     "p97_5_max": 0.017087757564997804,
+     "p2_5_min": 0.005397490690668799,
+     "strengths": [
+      "0.55"
+     ]
+    }
+   }
+  },
+  {
+   "score": "NCG",
+   "n": 3000,
+   "primitive": "PCC(x, degree)",
+   "rhoS_score_stage": -0.31057815434133124,
+   "taub_score_stage": -0.22931750917906288,
+   "rhoS_primitive_stage": 0.5008140160377249,
+   "rho_score_primitive": 0.3777834606426067,
+   "authors_polarity": 1,
+   "polarity_source": "inferred: Ni et al. 2022 state no direction; Function/CompNCG.R is an expression-weighted centrality sum with no sign flip",
+   "marginal_runs_with_authors": true,
+   "align_sign": -1.0,
+   "cs_registered": 0.40154244659253835,
+   "cs_registered_CI95": [
+    0.3824497247644574,
+    0.42123482655350586
+   ],
+   "floor_registered": 0.04105038460480451,
+   "null_cell_align_on": {
+    "n": 3000,
+    "rho": 0.5,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.04105038460480451,
+    "p2_5_min": -0.006520283414840882,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": true,
+   "cs_authors_polarity": 0.40154244659253835,
+   "cs_authors_polarity_CI95": [
+    0.3824497247644574,
+    0.42123482655350586
+   ],
+   "floor_align_off": 0.04141223631341042,
+   "null_cell_align_off": {
+    "n": 3000,
+    "rho": 0.5,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.04141223631341042,
+    "p2_5_min": -0.0018961958099889464,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": true,
+   "below_null_p2_5_align_on": false
+  },
+  {
+   "score": "dpath",
+   "n": 3000,
+   "primitive": "Shannon entropy",
+   "rhoS_score_stage": -0.4439860046915971,
+   "taub_score_stage": -0.32965239383632006,
+   "rhoS_primitive_stage": -0.6456372989651344,
+   "rho_score_primitive": 0.4769372498819166,
+   "authors_polarity": 1,
+   "polarity_source": "Gong et al. 2017: 'cells with high metagene entropy have higher differentiation potential'",
+   "marginal_runs_with_authors": true,
+   "align_sign": -1.0,
+   "cs_registered": 0.12019121925106047,
+   "cs_registered_CI95": [
+    0.09487357368217775,
+    0.1456444173717934
+   ],
+   "floor_registered": 0.04105038460480451,
+   "null_cell_align_on": {
+    "n": 3000,
+    "rho": 0.5,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.04105038460480451,
+    "p2_5_min": -0.006520283414840882,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": true,
+   "cs_authors_polarity": 0.12019121925106047,
+   "cs_authors_polarity_CI95": [
+    0.09487357368217775,
+    0.1456444173717934
+   ],
+   "floor_align_off": 0.04141223631341042,
+   "null_cell_align_off": {
+    "n": 3000,
+    "rho": 0.5,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.04141223631341042,
+    "p2_5_min": -0.0018961958099889464,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": true,
+   "below_null_p2_5_align_on": false,
+   "joint4": {
+    "cs_registered": 0.13406439478909213,
+    "cs_authors_polarity": 0.13406439478909213,
+    "floor_registered_k4": 0.03250528697474413,
+    "null_cell_k4": {
+     "n": 3000,
+     "rho": 0.5,
+     "align": true,
+     "k": 4,
+     "p97_5_max": 0.03250528697474413,
+     "p2_5_min": -0.008677917809742086,
+     "strengths": [
+      "0.55"
+     ]
+    }
+   }
+  },
+  {
+   "score": "StemFinder",
+   "n": 39505,
+   "primitive": "cell-cycle gene-set score",
+   "rhoS_score_stage": 0.4446553644604767,
+   "taub_score_stage": 0.2924144467496958,
+   "rhoS_primitive_stage": -0.6024008602289933,
+   "rho_score_primitive": -0.5684103172059323,
+   "authors_polarity": -1,
+   "polarity_source": "Noller and Cahan 2024: higher stemFinder = more differentiated (experiments/w5_new_rows/DISCOVERY.md:128)",
+   "marginal_runs_with_authors": true,
+   "align_sign": 1.0,
+   "cs_registered": 0.09767963485191018,
+   "cs_registered_CI95": [
+    0.09116188941900158,
+    0.10428830548617461
+   ],
+   "floor_registered": 0.024699989425226325,
+   "null_cell_align_on": {
+    "n": 39505,
+    "rho": 0.5,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.024699989425226325,
+    "p2_5_min": 0.00924787838277195,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": true,
+   "cs_authors_polarity": 0.09767963485191018,
+   "cs_authors_polarity_CI95": [
+    0.09116188941900158,
+    0.10428830548617461
+   ],
+   "floor_align_off": 0.024914753268416114,
+   "null_cell_align_off": {
+    "n": 39505,
+    "rho": 0.5,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.024914753268416114,
+    "p2_5_min": 0.009038274007996843,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": true,
+   "below_null_p2_5_align_on": false,
+   "joint4": {
+    "cs_registered": 0.16692213196443675,
+    "cs_authors_polarity": 0.16692213196443675,
+    "floor_registered_k4": 0.017087757564997804,
+    "null_cell_k4": {
+     "n": 39505,
+     "rho": 0.5,
+     "align": true,
+     "k": 4,
+     "p97_5_max": 0.017087757564997804,
+     "p2_5_min": 0.005397490690668799,
+     "strengths": [
+      "0.55"
+     ]
+    }
+   }
+  },
+  {
+   "score": "SLICE",
+   "n": 3000,
+   "primitive": "Shannon entropy",
+   "rhoS_score_stage": -0.5249248037976922,
+   "taub_score_stage": -0.38427808219613246,
+   "rhoS_primitive_stage": -0.6456372989651344,
+   "rho_score_primitive": 0.931739642637738,
+   "authors_polarity": 1,
+   "polarity_source": "Guo et al. 2017: higher entropy, more differentiation potential",
+   "marginal_runs_with_authors": true,
+   "align_sign": -1.0,
+   "cs_registered": -0.11316582940860277,
+   "cs_registered_CI95": [
+    -0.1351727585411509,
+    -0.09146017886964795
+   ],
+   "floor_registered": 0.04786519848013857,
+   "null_cell_align_on": {
+    "n": 3000,
+    "rho": 0.93,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.04786519848013857,
+    "p2_5_min": 0.00010769078275687984,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": false,
+   "cs_authors_polarity": -0.11316582940860277,
+   "cs_authors_polarity_CI95": [
+    -0.1351727585411509,
+    -0.09146017886964795
+   ],
+   "floor_align_off": 0.04529079913097262,
+   "null_cell_align_off": {
+    "n": 3000,
+    "rho": 0.93,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.04529079913097262,
+    "p2_5_min": -0.006322556266289101,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": false,
+   "below_null_p2_5_align_on": true
+  },
+  {
+   "score": "CCAT",
+   "n": 39505,
+   "primitive": "PCC(x, degree)",
+   "rhoS_score_stage": 0.4958984578523619,
+   "taub_score_stage": 0.3664259017676799,
+   "rhoS_primitive_stage": 0.516418478241046,
+   "rho_score_primitive": 0.9981774880514592,
+   "authors_polarity": 1,
+   "polarity_source": "Teschendorff et al. 2021 s2.1-2.2: a positively correlated proxy to SR",
+   "marginal_runs_with_authors": false,
+   "align_sign": 1.0,
+   "cs_registered": -0.22089922162381936,
+   "cs_registered_CI95": [
+    -0.22674002852176528,
+    -0.21506133815121636
+   ],
+   "floor_registered": 0.011498206981037101,
+   "null_cell_align_on": {
+    "n": 39505,
+    "rho": 0.998,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.011498206981037101,
+    "p2_5_min": -0.0010577951620515422,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": false,
+   "cs_authors_polarity": 0.22089922162381936,
+   "cs_authors_polarity_CI95": [
+    0.21506133815121636,
+    0.22674002852176528
+   ],
+   "floor_align_off": 0.012016313662237868,
+   "null_cell_align_off": {
+    "n": 39505,
+    "rho": 0.998,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.012016313662237868,
+    "p2_5_min": -0.0023791615793353534,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": true,
+   "below_null_p2_5_align_on": true
+  },
+  {
+   "score": "MCE",
+   "n": 39505,
+   "primitive": "PCC(x, degree)",
+   "rhoS_score_stage": 0.03480191552229823,
+   "taub_score_stage": 0.02154509271877238,
+   "rhoS_primitive_stage": 0.516418478241046,
+   "rho_score_primitive": 0.8024325803382074,
+   "authors_polarity": 1,
+   "polarity_source": "Shi et al. 2020: cells higher on MCE are more potent (experiments/w5_new_rows/DISCOVERY.md:56)",
+   "marginal_runs_with_authors": false,
+   "align_sign": 1.0,
+   "cs_registered": -0.48984369555531565,
+   "cs_registered_CI95": [
+    -0.4948442322147662,
+    -0.4850087610708608
+   ],
+   "floor_registered": 0.032534076821059216,
+   "null_cell_align_on": {
+    "n": 39505,
+    "rho": 0.9,
+    "align": true,
+    "k": 1,
+    "p97_5_max": 0.032534076821059216,
+    "p2_5_min": 0.015939323355236675,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_registered": false,
+   "cs_authors_polarity": 0.48984369555531565,
+   "cs_authors_polarity_CI95": [
+    0.4850087610708608,
+    0.4948442322147662
+   ],
+   "floor_align_off": 0.034165282929417284,
+   "null_cell_align_off": {
+    "n": 39505,
+    "rho": 0.9,
+    "align": false,
+    "k": 1,
+    "p97_5_max": 0.034165282929417284,
+    "p2_5_min": 0.015512759960547845,
+    "strengths": [
+     "0.45",
+     "0.55",
+     "0.63"
+    ]
+   },
+   "clears_authors_polarity": true,
+   "below_null_p2_5_align_on": true,
+   "joint4": {
+    "cs_registered": -0.13110805043778231,
+    "cs_authors_polarity": 0.13110805043778231,
+    "floor_registered_k4": 0.023328595131182423,
+    "null_cell_k4": {
+     "n": 39505,
+     "rho": 0.9,
+     "align": true,
+     "k": 4,
+     "p97_5_max": 0.023328595131182423,
+     "p2_5_min": 0.011921723430277439,
+     "strengths": [
+      "0.55"
+     ]
+    }
+   }
+  }
+ ]
+}

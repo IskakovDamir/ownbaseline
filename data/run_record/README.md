@@ -18,6 +18,7 @@ file and the field behind every number it draws.
 | `atlas_run/per_dataset_results.json` | `experiments/atlas_run/atlas_run.py` | 2026-07-17 | the 23-dataset CytoTRACE 2 probe (Kang replication). Read only to establish that CT2 was measured, on human and mouse datasets, and that GSE106474 is not among its accessions, so Figure 2 can give it a row and no bar. |
 | `stemsc/summary.json` | `experiments/stemsc/` | 2026-07-18 | StemSC on the two sorted atlases. Read only to establish that StemSC *was* measured, somewhere other than the staged ordinal, so Figure 2 can give it a row and no bar. |
 | `w5/summary.json` | `experiments/w5_new_rows/run_rows.py values` | 2026-10-09 | the four rows added after Qingyang Wang's feedback (MCE, StemFinder, mRNAsi, FitDevo), run as `experiments/w5_new_rows/PREREG.md` and its Amendment 1 register them: per row the cells used, the score-primitive rho, the marginal and conditional tau_b with bootstrap CI, the floor and its source, weighted tau, the joint four-primitive residual and the direction check. A byte-for-byte copy of `experiments/w5_new_rows/results/summary.json` at commit `c26b588`. |
+| `w6/direction.json` | `experiments/w6_direction/direction_check.py` | 2026-10-12 | the direction check for the nine rows placed on the zebrafish ordinal, post hoc (`experiments/w6_direction/DEVIATIONS.md`): each score's Spearman with the stages, its authors' polarity and source, whether its marginal ordering runs with it, the registered conditional tau_b and floor, the same residual with the authors' polarity counted positive against the alignment-off floor of the same cell, the null's 2.5th percentile, and the joint four-primitive values under both readings. Figure 2 reads it for its § marks. |
 
 sha256:
 
@@ -28,6 +29,7 @@ sha256:
     568fa45ed0384e3ca5cc590e125b6960a17318693791e9d409e0adf5138e67c8  stemsc/summary.json
     e5b3f5df607271096780708936672fa44d17a2da090b593efff6ef7248a5fb7f  atlas_run/per_dataset_results.json
     647c8ce574de589911ac2020600810e95b010a132e72c81cac714a0af0abc344  w5/summary.json
+    68d923e34e125c5582c056f52f0e65c7b733d0809e11508800ed1733521b4914  w6/direction.json
 
 The two `w4` files were recomputed under Kendall tau_b at commit `702ed1a`; the
 weighted-tau versions they replaced are not used by any figure, because every

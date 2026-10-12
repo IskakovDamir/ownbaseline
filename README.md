@@ -14,7 +14,7 @@ its own authors say it approximates, and ask whether what is left still orders
 cells. A score at rank correlation 0.93 with node degree can carry substantial
 skill beyond it; another at 0.998 carries none. Pairwise correlation does not
 tell you which you have, in either direction. Also in here: the field audit
-that came out of applying this to thirteen published scores, and the finding
+that came out of applying this to fourteen published unsupervised scores, and the finding
 that our own strong hypothesis, that the whole family reduces to a fixed
 low-order statistic, is false for most of them.
 
@@ -309,7 +309,9 @@ also the signature of the F-2 artefact.
 | SLICE (ρ 0.932) | needs the SLICE R package and its bundled `hs_kappasim.rda`; nothing here fetches it |
 | dpath (τ_b 0.120) | GitHub-only R package with a documented R ≥ 4.2 incompatibility |
 | NCG (τ_b 0.402) | needs the NCG repo cloned **with Git-LFS**; a plain clone yields pointer files |
-| MCE | no public implementation exists |
+| MCE (τ_b −0.490) | runs separately: `experiments/w5_new_rows`, a Python port (`scores/mce.py`) of the authors' MCE.m, checked against MCE.m in GNU Octave; MCE.m itself is not redistributed |
+| StemFinder (τ_b 0.098) | runs separately: `experiments/w5_new_rows`, the authors' R functions with Seurat 5 |
+| mRNAsi, FitDevo | trained, outside the unsupervised count; boundary results in `experiments/w5_new_rows/REPORT.md` |
 | SPIDE | source paper paywalled; a first-party implementation is public and was not run here |
 | scEnergy | requires MATLAB |
 | StemID, cmEntropy | never measured. They equal a transcriptome-entropy primitive by construction, and the manuscript declines to report a number for them. |
@@ -331,8 +333,8 @@ anything. The two agree where both can run; `make_paper_a_figures.py
 ## What the audit found
 
 On a 12-stage visually staged zebrafish ordinal (GSE106474, 39,505
-whole-embryo cells), of the seven scores that could be placed on the ordinal,
-five carry ordering skill beyond their own primitive, Kendall τ_b after rank
+whole-embryo cells), of the nine scores that could be placed on the ordinal,
+six carry ordering skill beyond their own primitive, Kendall τ_b after rank
 residualization, with the value after residualizing on all four low-order
 statistics at once in brackets:
 
@@ -343,8 +345,10 @@ statistics at once in brackets:
 | ORIGINS | `PCC(x, degree)` | 0.402 | 0.156 |
 | NCG † | its own GO connectome | 0.402 | - |
 | dpath † | Shannon entropy | 0.120 | 0.134 |
+| StemFinder | cell-cycle gene-set score | 0.098 | 0.167 |
 | CCAT | `PCC(x, degree)` | no measurable residual (ρ = 0.998) | - |
 | SLICE † | Shannon entropy | near zero (ρ = 0.932) | - |
+| MCE | `PCC(x, degree)` | −0.490, below its floor (ρ = 0.802) | −0.131 |
 
 † on a fixed 3,000-cell subsample, not the full 39,505.
 
@@ -354,9 +358,13 @@ statistic, so that agreement between such scores across contexts is guaranteed
 by construction rather than by biology. That holds for the identity and entropy
 constructions, CCAT is its primitive by definition; StemID and cmEntropy equal
 a transcriptome entropy by construction; SLICE tracks one it does not improve
-on, and it is false for the entropy-rate and diffusion constructions.
+on, and it is false for signalling entropy, CytoTRACE and StemFinder.
 Signalling entropy sits at ρ = 0.93 with the degree correlation and keeps skill
-after four primitives are removed at once. What the surviving residual consists
+after four primitives are removed at once. MCE, a second entropy-rate
+construction, was registered in advance as one that would keep skill, and under
+the registered rule it does not: its residual is large, but the alignment step
+reads it with the sign of a marginal correlation close to zero
+(`experiments/w5_new_rows/REPORT.md`). What the surviving residual consists
 of is open: a staged timecourse traces a developmental manifold, and a score
 tracking that manifold keeps skill whether or not it measures potency in any
 deeper sense.

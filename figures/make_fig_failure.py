@@ -153,8 +153,8 @@ def main():
 
     t, r = toy(), real()
     pt = 7.0
-    fig, axes = plt.subplots(2, 1, figsize=(COLUMN_W_IN, 3.6))
-    fig.subplots_adjust(left=0.135, right=0.985, top=0.936, bottom=0.21, hspace=0.66)
+    fig, axes = plt.subplots(2, 1, figsize=(COLUMN_W_IN, 3.3))
+    fig.subplots_adjust(left=0.135, right=0.985, top=0.93, bottom=0.225, hspace=0.72)
     draw(axes[0], [t["A"], t["B"]], ["A", "B"], t["primitive_marginal_taub"], pt)
     axes[0].set_ylim(-0.2, 1.15)
     axes[0].set_title("(a) simulated: A restates depth, B adds to it",

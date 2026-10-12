@@ -8,9 +8,9 @@ Paper A figures. Every plotted value is read from a run artefact.
 
 OUTPUTS
 -------
-    figures/fig2_body.pdf       3.18 in, \begin{figure}  — the 7 measured rows
-    figures/fig2_appendix.pdf   6.50 in, \begin{figure*} — all 14 rows + side table
-    figures/fig3.pdf            6.50 in, \begin{figure*} — the depth confound
+    figures/fig2_body.pdf       3.18 in, \begin{figure}, the 9 measured rows
+    figures/fig2_appendix.pdf   6.50 in, \begin{figure*}, all 17 rows + side table
+    figures/fig3.pdf            6.50 in, \begin{figure*}, the depth confound
     figures/fig1.{png,pdf}, figures/fig4.{png,pdf}
     figures/fig2_body_caption.txt, figures/fig2_appendix_caption.txt
     figures/fig2_values.json
@@ -364,6 +364,25 @@ MEASURED = [
          ci="conditional_skill/CCAT | PCC(x,degree)/kang_wdm_taub/CI95",
          rho="spearman_score_vs_primitive/CCAT | PCC(x,degree)",
          n="n_cells_full", subsample=False),
+    # The two unsupervised rows added after Qingyang Wang's feedback, run as
+    # experiments/w5_new_rows/PREREG.md registers them. Their weighted-tau value
+    # is read from the same artefact (wtau) and its floor from the grid at the
+    # same cell (weightedtau_rankTrue, the kernel computed), because report.txt
+    # predates them.
+    dict(score="StemFinder", primitive="cell-cycle score",
+         art="w5/summary.json",
+         tau="rows/StemFinder_GSE106474/conditional_taub",
+         ci="rows/StemFinder_GSE106474/conditional_taub_CI95",
+         rho="rows/StemFinder_GSE106474/rho",
+         n="rows/StemFinder_GSE106474/n",
+         wtau="rows/StemFinder_GSE106474/weighted", subsample=False),
+    dict(score="MCE", primitive="PCC(x, degree)",
+         art="w5/summary.json",
+         tau="rows/MCE_GSE106474/conditional_taub",
+         ci="rows/MCE_GSE106474/conditional_taub_CI95",
+         rho="rows/MCE_GSE106474/rho",
+         n="rows/MCE_GSE106474/n",
+         wtau="rows/MCE_GSE106474/weighted", subsample=False),
 ]
 
 # Rows whose block is itself recorded in a run artefact, and rows whose block is
@@ -371,12 +390,6 @@ MEASURED = [
 # neither is a literal this file is forbidden to hold; both are drawn as blocked
 # and print their reason.
 BLOCKED = [
-    dict(score="MCE", primitive="PCC(x, degree)",
-         reason="no implementation could be located; a categorization of the field "
-                "records a MATLAB script in the source paper's supplement, which was "
-                "not obtained",
-         source="run record track4/fix1_mce_ncg_skill.json, scores/MCE/status "
-                "(INCONCLUSIVE-infra); wording as in section 4 of the paper"),
     dict(score="SPIDE", primitive="unresolved",
          reason="source paper paywalled (Zheng 2023); a first-party implementation "
                 "is public and was not run, so no own-baseline is defined here",
@@ -403,6 +416,19 @@ OUT_OF_CLASS = [
          art="atlas_run/per_dataset_results.json", probe="per_dataset",
          score_key="CytoTRACE 2 potency score",
          reason="supervised model, outside the unsupervised class this figure audits"),
+    # Trained boundary rows (w5): weights fitted to labelled or class data. Their
+    # decisive value is the joint four-primitive residual; the reason printed on
+    # the row is assembled from the run record, one clause per dataset.
+    dict(score="mRNAsi", primitive="trained",
+         art="w5/summary.json", w5_rows=["mRNAsi_GSE117498", "mRNAsi_GSE117498h"],
+         reason="weights fitted to PCBC stem-cell class data, outside the unsupervised "
+                "class this figure audits"),
+    dict(score="FitDevo", primitive="trained",
+         art="w5/summary.json",
+         w5_rows=["FitDevo_GSE106474", "FitDevo_GSE117498", "FitDevo_GSE117498h",
+                  "FitDevo_GSE125970", "FitDevo_GSE113074"],
+         reason="gene weights fitted to timepoint labels in 17 training samples, outside "
+                "the unsupervised class this figure audits"),
 ]
 
 OFF_ORDINAL = [
@@ -583,6 +609,16 @@ def build_rows(grid: NullGrid):
         # The other kernel's value and floor for the same row, so the caption can
         # say which tau_b verdicts a both-kernel rule would not return. Absent is
         # a hard error: see WtauMissing.
+        if "wtau" in spec:
+            val, e = value_of(spec["art"], spec["wtau"])
+            row.sources["wtau"] = f"{spec['art']}:{spec['wtau']}"
+            wmean, wp975, wcell, _, _ = grid.floor(row.n, row.rho, kernel="weightedtau_rankTrue")
+            if e or wp975 is None:
+                raise WtauMissing(f"{spec['score']}: weighted tau or its floor missing "
+                                  f"({e or wcell})")
+            row.wtau, row.wtau_mean, row.wtau_floor = float(val), wmean, wp975
+            rows.append(row)
+            continue
         label = spec["report_row"]
         if label not in wtau:
             raise WtauMissing(
@@ -617,10 +653,26 @@ def build_rows(grid: NullGrid):
     for spec in OUT_OF_CLASS:
         row = Row("out-of-class", spec["score"], spec["primitive"])
         row.artefact = spec["art"]
+        if "w5_rows" in spec:
+            parts = []
+            for key in spec["w5_rows"]:
+                rec, err = value_of(spec["art"], f"rows/{key}")
+                row.sources[key] = f"{spec['art']}:rows/{key}"
+                if err is not None:
+                    parts.append(f"{key}: not in this checkout")
+                    continue
+                ds = rec["dataset"] + (" (gene names merged)" if rec.get("sensitivity_of") else "")
+                parts.append(f"{ds} {rec['conditional_taub']:+.3f} vs floor "
+                             f"{rec['floor_taub']:+.3f}, "
+                             f"{'above' if rec['verdict_taub'] == 'ABOVE FLOOR' else 'not above'}")
+            row.reason = (f"{spec['reason']}; joint four-primitive residual, tau_b: "
+                          + "; ".join(parts))
+            rows.append(row)
+            continue
         probe, err = value_of(spec["art"], spec["probe"])
         row.sources["status"] = f"{spec['art']}:{spec['probe']}"
         if err is not None:
-            row.reason = f"{spec['reason']} — and its runs are not in this checkout: {err}"
+            row.reason = f"{spec['reason']}, and its runs are not in this checkout: {err}"
         else:
             runs = [d for d in probe if spec["score_key"] in d.get("tau_kang", {})]
             species = sorted({d.get("species") for d in runs if d.get("species")})
@@ -720,7 +772,7 @@ def caption(rows, variant="appendix") -> str:
     floors = [r.floor for r in meas if r.floor is not None]
     negative = [r.score for r in fail if r.tau is not None and r.tau <= 0]
     pen = subsample_penalty(rows)
-    label = "Figure 2" if variant == "body" else APPENDIX_FIG
+    label = BODY_FIG if variant == "body" else APPENDIX_FIG
 
     def names(rs):
         rs = [r.score if isinstance(r, Row) else r for r in rs]
@@ -768,7 +820,7 @@ def caption(rows, variant="appendix") -> str:
            f"rather than {len(clear)} of {len(meas)}. " if split else "")
         + f"{names(fail)} do not"
         + (f"; {names(negative)} are negative, and a negative value does not exceed a positive "
-           f"threshold — that is where the value sits, not a failed test" if negative else "")
+           f"threshold" if negative else "")
         + ". ")
 
     headline = (
@@ -791,23 +843,25 @@ def caption(rows, variant="appendix") -> str:
             + shared_verdicts
             + f"The rows not drawn here are in {APPENDIX_FIG}: {names(blocked)} blocked with no "
               f"run artefact; {names(off)} measured, but on the sorted atlases rather than this "
-              f"ordinal; {names(out)} supervised and so outside the unsupervised class audited "
-              f"here; {names(band)} not measurements at all, each equal to a "
+              f"ordinal; {names(out)} supervised or trained on labelled data and so outside the "
+              f"unsupervised class audited here; {names(band)} not measurements at all, each equal to a "
               f"transcriptome-entropy primitive by construction. "
             + f"Value, 95% interval, own floor, n, rho and verdict per row: {table}.")
 
     return (
         headline
-        + f"This is the full audit behind Figure 2, which draws the {len(meas)} measured rows "
+        + f"This is the full audit behind {BODY_FIG}, which draws the {len(meas)} measured rows "
           f"only; the {len(valueless)} rows that carry no value are here, each with its reason. "
         + shared_rule
         + shared_verdicts
         + f"{names(blocked)} are blocked and carry no value: the reason is printed on the row. "
           f"{names(off)} was measured, but on the sorted atlases rather than this ordinal, so it "
           f"has a row and no bar. "
-          f"{names(out)} is supervised and so sits outside the unsupervised class audited here; it "
-          f"has a row and no bar for the same reason. "
-          f"{names(band)} are not measurements — each equals a transcriptome-entropy primitive by "
+          f"{names(out)} {'is' if len(out) == 1 else 'are'} supervised or trained on labelled "
+          f"data and so {'sits' if len(out) == 1 else 'sit'} outside the unsupervised class "
+          f"audited here; each has a row and no bar, and the trained rows print their own "
+          f"boundary results on the row. "
+          f"{names(band)} are not measurements: each equals a transcriptome-entropy primitive by "
           f"construction, no run produces a number for them, and they appear only in the shaded "
           f"band at the foot of the plot, which carries no scale. "
         + f"Values: {'; '.join(f'{r.score} {r.tau:+.4f} [{r.lo:+.4f}, {r.hi:+.4f}] vs floor {r.floor:+.4f} at n={r.n:,}, rho={r.rho:+.4f}' for r in meas)}.")
@@ -844,7 +898,8 @@ BANDC = "#9141ac"
 OFFC = "#3a6ea5"
 OUTC = "#4a4a4a"
 
-APPENDIX_FIG = "Figure A1"          # what the body caption calls the fourteen-row audit
+APPENDIX_FIG = "Figure A1"          # what the body caption calls the full audit
+BODY_FIG = "Figure 3"               # the body audit figure, after Figures 1 and 2
 
 _KIND_COLOR = {"blocked": BLOCKC, "off-ordinal": OFFC, "out-of-class": OUTC,
                "by-construction": BANDC}
@@ -1016,7 +1071,7 @@ def make_fig2_body(rows):
     foot = ""
     if any(r.subsample for r in meas):
         n_sub = min(r.n for r in meas if r.subsample)
-        detail = (f"{pen[0]:.2f}–{pen[1]:.2f}× the {pen[2]:,}-cell floor at the same rho"
+        detail = (f"{pen[0]:.2f} to {pen[1]:.2f} times the {pen[2]:,}-cell floor at the same rho"
                   if pen else "a higher floor")
         foot = (f"‡ seed-42 {n_sub:,}-cell subsample; a smaller n raises the floor, so "
                 f"these rows face {detail}")
@@ -1129,7 +1184,7 @@ def make_fig2_appendix(rows):
 
     ylabels = [_ylabel(r) for r in rows]
     head = "Field audit on a clean fine ordinal (zebrafish GSE106474, 12 stages)"
-    sub = (f"The full audit behind Figure 2, which draws the {len(meas)} measured rows "
+    sub = (f"The full audit behind {BODY_FIG}, which draws the {len(meas)} measured rows "
            f"only. Every score considered has a row: {len(meas)} measured, {n_blocked} "
            f"blocked, {n_off} measured on another ordinal, {n_out} outside the audited "
            f"class, {len(band)} never measured.")
@@ -1137,7 +1192,7 @@ def make_fig2_appendix(rows):
     foot = ""
     if any(r.subsample for r in meas):
         n_sub = min(r.n for r in meas if r.subsample)
-        detail = (f"{pen[0]:.2f}–{pen[1]:.2f}× the {pen[2]:,}-cell floor at the same rho"
+        detail = (f"{pen[0]:.2f} to {pen[1]:.2f} times the {pen[2]:,}-cell floor at the same rho"
                   if pen else "a higher floor")
         foot = (f"‡ measured on the shared seed-42 {n_sub:,}-cell subsample; a smaller n "
                 f"raises the floor, so these rows face {detail}")

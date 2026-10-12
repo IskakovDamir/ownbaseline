@@ -442,9 +442,9 @@ OFF_ORDINAL = [
 # Not measurements. No point, no bar, no zero. They sit in their own band.
 BY_CONSTRUCTION = [
     dict(score="StemID", primitive="Shannon H",
-         reason="equals the per-cell transcriptome-entropy component by construction"),
-    dict(score="cmEntropy", primitive="Shannon H",
-         reason="equals H(x/sum x) by definition"),
+         reason="equals the per-cell Shannon-entropy component by construction"),
+    dict(score="cmEntropy", primitive="Shannon H, top 1,000 genes",
+         reason="equals the entropy of its 1,000 most expressed genes by definition"),
 ]
 BY_CONSTRUCTION_SOURCE = ("04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md "
                           "(reduction column) and reproduction/table.md (NOT-A-MEASUREMENT)")
@@ -665,7 +665,7 @@ def build_rows(grid: NullGrid):
                 parts.append(f"{ds} {rec['conditional_taub']:+.3f} vs floor "
                              f"{rec['floor_taub']:+.3f}, "
                              f"{'above' if rec['verdict_taub'] == 'ABOVE FLOOR' else 'not above'}")
-            row.reason = (f"{spec['reason']}; joint four-primitive residual, tau_b: "
+            row.reason = (f"{spec['reason']}; joint four-primitive residual, $\\tau_b$: "
                           + "; ".join(parts))
             rows.append(row)
             continue
@@ -1086,7 +1086,7 @@ def make_fig2_body(rows):
     pen = subsample_penalty(rows)
     ylabels = [_ylabel(r, r.subsample) for r in meas]
     head = f"{n_clear} of {len(meas)} measured scores clear their own null floor"
-    xlab = "conditional skill beyond the declared primitive\n(Kendall tau_b)"
+    xlab = "conditional skill beyond the declared primitive\n(Kendall $\\tau_b$)"
     foot = ""
     # No footnote in the column figure: the caption explains both marks (2026-10-12).
 
@@ -1202,11 +1202,11 @@ def make_fig2_appendix(rows):
            f"only. Every score considered has a row: {len(meas)} measured, {n_blocked} "
            f"blocked, {n_off} measured on another ordinal, {n_out} outside the audited "
            f"class, {len(band)} never measured.")
-    xlab = "conditional skill beyond the declared primitive   (Kendall tau_b)"
+    xlab = "conditional skill beyond the declared primitive   (Kendall $\\tau_b$)"
     foot = ""
     if any(r.subsample for r in meas):
         n_sub = min(r.n for r in meas if r.subsample)
-        detail = (f"{pen[0]:.2f} to {pen[1]:.2f} times the {pen[2]:,}-cell floor at the same rho"
+        detail = (f"{pen[0]:.2f} to {pen[1]:.2f} times the {pen[2]:,}-cell floor at the same $\\rho$"
                   if pen else "a higher floor")
         foot = (f"‡ measured on the shared seed-42 {n_sub:,}-cell subsample; a smaller n "
                 f"raises the floor, so these rows face {detail}")
@@ -1298,7 +1298,10 @@ def make_fig2_appendix(rows):
                     fontsize=pt_reason, color=c, style="italic", linespacing=1.18,
                     zorder=3)
 
-    ax.axvline(0, color="#888", lw=0.8, zorder=2)
+    # the zero line stops at the last measured row, so it never strikes through
+    # a reason note in the rows that carry no value (review 2026-10-12)
+    meas_bottom = min(yi - h / 2.0 for yi, h, r in zip(y, heights, rows) if r.kind == "measured")
+    ax.vlines(0, meas_bottom, AX_H, color="#888", lw=0.8, zorder=2)
     ax.set_yticks(y)
     ax.set_yticklabels(ylabels, fontsize=pt_tick, linespacing=1.15)
     for tick, r in zip(ax.get_yticklabels(), rows):
@@ -1351,7 +1354,7 @@ def make_fig2_appendix(rows):
         mp.Patch(facecolor="none", edgecolor=OFFC, hatch="\\\\",
                  label="measured, but on another ordinal"),
         plt.Line2D([0], [0], color=FLOORC, lw=1.5, ls=(0, (2.0, 1.3)),
-                   label="that row's floor: 97.5th pct of its own null, at its n and rho"),
+                   label="that row's floor: 97.5th pct of its own null, at its $n$ and $\\rho$"),
         mp.Patch(facecolor="none", edgecolor=OUTC, hatch="...",
                  label="outside the unsupervised class audited here"),
         plt.Line2D([0], [0], color="#111", lw=1.0,

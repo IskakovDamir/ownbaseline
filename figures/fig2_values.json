@@ -404,7 +404,7 @@
       "wtau_null_p97_5": null,
       "clears_own_wtau_floor": null,
       "subsample_3000": false,
-      "reason": "weights fitted to PCBC stem-cell class data, outside the unsupervised class this figure audits; joint four-primitive residual, tau_b: GSE117498 +0.080 vs floor +0.026, above; GSE117498h (gene names merged) -0.058 vs floor +0.026, not above",
+      "reason": "weights fitted to PCBC stem-cell class data, outside the unsupervised class this figure audits; joint four-primitive residual, $\\tau_b$: GSE117498 +0.080 vs floor +0.026, above; GSE117498h (gene names merged) -0.058 vs floor +0.026, not above",
       "sources": {
         "mRNAsi_GSE117498": "w5/summary.json:rows/mRNAsi_GSE117498",
         "mRNAsi_GSE117498h": "w5/summary.json:rows/mRNAsi_GSE117498h"
@@ -428,7 +428,7 @@
       "wtau_null_p97_5": null,
       "clears_own_wtau_floor": null,
       "subsample_3000": false,
-      "reason": "gene weights fitted to timepoint labels in 17 training samples, outside the unsupervised class this figure audits; joint four-primitive residual, tau_b: GSE106474 +0.063 vs floor +0.023, above; GSE117498 +0.149 vs floor +0.030, above; GSE117498h (gene names merged) +0.142 vs floor +0.030, above; GSE125970 +0.153 vs floor +0.025, above; GSE113074 -0.068 vs floor +0.021, not above",
+      "reason": "gene weights fitted to timepoint labels in 17 training samples, outside the unsupervised class this figure audits; joint four-primitive residual, $\\tau_b$: GSE106474 +0.063 vs floor +0.023, above; GSE117498 +0.149 vs floor +0.030, above; GSE117498h (gene names merged) +0.142 vs floor +0.030, above; GSE125970 +0.153 vs floor +0.025, above; GSE113074 -0.068 vs floor +0.021, not above",
       "sources": {
         "FitDevo_GSE106474": "w5/summary.json:rows/FitDevo_GSE106474",
         "FitDevo_GSE117498": "w5/summary.json:rows/FitDevo_GSE117498",
@@ -455,7 +455,7 @@
       "wtau_null_p97_5": null,
       "clears_own_wtau_floor": null,
       "subsample_3000": false,
-      "reason": "equals the per-cell transcriptome-entropy component by construction",
+      "reason": "equals the per-cell Shannon-entropy component by construction",
       "sources": {
         "status": "04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md (reduction column) and reproduction/table.md (NOT-A-MEASUREMENT)"
       }
@@ -463,7 +463,7 @@
     {
       "kind": "by-construction",
       "score": "cmEntropy",
-      "primitive": "Shannon H",
+      "primitive": "Shannon H, top 1,000 genes",
       "tau": null,
       "ci95": null,
       "n": null,
@@ -478,7 +478,7 @@
       "wtau_null_p97_5": null,
       "clears_own_wtau_floor": null,
       "subsample_3000": false,
-      "reason": "equals H(x/sum x) by definition",
+      "reason": "equals the entropy of its 1,000 most expressed genes by definition",
       "sources": {
         "status": "04-experiments/2026-07-21-frozen-benchmark-and-final-reductions.md (reduction column) and reproduction/table.md (NOT-A-MEASUREMENT)"
       }

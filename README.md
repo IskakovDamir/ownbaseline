@@ -11,12 +11,13 @@ ordering information: the criterion cannot separate them, because the thing
 you are worried about correlates with the gold standard too. This repository
 implements the check that can: residualize the score on the low-order statistic
 its own authors say it approximates, and ask whether what is left still orders
-cells. A score at rank correlation 0.93 with node degree can carry substantial
-skill beyond it; another at 0.998 carries none. Pairwise correlation does not
-tell you which you have, in either direction. Also in here: the field audit
-that came out of applying this to fourteen published unsupervised scores, and the finding
-that our own strong hypothesis, that the whole family reduces to a fixed
-low-order statistic, is false for most of them.
+cells. A score at rank correlation 0.93 with node degree can still order cells
+well beyond it, and pairwise correlation does not tell you whether it does, or
+in which direction. Also in here: the field audit that came out of applying
+this to fourteen published unsupervised scores, and the finding that our own
+strong hypothesis, that the whole family reduces to a fixed low-order
+statistic, is false: four scores clear it whichever way a score's direction is
+read.
 
 ## Quick start
 
@@ -333,38 +334,47 @@ anything. The two agree where both can run; `make_paper_a_figures.py
 ## What the audit found
 
 On a 12-stage visually staged zebrafish ordinal (GSE106474, 39,505
-whole-embryo cells), of the nine scores that could be placed on the ordinal,
-six carry ordering skill beyond their own primitive, Kendall τ_b after rank
-residualization, with the value after residualizing on all four low-order
-statistics at once in brackets:
+whole-embryo cells), nine scores could be placed on the ordinal. The value is
+Kendall τ_b after rank residualization on the score's own primitive, against
+its own measured null floor (✓ clears it). The registered estimator reads each
+score in the direction of its own correlation with the stages; published
+benchmarks fix the direction from the authors' definition instead, so the
+second column reads every row that way, post hoc
+(`experiments/w6_direction/DEVIATIONS.md`). Six clear under each reading, and
+four under both: CytoTRACE, NCG, dpath and StemFinder.
 
-| score | primitive | τ_b | joint-4 |
-|---|---|---|---|
-| CytoTRACE v1 | gene count | 0.653 | 0.288 |
-| SCENT SR | `PCC(x, degree)` | 0.430 | 0.183 |
-| ORIGINS | `PCC(x, degree)` | 0.402 | 0.156 |
-| NCG † | its own GO connectome | 0.402 | - |
-| dpath † | Shannon entropy | 0.120 | 0.134 |
-| StemFinder | cell-cycle gene-set score | 0.098 | 0.167 |
-| CCAT | `PCC(x, degree)` | no measurable residual (ρ = 0.998) | - |
-| SLICE † | Shannon entropy | near zero (ρ = 0.932) | - |
-| MCE | `PCC(x, degree)` | −0.490, below its floor (ρ = 0.802) | −0.131 |
+| score | primitive | τ_b, registered | τ_b, authors' direction | joint-4, registered |
+|---|---|---|---|---|
+| CytoTRACE v1 | gene count | 0.653 vs 0.0247 ✓ | 0.653 vs 0.0249 ✓ | 0.288 |
+| SCENT SR | `PCC(x, degree)` | 0.430 vs 0.0311 ✓ | −0.430 vs 0.0326 | 0.183 |
+| ORIGINS | `PCC(x, degree)` | 0.402 vs 0.0247 ✓ | −0.402 vs 0.0249 | 0.156 |
+| NCG † | `PCC(x, degree)` | 0.402 vs 0.0411 ✓ | 0.402 vs 0.0414 ✓ | - |
+| dpath † | Shannon entropy | 0.120 vs 0.0411 ✓ | 0.120 vs 0.0414 ✓ | 0.134 |
+| StemFinder | cell-cycle gene-set score | 0.098 vs 0.0247 ✓ | 0.098 vs 0.0249 ✓ | 0.167 |
+| SLICE † | Shannon entropy | −0.113 vs 0.0479 | −0.113 vs 0.0453 | - |
+| CCAT | `PCC(x, degree)` | −0.221 vs 0.0115 | 0.221 vs 0.0120 ✓ | - |
+| MCE | `PCC(x, degree)` | −0.490 vs 0.0325 | 0.490 vs 0.0342 ✓ | −0.131 |
 
-† on a fixed 3,000-cell subsample, not the full 39,505.
+† on a fixed 3,000-cell subsample, not the full 39,505. NCG is residualized on
+`PCC(x, degree)` like the others; its score itself is computed on its own
+gene-ontology-weighted connectome. The four rows whose value changes sign
+(SCENT SR, ORIGINS, CCAT, MCE) are the scores that rise with stage on these
+embryos, against their authors' polarity, as their primitive `PCC(x, degree)`
+does.
 
 **The strong hypothesis is refuted.** This work set out to show that every
 unsupervised potency score is a reparametrization of a fixed low-order
 statistic, so that agreement between such scores across contexts is guaranteed
-by construction rather than by biology. That holds for the identity and entropy
-constructions, CCAT is its primitive by definition; StemID and cmEntropy equal
-a transcriptome entropy by construction; SLICE tracks one it does not improve
-on, and it is false for the six scores that clear their floors.
-Signalling entropy sits at ρ = 0.93 with the degree correlation and keeps skill
-after four primitives are removed at once. MCE, a second entropy-rate
-construction, was registered in advance as one that would keep skill, and under
-the registered rule it does not: its residual is large, but the alignment step
-reads it with the sign of a marginal correlation close to zero
-(`experiments/w5_new_rows/REPORT.md`). What the surviving residual consists
+by construction rather than by biology. That holds for CCAT, its primitive by
+definition, and for StemID and cmEntropy, which equal a transcriptome entropy
+by construction; SLICE leaves a negative residual against its own under either
+reading. It is false for the four scores that clear under both readings:
+CytoTRACE keeps τ_b 0.288 after four primitives are removed at once. The two
+entropy-rate scores split: signalling entropy's residual beyond the degree
+correlation runs toward the later stages and MCE's toward the earlier ones, so
+the registered rule credits the first and the authors' direction the second.
+MCE was registered in advance as a score that would keep skill, and under the
+registered rule it does not (`experiments/w5_new_rows/REPORT.md`). What the surviving residual consists
 of is open: a staged timecourse traces a developmental manifold, and a score
 tracking that manifold keeps skill whether or not it measures potency in any
 deeper sense.

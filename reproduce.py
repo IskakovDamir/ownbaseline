@@ -129,7 +129,12 @@ LEDGER = [
      "skill 0.000 as though measured; since 2026-08-29 it reads its data and "
      "shows them in a by-construction band that carries no value."),
     ("StemSC", "NOT-A-MEASUREMENT", "measured on the sorted atlases, not on this ordinal"),
-    ("Figure 3 / depth confound (AUROC 0.378 vs 0.798)", "RUNS-SEPARATELY",
+    ("Direction check, both readings (post hoc)", "RUNS-SEPARATELY",
+     "experiments/w6_direction/direction_check.py: every placed row read with the "
+     "registered alignment and with its authors' polarity; needs the ORIGINS, NCG, "
+     "dpath and SLICE score vectors under track2/results in the data root, which no "
+     "stage here writes; frozen as data/run_record/w6/direction.json"),
+    ("Figure 1b-c / depth confound (AUROC 0.378 vs 0.798)", "RUNS-SEPARATELY",
      "experiments/w4/scripts/w4_gate2_run.py, on GSE117498 + GSE125970. Driven "
      "by --stages depth. Slower and larger than the zebrafish chain."),
 ]

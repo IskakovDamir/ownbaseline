@@ -432,7 +432,7 @@ OUT_OF_CLASS = [
 ]
 
 OFF_ORDINAL = [
-    dict(score="StemSC", primitive="gene count",
+    dict(score="StemSC", primitive="gene-pair order fraction",
          art="stemsc/summary.json", probe="C1_GSE117498/StemSC/conditional_skill",
          reason="measured on the sorted atlases (GSE117498, GSE125970) under a "
                 "different estimator and a heavily-tied ordering, not comparable "
@@ -780,7 +780,7 @@ def caption(rows, variant="appendix") -> str:
 
     if not meas:
         return (
-            f"{label} | Field audit on a clean fine ordinal. No score could be placed: every row "
+            f"{label} | Field audit on a staged ordinal. No score could be placed: every row "
             f"is blocked and prints its reason. Blocked: {names(blocked)}. "
             f"Measured on another ordinal: {names(off)}. "
             f"Outside the audited class: {names(out)}. "
@@ -824,7 +824,7 @@ def caption(rows, variant="appendix") -> str:
         + ". ")
 
     headline = (
-        f"{label} | Field audit on a clean fine ordinal: {len(clear)} of {len(meas)} measured "
+        f"{label} | Field audit on a staged ordinal: {len(clear)} of {len(meas)} measured "
         f"scores carry ordering skill beyond their own declared primitive. ")
 
     if variant == "body":
@@ -899,7 +899,7 @@ OFFC = "#3a6ea5"
 OUTC = "#4a4a4a"
 
 APPENDIX_FIG = "Figure A1"          # what the body caption calls the full audit
-BODY_FIG = "Figure 3"               # the body audit figure, after Figures 1 and 2
+BODY_FIG = "Figure 2"               # the body audit figure, after Figure 1
 
 _KIND_COLOR = {"blocked": BLOCKC, "off-ordinal": OFFC, "out-of-class": OUTC,
                "by-construction": BANDC}
@@ -977,9 +977,30 @@ class _TextMetrics:
         self._plt.close(self._fig)
 
 
+DIRECTION_REC = "w6/direction.json"     # experiments/w6_direction, post hoc, 2026-10-12
+AGAINST_MARK = " §"
+
+
+def against_authors(score):
+    """True when the score orders the stages against its authors' polarity,
+    read from the frozen direction check; None when the record has no row."""
+    val, err = value_of(DIRECTION_REC, "runs_against_authors")
+    if err:
+        return None
+    return score in val
+
+
 def _ylabel(r, dagger=False):
     """Two lines: one line of 'score  |  primitive' does not fit a column."""
-    return f"{r.score}{' ‡' if dagger else ''}\n|  {r.primitive}"
+    mark = AGAINST_MARK if r.kind == "measured" and against_authors(r.score) else ""
+    return f"{r.score}{' ‡' if dagger else ''}{mark}\n|  {r.primitive}"
+
+
+def _against_foot(rows):
+    meas = [r for r in rows if r.kind == "measured" and against_authors(r.score)]
+    if not meas:
+        return ""
+    return "§ orders the stages against its authors' polarity"
 
 
 def _xlim_for(bars, axes_w_in, label_w_in, pad_in=0.022):
@@ -1016,11 +1037,9 @@ def _draw_bar_row(ax, r, y, bar_h, pt_value):
         # kept inside its own row band so it cannot be read as spanning rows.
         ax.plot([r.floor, r.floor], [y - bar_h * 0.72, y + bar_h * 0.72], color=FLOORC,
                 lw=1.5, ls=(0, (2.0, 1.3)), zorder=7, solid_capstyle="butt")
-        if not r.clears:
-            ax.annotate("", xy=(r.floor, y), xytext=(max(r.tau, 0.0), y),
-                        arrowprops=dict(arrowstyle="->", color=FLOORC, lw=0.8,
-                                        linestyle=(0, (1.6, 1.6)), shrinkA=0,
-                                        shrinkB=2), zorder=6)
+        # No arrow from a failing bar to its floor: at these gaps its shaft cannot
+        # render and the head reads as an unexplained chevron (review 2026-10-12);
+        # grey fill and the dashed floor already state the verdict.
 
 
 TEXT_MARGIN_IN = 0.065      # left inset of every block of running text on a figure
@@ -1069,12 +1088,7 @@ def make_fig2_body(rows):
     head = f"{n_clear} of {len(meas)} measured scores clear their own null floor"
     xlab = "conditional skill beyond the declared primitive\n(Kendall tau_b)"
     foot = ""
-    if any(r.subsample for r in meas):
-        n_sub = min(r.n for r in meas if r.subsample)
-        detail = (f"{pen[0]:.2f} to {pen[1]:.2f} times the {pen[2]:,}-cell floor at the same rho"
-                  if pen else "a higher floor")
-        foot = (f"‡ seed-42 {n_sub:,}-cell subsample; a smaller n raises the floor, so "
-                f"these rows face {detail}")
+    # No footnote in the column figure: the caption explains both marks (2026-10-12).
 
     # ---- measure first, then choose the height the measurements imply
     pm = _TextMetrics()
@@ -1183,7 +1197,7 @@ def make_fig2_appendix(rows):
     pen = subsample_penalty(rows)
 
     ylabels = [_ylabel(r) for r in rows]
-    head = "Field audit on a clean fine ordinal (zebrafish GSE106474, 12 stages)"
+    head = "Field audit on a staged ordinal (zebrafish GSE106474, 12 stages)"
     sub = (f"The full audit behind {BODY_FIG}, which draws the {len(meas)} measured rows "
            f"only. Every score considered has a row: {len(meas)} measured, {n_blocked} "
            f"blocked, {n_off} measured on another ordinal, {n_out} outside the audited "
@@ -1196,6 +1210,8 @@ def make_fig2_appendix(rows):
                   if pen else "a higher floor")
         foot = (f"‡ measured on the shared seed-42 {n_sub:,}-cell subsample; a smaller n "
                 f"raises the floor, so these rows face {detail}")
+    if _against_foot(rows):
+        foot = (foot + ". " if foot else "") + _against_foot(rows)
 
     n_txt = [f"{r.n:,}" + (" ‡" if r.subsample else "") if r.kind == "measured" else "—"
              for r in rows]

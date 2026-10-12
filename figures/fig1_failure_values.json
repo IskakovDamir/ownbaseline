@@ -30,33 +30,46 @@
       "clears": true
     }
   },
-  "real": {
-    "source": "data/run_record/track2/gate2_conditional_skill.json",
-    "n": 39505,
-    "primitive_marginal_taub": 0.38267833306838844,
-    "CCAT": {
-      "marginal_taub": 0.3664259017676799,
-      "rho_primitive": 0.9981774880514592,
-      "conditional_taub": -0.22089922162381936,
-      "conditional_CI95": [
-        -0.22674002852176528,
-        -0.21506133815121636
-      ],
-      "floor": 0.011498206981037101,
-      "floor_cell": "Null B, align on, 12 levels, n=39,505, rho=0.998, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds",
-      "clears": false
+  "tissue": [
+    {
+      "title": "Hematopoietic (sorted)",
+      "artefact": "w4/c1_gse117498_results.json",
+      "sources": {
+        "hi_genes": "w4/c1_gse117498_results.json:per_population_depth/HSC/median_gene_count",
+        "lo_genes": "w4/c1_gse117498_results.json:per_population_depth/GMP/median_gene_count",
+        "auroc": "w4/c1_gse117498_results.json:per_score/CT/AUROC_primitive_top_vs_bot",
+        "delta": "w4/c1_gse117498_results.json:per_score/CT/marginal_delta",
+        "kernel": "w4/c1_gse117498_results.json:kernel",
+        "n": "w4/c1_gse117498_results.json:n_cells_ranked"
+      },
+      "hi": "HSC",
+      "lo": "GMP",
+      "color": "#c8709a",
+      "hi_genes": 916.0,
+      "lo_genes": 1403.5,
+      "auroc_gene_count_top_vs_bottom": 0.37831208452600984,
+      "ct_marginal_gap": 0.18057863731019813,
+      "n_ranked": 12354
     },
-    "SR": {
-      "marginal_taub": 0.5323773171872959,
-      "rho_primitive": 0.9305466517130603,
-      "conditional_taub": 0.4299684120579581,
-      "conditional_CI95": [
-        0.4248333182971235,
-        0.43499266719511614
-      ],
-      "floor": 0.031050650679017557,
-      "floor_cell": "Null B, align on, 12 levels, n=39,505, rho=0.93, kendalltau, 1 covariate, 3 coupling strengths, 600 seeds",
-      "clears": true
+    {
+      "title": "Intestinal",
+      "artefact": "w4/c2_gse125970_results.json",
+      "sources": {
+        "hi_genes": "w4/c2_gse125970_results.json:per_population_depth/Stem Cell/median_gene_count",
+        "lo_genes": "w4/c2_gse125970_results.json:per_population_depth/Enterocyte/median_gene_count",
+        "auroc": "w4/c2_gse125970_results.json:per_score/CT/AUROC_primitive_top_vs_bot",
+        "delta": "w4/c2_gse125970_results.json:per_score/CT/marginal_delta",
+        "kernel": "w4/c2_gse125970_results.json:kernel",
+        "n": "w4/c2_gse125970_results.json:n_cells_ranked"
+      },
+      "hi": "Stem Cell",
+      "lo": "Enterocyte",
+      "color": "#2f7f4f",
+      "hi_genes": 3263.0,
+      "lo_genes": 1862.0,
+      "auroc_gene_count_top_vs_bottom": 0.7979776899429074,
+      "ct_marginal_gap": 0.10563224484598227,
+      "n_ranked": 14537
     }
-  }
+  ]
 }

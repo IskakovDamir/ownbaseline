@@ -251,7 +251,7 @@ def conditional_skill_report(
     CytoTRACE, signalling entropy and ORIGINS sit. A bootstrap interval narrows
     as one over the square root of n while the floor is close to flat in n, so
     at atlas scale an interval excluding zero is not evidence of anything: at
-    n = 39,505 the tau_b floor sits three to four interval half-widths above
+    n = 39,505 the tau_b floors sit two to seven interval half-widths above
     zero. The kernel-agreement leg could not do its job either, because
     weightedtau returned a positive verdict on all 720 null replicates run.
 

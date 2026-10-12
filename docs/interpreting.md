@@ -95,7 +95,7 @@ ordering.
 
 It is positive, and close to flat in n, while a bootstrap interval narrows as one
 over the square root of n. At atlas scale an interval excluding zero is therefore
-not evidence of anything: at n = 39,505 the tau_b floor sits three to four
+not evidence of anything: at n = 39,505 the tau_b floors sit two to seven
 interval half-widths above zero. Read the floor, not the interval.
 
 The floors shipped here were measured on synthetic nulls under two constructions.

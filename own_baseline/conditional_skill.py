@@ -19,6 +19,14 @@ Bootstrap recomputes the residual within each resample. Verdict per §4:
 
 SLICE and dpath ran on a fixed 3,000-cell seed-42 subsample (their native algorithms
 are infeasible at 39.5k); their rows are computed on that subsample (n disclosed).
+
+Verdict labels. TAUTOLOG, ADDS-BEYOND, SIGN-FLIPPED and INCONCLUSIVE-kernel-disagree
+belong to the interval rule above, which is retired; they are kept so that this
+file and the run record it wrote stay as they ran. The rule the paper uses reads
+the conditional skill against the estimator's measured null floor at the value's
+own n, rho, kernel and covariate count: own_baseline.floors.floor(), printed beside
+every row by `ownbaseline check`. Why the interval rule was retired is in the
+conditional_skill_report() docstring.
 """
 from __future__ import annotations
 import sys, json
@@ -232,7 +240,9 @@ def conditional_skill_report(
                             interval and a verdict, under both kernels, plus
                             whether the kernels agree. This is the answer.
 
-    The verdict vocabulary is the decider's, unchanged:
+    The verdict vocabulary is the decider's, unchanged, and belongs to the
+    retired interval rule; the API keeps it for compatibility. Decide with the
+    floor check in the next paragraph.
         TAUTOLOG      interval contains 0 -- no skill beyond the primitive
         ADDS-BEYOND   interval strictly positive
         SIGN-FLIPPED  interval strictly negative

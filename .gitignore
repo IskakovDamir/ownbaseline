@@ -42,6 +42,11 @@ reproduction/
 !experiments/w5_new_rows/results/
 !experiments/w5_new_rows/results/*.json
 
+# the stage-gap decomposition (preprint Table A2, Appendix B): small, the record
+!experiments/stage_gap/results/
+!experiments/stage_gap/results/*.json
+!experiments/stage_gap/results/*.csv
+
 # third-party reference code (MCE.m and its supplement): fetched by URL, see
 # experiments/w5_new_rows/DISCOVERY.md
 /reference/

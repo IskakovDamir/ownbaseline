@@ -19,6 +19,59 @@ strong hypothesis, that the whole family reduces to a fixed low-order
 statistic, is false: four scores clear it whichever way a score's direction is
 read.
 
+[![The own-baseline test and the field audit, 25 seconds](docs/media/overview.gif)](docs/media/overview.mp4)
+
+## The decision rule
+
+The paper's rule: sign the score so that its Spearman correlation with the
+ordinal is positive, remove from its ranks a least-squares fit on the ranks of
+its primitive (the low-order statistic its own authors say it is built on), and
+take Kendall τ_b between that residual and an ordinal fixed before sequencing.
+The value counts only when it lies above the estimator's measured null floor:
+the 97.5th percentile of the same statistic on simulated cells whose score
+carries nothing beyond its primitive, at the value's own n, kernel,
+score-primitive rank correlation and covariate count. The floors come from the
+200-seed grid in `experiments/null_calibration/` and ship with the package.
+
+```bash
+ownbaseline check cells.h5ad \
+    --score   obs:cytotrace \
+    --ordinal obs:stage \
+    --ordinal-source experimental \
+    --json report.json
+```
+
+`check` prints each value beside its own floor and says `CLEARS` or
+`DOES NOT CLEAR`. `ownbaseline floors --n 39505 --rho 0.4844` prints a single
+floor, +0.0247, the one CytoTRACE is read against on the zebrafish ordinal; from
+Python, `own_baseline.floors.floor(39505, 0.4844)["floor"]` returns the same
+number.
+
+**Retired: the interval rule.** `conditional_skill_report` and the run record
+still print the labels of an earlier rule, which asked for a bootstrap interval
+excluding zero under two kernels: `TAUTOLOG`, `ADDS-BEYOND`, `SIGN-FLIPPED` and
+`INCONCLUSIVE-kernel-disagree`. Do not decide with them. On synthetic data whose
+true conditional skill is zero, that rule fired in 40 of 40 replicates at the
+cells where CytoTRACE, signalling entropy and ORIGINS sit. The interval's
+half-width falls as one over the square root of n, and the floor falls more
+slowly, from 0.0741 at n = 500 to 0.0228 at n = 127,607 for τ_b at rho = 0.5,
+so at n = 39,505 the τ_b floors sit two to seven interval half-widths above
+zero.
+
+## Paper
+
+Damir Iskakov (2026). *Pairwise correlation cannot tell you if a single-cell
+potency score adds biology: an own-baseline test and a field audit.* Preprint,
+PDF in [`paper/own-baseline-preprint.pdf`](paper/own-baseline-preprint.pdf).
+The preprint server link follows posting.
+
+Its numbers are those of tag `preprint-2026-10-21`, which is commit `e44b9d8`
+plus the stage-gap and per-transition concordances of the paper's Appendix B
+(`experiments/stage_gap/`); no other number changed. The cross-cancer transfer
+test of Appendix H was run in a notebook from inputs held by the author and is
+not in this repository. `python3 reproduce.py --ledger` lists what regenerates
+here and what does not.
+
 ## Quick start
 
 ```bash
@@ -36,14 +89,7 @@ pip install -e ".[full]"
 
 ### From the command line
 
-```bash
-ownbaseline check cells.h5ad \
-    --score   obs:cytotrace \
-    --ordinal obs:stage \
-    --ordinal-source experimental \
-    --json report.json
-```
-
+The `check` command is the one under [The decision rule](#the-decision-rule).
 All four primitives are computed unless you name one, the direction check is
 printed above the first margin, and every value is placed against its own
 measured null floor rather than against zero. `--ordinal-source` is required and
@@ -142,6 +188,10 @@ Real output, about thirty seconds:
     => TAUTOLOG
 ```
 
+The labels at the end of each line are the retired interval rule's (see
+[The decision rule](#the-decision-rule)); read the conditional-skill values
+against their floors.
+
 `sham_score` is `exp(primitive / 2)`, a monotone reparametrization that adds
 nothing. Its marginal gap is exactly `+0.0000` and its verdict is `TAUTOLOG`,
 which is right. But its conditional skill should also be zero and reports
@@ -158,10 +208,11 @@ Two entry points, in increasing strength:
 | `run_own_baseline(adata, score, gt_ordinal)` | marginal gap `tau(score, ordinal) − tau(gene counts, ordinal)` | a first look; one line, no residualization |
 | `conditional_skill_report(score, ordinal, primitives)` | rank residual on the primitive(s), scored under two kernels with a bootstrap interval, plus a direction check | the test the paper reports, **prefer this** |
 
-The verdict vocabulary says which way the evidence points and is not a
-pass/fail: `REDUCES-TO-PRIMITIVE`, `INCONCLUSIVE`, `ADDS-BEYOND-PRIMITIVE` for
-the marginal gap; `TAUTOLOG`, `ADDS-BEYOND`, `SIGN-FLIPPED`,
-`INCONCLUSIVE-kernel-disagree` for conditional skill.
+The marginal gap reports `REDUCES-TO-PRIMITIVE`, `INCONCLUSIVE` or
+`ADDS-BEYOND-PRIMITIVE`. The conditional-skill labels `TAUTOLOG`,
+`ADDS-BEYOND`, `SIGN-FLIPPED` and `INCONCLUSIVE-kernel-disagree` belong to the
+retired interval rule. For a verdict, read the value against its floor, as
+`ownbaseline check` does.
 
 **Check the direction before reading any margin.** In sorted haematopoietic
 progenitors the gene-count primitive orders cells *below* chance: HSCs carry a
@@ -288,16 +339,20 @@ GSE106474 and STRING v12, rebuilt the scaffold, prepared **39,505 cells across
 table. They match the values behind the manuscript to every digit reported,
 including both bootstrap bounds under both kernels:
 
-| row | τ_b (reproduced) | 95% CI | weighted τ | 95% CI | verdict |
-|---|---|---|---|---|---|
-| CytoTRACE v1 \| gene count | +0.6531 | [+0.6479, +0.6579] | +0.7901 | [+0.7672, +0.8067] | ADDS-BEYOND |
-| SR \| `PCC(x, degree)` | +0.4300 | [+0.4248, +0.4350] | +0.7366 | [+0.7174, +0.7611] | ADDS-BEYOND |
-| SR \| CCAT | +0.4678 | [+0.4626, +0.4727] | +0.7522 | [+0.7347, +0.7766] | ADDS-BEYOND |
-| CCAT \| `PCC(x, degree)` | −0.2209 | [−0.2267, −0.2151] | +0.1716 | [+0.1186, +0.2104] | INCONCLUSIVE-kernel-disagree |
+| row | τ_b (reproduced) | 95% CI | weighted τ | 95% CI | τ_b floor | verdict |
+|---|---|---|---|---|---|---|
+| CytoTRACE v1 \| gene count | +0.6531 | [+0.6479, +0.6579] | +0.7901 | [+0.7672, +0.8067] | 0.0247 | CLEARS |
+| SR \| `PCC(x, degree)` | +0.4300 | [+0.4248, +0.4350] | +0.7366 | [+0.7174, +0.7611] | 0.0311 | CLEARS |
+| SR \| CCAT | +0.4678 | [+0.4626, +0.4727] | +0.7522 | [+0.7347, +0.7766] | 0.0311 | CLEARS |
+| CCAT \| `PCC(x, degree)` | −0.2209 | [−0.2267, −0.2151] | +0.1716 | [+0.1186, +0.2104] | 0.0115 | DOES NOT CLEAR |
+
+The verdict is τ_b against its own floor, the statistic and the rule the paper
+reports, as `experiments/null_calibration/results/report.txt` (section 2) gives
+them. The retired interval rule labelled the first three rows `ADDS-BEYOND` and
+the CCAT row `INCONCLUSIVE-kernel-disagree`.
 
 That is the audit's largest effect (CytoTRACE, τ_b 0.653), the signalling-entropy
-row the refutation turns on (SR, 0.430), and the CCAT row the reduction thesis
-survives on. Read the last row with the scope note above and defect **F-2**
+row (SR, 0.430), and the CCAT row the reduction thesis survives on. Read the last row with the scope note above and defect **F-2**
 below in mind: the two kernels disagree at a near-null, and that disagreement is
 also the signature of the F-2 artefact.
 
@@ -381,7 +436,7 @@ deeper sense.
 
 ## Scope, what this does not do
 
-- **It does not tell you a score is good.** `ADDS-BEYOND` means the score
+- **It does not tell you a score is good.** Clearing the floor means the score
   orders cells beyond the primitive you named. It says nothing about whether
   what it adds is potency rather than, say, position on a developmental
   manifold.
@@ -440,7 +495,7 @@ detail in the commit messages and in `tests/test_estimator.py`.
   pre-2026-08 manuscript was traced against. The full before/after is
   `04-experiments/2026-08-29-figure2-provenance.md` in the vault.
 - **The figures were drawn to no page in particular, retargeted 2026-08-30.**
-  Figure 2 was emitted at 10.2 in wide, 1.6× the ML4H text block and 3.2× a
+  Figure 2 was emitted at 10.2 in wide, 1.6× a 6.50 in text block and 3.2× a
   column, with a side table set in 6.6pt type. Nothing about it survived
   reduction to a 3.18 in column. Figure 2 is now two variants built from the
   same rows: `fig2_body.pdf` at 3.18 in (`\begin{figure}`) carrying only the
@@ -476,6 +531,7 @@ scores/                score implementations used in the audit
   cytotrace_full.py    R-faithful CytoTRACE v1 port
   run_*.R              wrappers calling the real R packages
 experiments/           every run script, verbatim, organized as it was run
+  stage_gap/           Table A2 and Appendix B of the paper, checked against them
 figures/               the manuscript's figures, each value read from a run artefact
   make_paper_a_figures.py  reads data/run_record/ + the null-calibration grid
   fig2_body.pdf        3.18 in, figure  - the 7 rows measured on the ordinal
@@ -484,6 +540,8 @@ figures/               the manuscript's figures, each value read from a run arte
   fig2_*_caption.txt   the caption generated for each variant
   deprecated/          the pre-2026-08-29 literal-only script, kept for tracing
 tests/                 known-answer tests
+paper/                 the preprint PDF
+docs/media/            the overview video (MP4) and its GIF
 reproduce.py           the reproduction entry point
 data/README.md         accessions and how to fetch them; no data is stored here
 data/run_record/       the run JSONs the figures read, committed verbatim
@@ -505,8 +563,20 @@ max |Δ| < 1e-13), ORIGINS to rank agreement only (Spearman 1.000).
 
 ## Citation
 
-The manuscript is under review; this section will carry the DOI and BibTeX
-entry once one is minted. Until then, cite the repository by URL and commit.
+The DOI or arXiv identifier replaces the note once the preprint is posted.
+
+```bibtex
+@misc{iskakov2026ownbaseline,
+  author = {Iskakov, Damir},
+  title  = {Pairwise correlation cannot tell you if a single-cell potency score
+            adds biology: an own-baseline test and a field audit},
+  year   = {2026},
+  note   = {Preprint. Code and run records at tag preprint-2026-10-21},
+  url    = {https://github.com/IskakovDamir/ownbaseline}
+}
+```
+
+`CITATION.cff` describes the software.
 
 ## License
 

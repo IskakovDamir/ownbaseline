@@ -17,7 +17,7 @@ OUTPUTS
 
 PAGE GEOMETRY
 -------------
-ML4H 2026 is jmlr.cls with pmlr, twocolumn, 10pt: a 229.87749pt column and a
+The paper's two-column build is jmlr.cls at 10pt: a 229.87749pt column and a
 469.75499pt text block, i.e. 3.18 in and 6.50 in, over 10pt body text. The
 retargeted figures are emitted at exactly those widths, so \\includegraphics
 needs no scale factor and nothing on them is set below 7pt at final size. Both
@@ -110,7 +110,7 @@ def run_record() -> Path:
 
 # --------------------------------------------------------------- page geometry
 #
-# ML4H 2026 is jmlr.cls with the pmlr, twocolumn, 10pt options. That template's
+# The paper's two-column build is jmlr.cls at 10pt. That template's
 # own \the\columnwidth and \the\textwidth are 229.87749pt and 469.75499pt in TeX
 # points (1/72.27 in), i.e. 3.1808 in and 6.5000 in, over 10pt body text.
 #

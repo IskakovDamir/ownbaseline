@@ -19,7 +19,7 @@ strong hypothesis, that the whole family reduces to a fixed low-order
 statistic, is false: four scores clear it whichever way a score's direction is
 read.
 
-[![The own-baseline test and the field audit, 25 seconds](docs/media/overview.gif)](docs/media/overview.mp4)
+[![The own-baseline test and the field audit, 25 seconds](https://raw.githubusercontent.com/IskakovDamir/ownbaseline/main/docs/media/overview.gif)](https://cdn.jsdelivr.net/gh/IskakovDamir/ownbaseline@preprint-2026-10-21/docs/media/overview.mp4)
 
 ## The decision rule
 
@@ -42,7 +42,8 @@ ownbaseline check cells.h5ad \
 ```
 
 `check` prints each value beside its own floor and says `CLEARS` or
-`DOES NOT CLEAR`. `ownbaseline floors --n 39505 --rho 0.4844` prints a single
+`DOES NOT CLEAR`, or `NO VERDICT` where no floor is available for that value.
+`ownbaseline floors --n 39505 --rho 0.4844` prints a single
 floor, +0.0247, the one CytoTRACE is read against on the zebrafish ordinal; from
 Python, `own_baseline.floors.floor(39505, 0.4844)["floor"]` returns the same
 number.
@@ -562,8 +563,6 @@ before use at scale, SR and CCAT to machine precision (Spearman 1.000,
 max |Δ| < 1e-13), ORIGINS to rank agreement only (Spearman 1.000).
 
 ## Citation
-
-The DOI or arXiv identifier replaces the note once the preprint is posted.
 
 ```bibtex
 @misc{iskakov2026ownbaseline,

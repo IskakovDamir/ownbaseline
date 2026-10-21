@@ -67,7 +67,7 @@ DOWNLOADS = {
 
 # --------------------------------------------------------------------------
 # The coverage ledger. One row per headline claim in the paper.
-# status: RUNS | BLOCKED | NOT-A-MEASUREMENT
+# status: RUNS | RUNS-SEPARATELY | BLOCKED | NOT-A-MEASUREMENT | NOT-IN-REPOSITORY
 # --------------------------------------------------------------------------
 LEDGER = [
     ("gene count / PCC(x,degree) / Shannon primitives", "RUNS",
@@ -134,6 +134,19 @@ LEDGER = [
      "registered alignment and with its authors' polarity; needs the ORIGINS, NCG, "
      "dpath and SLICE score vectors under track2/results in the data root, which no "
      "stage here writes; frozen as data/run_record/w6/direction.json"),
+    ("Stage gap and transitions (Table A2, Appendix B)", "RUNS-SEPARATELY",
+     "experiments/stage_gap/stage_gap.py: g_1 to g_11, the eleven adjacent-stage "
+     "transitions, and retention g_1 / ALL with its 1,000-resample interval for the "
+     "seven rows of Table A2, on the audit residuals; it compares its output with the "
+     "printed values and exits 1 on any difference. Needs the same ORIGINS, NCG, dpath "
+     "and SLICE vectors as the direction check; outputs committed in "
+     "experiments/stage_gap/results/"),
+    ("Cross-cancer transfer (Appendix H)", "NOT-IN-REPOSITORY",
+     "the six transfer values and the 200-permutation CCAT control were run in a "
+     "notebook from inputs held by the author, prepared from GSE150949 and GSE223003. "
+     "The driver, the cross-system permutation and a run record are not in this "
+     "repository; "
+     "potency_metrics.scaffold_null permutes within one dataset and is a different test."),
     ("Figure 1b-c / depth confound (AUROC 0.378 vs 0.798)", "RUNS-SEPARATELY",
      "experiments/w4/scripts/w4_gate2_run.py, on GSE117498 + GSE125970. Driven "
      "by --stages depth. Slower and larger than the zebrafish chain."),

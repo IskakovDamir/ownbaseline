@@ -61,15 +61,15 @@ zero.
 
 ## Paper
 
-Damir Iskakov (2026). *Pairwise correlation cannot tell you if a single-cell
-potency score adds biology: an own-baseline test and a field audit.* Preprint,
-PDF in [`paper/own-baseline-preprint.pdf`](paper/own-baseline-preprint.pdf).
-The preprint server link follows posting.
+*Pairwise correlation cannot tell you if a single-cell potency score adds
+biology: an own-baseline test and a field audit.* A preprint is in
+preparation; its link will be added here once it is posted.
 
 Its numbers are those of tag `preprint-2026-10-21`, which is commit `e44b9d8`
 plus the stage-gap and per-transition concordances of the paper's Appendix B
 (`experiments/stage_gap/`); no other number changed. The cross-cancer transfer
-test of Appendix H was run in a notebook from inputs held by the author and is
+test of Appendix H was run in a notebook from inputs prepared from GSE150949 and
+GSE223003 and is
 not in this repository. `python3 reproduce.py --ledger` lists what regenerates
 here and what does not.
 
@@ -541,7 +541,6 @@ figures/               the manuscript's figures, each value read from a run arte
   fig2_*_caption.txt   the caption generated for each variant
   deprecated/          the pre-2026-08-29 literal-only script, kept for tracing
 tests/                 known-answer tests
-paper/                 the preprint PDF
 docs/media/            the overview video (MP4) and its GIF
 reproduce.py           the reproduction entry point
 data/README.md         accessions and how to fetch them; no data is stored here

@@ -503,3 +503,30 @@ def test_no_source_file_hard_codes_an_absolute_home_path():
             if any(nd in line for nd in needles):
                 offenders.append(f"{path.relative_to(root)}:{i}: {line.strip()}")
     assert not offenders, "hard-coded absolute paths:\n  " + "\n  ".join(offenders)
+
+
+def test_permutation_floor_rejects_a_curved_trace_the_shipped_floor_passes():
+    """Score and ordinal share a curve of the primitive; the true conditional skill is zero."""
+    from scipy.stats import rankdata
+    from own_baseline.conditional_null import permutation_floor
+    from own_baseline.floors import floor
+    rng = np.random.default_rng(3)
+    n = 3000
+    p = rng.standard_normal(n)
+    curve = (p * p - 1) / np.sqrt(2)
+    o = (rankdata(0.8 * curve + 0.6 * rng.standard_normal(n), method="ordinal") - 1) * 12 // n + 1.0
+    s = p + curve + 0.3 * rng.standard_normal(n)
+    r = permutation_floor(s, o, p, n_draws=100)
+    assert r["value"] > floor(n, 0.7, kernel="taub", k_covariates=1, levels=12)["floor"]
+    assert not r["clears"]
+
+
+def test_permutation_floor_passes_a_score_with_ordering_beyond_its_primitive():
+    from scipy.stats import rankdata
+    from own_baseline.conditional_null import permutation_floor
+    rng = np.random.default_rng(4)
+    n = 3000
+    p, b = rng.standard_normal(n), rng.standard_normal(n)
+    o = (rankdata(0.6 * p + 0.8 * b, method="ordinal") - 1) * 12 // n + 1.0
+    s = p + 0.5 * b + rng.standard_normal(n)
+    assert permutation_floor(s, o, p, n_draws=100)["clears"]

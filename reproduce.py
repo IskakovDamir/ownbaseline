@@ -141,7 +141,7 @@ LEDGER = [
      "printed values and exits 1 on any difference. Needs the same ORIGINS, NCG, dpath "
      "and SLICE vectors as the direction check; outputs committed in "
      "experiments/stage_gap/results/"),
-    ("Floors off the simulator, batches, third series (Appendix J)", "RUNS-SEPARATELY",
+    ("Floors on real cells, batches, third series (Appendix J)", "RUNS-SEPARATELY",
      "experiments/conditional_null/conditional_null.py real, on the score and cell tables "
      "of the data deposit, the Xenopus vectors under fix3/results and the GSE112294 run of "
      "experiments/wagner2018; PREREG.md there is the plan; outputs committed in "

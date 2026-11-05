@@ -67,7 +67,7 @@ preparation; its link will be added here once it is posted.
 
 Its numbers are those of tag `preprint-2026-11-05`: commit `e44b9d8`, the
 stage-gap and per-transition concordances of the paper's Appendix B
-(`experiments/stage_gap/`), and the checks off the simulator and the third staged
+(`experiments/stage_gap/`), and the checks on real cells and the third staged
 series of Appendix J (`experiments/conditional_null/`, `experiments/wagner2018/`).
 No registered number changed. The cross-cancer transfer
 test of Appendix H was run in a notebook from inputs prepared from GSE150949 and
@@ -223,7 +223,7 @@ retired interval rule. For a verdict, read the value against its floor, as
 progenitors the gene-count primitive orders cells *below* chance: HSCs carry a
 median 916 detected genes, the GMPs below them carry 1,404, and the primitive
 scores AUROC 0.378 against the known hierarchy. A score that beats that
-baseline has supplied a sign correction, not biology, and nothing in the margin
+baseline has supplied a sign correction, and nothing in the margin
 shows it. `conditional_skill_report` flags this; `run_own_baseline` does not.
 
 ## Install
@@ -338,7 +338,7 @@ three primitives (gene count, `PCC(x, degree)` on STRING v12, Shannon entropy),
 `scores/cytotrace_full.py`), and **SCENT's SR and CCAT** (the Python
 implementations in `own_baseline/potency_metrics.py`).
 
-This was run, not asserted. On 2026-08-13 `reproduce.py` downloaded
+On 2026-08-13 `reproduce.py` downloaded
 GSE106474 and STRING v12, rebuilt the scaffold, prepared **39,505 cells across
 12 stages**, the paper's n exactly, and regenerated four rows of the headline
 table. They match the values behind the manuscript to every digit reported,
@@ -431,7 +431,7 @@ series, two of them zebrafish, plus two sorted atlases with four and three tiers
 | GSE112294 | zebrafish, inDrops, 7 times, 36,749 cells, another laboratory | four, pre-registered before any score met a stage |
 | GSE113074 | *Xenopus*, inDrops, 10 stages, 127,607 cells | six |
 
-**What held off the simulator and off this series** (`experiments/conditional_null/PREREG.md`,
+**What held on real cells and on another series** (`experiments/conditional_null/PREREG.md`,
 pushed as `f8808f6` before the run):
 
 - All six rows that clear also clear a floor measured on the real cells, by
@@ -471,7 +471,7 @@ deeper sense.
   orders cells beyond the primitive you named. It says nothing about whether
   what it adds is potency rather than, say, position on a developmental
   manifold.
-- **It controls a realization of a primitive, not the construct.** The degree
+- **It controls one realization of a primitive.** The degree
   primitive here is STRING v12 at confidence 700, largest connected component.
   Threshold and interactome were not varied, and part of any residual may be
   scaffold error.
@@ -487,7 +487,6 @@ deeper sense.
 - **It needs a score-independent ordinal.** A pseudotime derived from the same
   expression matrix is not one.
 - **It is calibrated on development and the scores are deployed on patients.**
-  That gap is deliberate and it is still a gap.
 
 ## Known defects
 
@@ -510,9 +509,8 @@ detail in the commit messages and in `tests/test_estimator.py`.
   rounding error of a LAPACK least-squares fit: aarch64 with numpy 2.2 puts all
   sixteen measured cells between 0.71 and 0.87, x86_64 with numpy 2.4 puts
   fourteen there and collapses two toward zero. The sham score in the Quick
-  start above is this: its τ_b of −0.6385 is the rounding pattern, not a
-  measurement. What separates a residual from debris is its magnitude, not its
-  τ: `own_baseline.cli.residual_scale` returns `max|resid| / (eps * n)`, real
+  start above is this: its τ_b of −0.6385 is the rounding pattern.
+  `own_baseline.cli.residual_scale` returns `max|resid| / (eps * n)`, real
   residuals sit at 1e14 to 1e15 on that ratio, and `ownbaseline check` refuses
   to report a value below 1e6. Both residual implementations in this repository
   have the defect. Pinned by

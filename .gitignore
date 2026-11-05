@@ -47,6 +47,13 @@ reproduction/
 !experiments/stage_gap/results/*.json
 !experiments/stage_gap/results/*.csv
 
+# the checks off the simulator (preprint Appendix J): small, the record
+!experiments/conditional_null/results/
+!experiments/conditional_null/results/*.json
+!experiments/conditional_null/results/*.csv
+!experiments/conditional_null/results/*.tex
+!experiments/conditional_null/results/*.log
+
 # third-party reference code (MCE.m and its supplement): fetched by URL, see
 # experiments/w5_new_rows/DISCOVERY.md
 /reference/

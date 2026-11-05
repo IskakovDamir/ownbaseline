@@ -10,6 +10,7 @@ into a working directory and point the experiment scripts at them (see the
 |---|---|---|
 | GSE106474 | Farrell 2018, zebrafish embryogenesis (Drop-seq, 12 stages, 39,505 cells) | primary clean fine-ordinal decider |
 | GSE113074 | Briggs 2018, *Xenopus tropicalis* embryogenesis (inDrop, 10 stages) | second clean fine-ordinal atlas (cross-species) |
+| GSE112294 | Wagner 2018, zebrafish embryogenesis (inDrops, 7 collection times, 36,749 cells) | the registered replication, `experiments/conditional_null/PREREG.md` |
 | GSE117498 | sorted human hematopoiesis | depth-confound worked example (Fig 3) |
 | GSE125970 | human intestine | depth-confound worked example (Fig 3) |
 | GSE150949 | Watermelon, PC9 / osimertinib drug-tolerant persister | cross-cancer primitive transfer |
@@ -21,6 +22,9 @@ Download, e.g.:
     curl -O "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE106nnn/GSE106474/suppl/GSE106474_UMICounts.txt.gz"
     # Xenopus annotated counts (large; per-cell Developmental_stage is in the header rows)
     curl -O "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE113nnn/GSE113074/suppl/GSE113074_Raw_combined.annotated_counts.tsv.gz"
+
+    # Wagner 2018: one raw count table per collection time, GSM3067189 to GSM3067195
+    curl -O "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM3067nnn/GSM3067189/suppl/GSM3067189_04hpf.csv.gz"
 
 The Xenopus file is ~170 MB and NCBI throttles per-IP; a byte-range segmented
 download is in `experiments/fix3/code/download_briggs_segmented.py`.

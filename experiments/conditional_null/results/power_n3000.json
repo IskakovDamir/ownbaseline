@@ -1,0 +1,48 @@
+{
+ "n": 3000,
+ "n_draws": 200,
+ "rows": [
+  {
+   "delta": 0.0,
+   "reps": 100,
+   "mean_cs": 0.02786239352744526,
+   "clears_grid": 0.07,
+   "clears_perm": 0.03
+  },
+  {
+   "delta": 0.02,
+   "reps": 100,
+   "mean_cs": 0.03626328672262582,
+   "clears_grid": 0.34,
+   "clears_perm": 0.21
+  },
+  {
+   "delta": 0.05,
+   "reps": 100,
+   "mean_cs": 0.0497799401332714,
+   "clears_grid": 0.67,
+   "clears_perm": 0.64
+  },
+  {
+   "delta": 0.1,
+   "reps": 100,
+   "mean_cs": 0.07630882973525503,
+   "clears_grid": 1.0,
+   "clears_perm": 1.0
+  },
+  {
+   "delta": 0.2,
+   "reps": 100,
+   "mean_cs": 0.12986614652875283,
+   "clears_grid": 1.0,
+   "clears_perm": 1.0
+  },
+  {
+   "delta": 0.5,
+   "reps": 100,
+   "mean_cs": 0.2613485462250407,
+   "clears_grid": 1.0,
+   "clears_perm": 1.0
+  }
+ ]
+}

@@ -65,9 +65,11 @@ zero.
 biology: an own-baseline test and a field audit.* A preprint is in
 preparation; its link will be added here once it is posted.
 
-Its numbers are those of tag `preprint-2026-10-21`, which is commit `e44b9d8`
-plus the stage-gap and per-transition concordances of the paper's Appendix B
-(`experiments/stage_gap/`); no other number changed. The cross-cancer transfer
+Its numbers are those of tag `preprint-2026-11-05`: commit `e44b9d8`, the
+stage-gap and per-transition concordances of the paper's Appendix B
+(`experiments/stage_gap/`), and the checks off the simulator and the third staged
+series of Appendix J (`experiments/conditional_null/`, `experiments/wagner2018/`).
+No registered number changed. The cross-cancer transfer
 test of Appendix H was run in a notebook from inputs prepared from GSE150949 and
 GSE223003 and is
 not in this repository. `python3 reproduce.py --ledger` lists what regenerates
@@ -207,7 +209,9 @@ Two entry points, in increasing strength:
 | function | what it computes | when to use it |
 |---|---|---|
 | `run_own_baseline(adata, score, gt_ordinal)` | marginal gap `tau(score, ordinal) − tau(gene counts, ordinal)` | a first look; one line, no residualization |
-| `conditional_skill_report(score, ordinal, primitives)` | rank residual on the primitive(s), scored under two kernels with a bootstrap interval, plus a direction check | the test the paper reports, **prefer this** |
+| `conditional_skill_report(score, ordinal, primitives)` | rank residual on the primitive(s), scored under two kernels with a bootstrap interval, plus a direction check |
+| `conditional_null.permutation_floor(score, ordinal, primitive)` | conditional skill against a floor measured on your own cells, no simulator | when the curve of a score on its primitive could be shared with the ordinal |
+| `conditional_null.gcm(score, ordinal, primitives)` | the generalised covariance measure, for several primitives at once | where strata are too wide; read at T > 3.5 | the test the paper reports, **prefer this** |
 
 The marginal gap reports `REDUCES-TO-PRIMITIVE`, `INCONCLUSIVE` or
 `ADDS-BEYOND-PRIMITIVE`. The conditional-skill labels `TAUTOLOG`,
@@ -418,14 +422,40 @@ gene-ontology-weighted connectome. The four rows whose value changes sign
 embryos, against their authors' polarity, as their primitive `PCC(x, degree)`
 does.
 
+These counts rest on one experiment. The ground truth here is three staged
+series, two of them zebrafish, plus two sorted atlases with four and three tiers:
+
+| series | what it is | rows run |
+|---|---|---|
+| GSE106474 | zebrafish, Drop-seq, 12 stages, 39,505 cells | nine, the audit above |
+| GSE112294 | zebrafish, inDrops, 7 times, 36,749 cells, another laboratory | four, pre-registered before any score met a stage |
+| GSE113074 | *Xenopus*, inDrops, 10 stages, 127,607 cells | six |
+
+**What held off the simulator and off this series** (`experiments/conditional_null/PREREG.md`,
+pushed as `f8808f6` before the run):
+
+- All six rows that clear also clear a floor measured on the real cells, by
+  permuting the score among cells of nearly equal primitive value, and they stay
+  above it after any curve of the primitive is removed.
+- StemFinder and dpath fall below their floors inside sequencing batch DS4, at
+  −0.049 and −0.037. CytoTRACE, SR, ORIGINS and NCG stay above theirs in all four
+  batches.
+- On GSE112294 the verdicts of CytoTRACE (0.823), SR (0.214), CCAT (−0.190) and
+  MCE (−0.219) replicate. Two direction predictions failed: gene count does not
+  fall with stage there, and CytoTRACE runs at Spearman +0.939 with stage against
+  −0.933 on GSE106474, the opposite of its authors' direction.
+- On all three series SR clears `PCC(x, degree)` against its authors' direction
+  and CCAT's residual is negative.
+
 **The strong hypothesis is refuted.** This work set out to show that every
 unsupervised potency score is a reparametrization of a fixed low-order
 statistic, so that agreement between such scores across contexts is guaranteed
 by construction rather than by biology. That holds for CCAT, its primitive by
 definition, and for StemID and cmEntropy, which equal a transcriptome entropy
 by construction; SLICE leaves a negative residual against its own under either
-reading. It is false for the four scores that clear under both readings:
-CytoTRACE keeps τ_b 0.288 after four primitives are removed at once. The two
+reading. It is false for CytoTRACE and NCG; dpath and StemFinder clear under both readings
+and fail inside one batch, so the claim is withdrawn for them. CytoTRACE keeps τ_b
+0.288 after four primitives are removed at once. The two
 entropy-rate scores split: signalling entropy's residual beyond the degree
 correlation runs toward the later stages and MCE's toward the earlier ones, so
 the registered rule credits the first and the authors' direction the second.
@@ -445,9 +475,13 @@ deeper sense.
   primitive here is STRING v12 at confidence 700, largest connected component.
   Threshold and interactome were not varied, and part of any residual may be
   scaffold error.
-- **It only nulls monotone reparametrizations.** A score that is an exact
-  non-monotone deterministic function of its primitive carries no information
-  and will still register skill.
+- **The shipped floor only nulls monotone reparametrizations.** If a score and the
+  ordinal share a curved function of the primitive, the residual keeps the curve.
+  On simulated cells with zero true conditional skill the shipped floor was cleared
+  in every replicate. `own_baseline.conditional_null.permutation_floor` measures a
+  floor on your own cells and held at 2 to 5 percent in the same test.
+- **It rests on few ordinals.** Three staged series and two sorted atlases, and the
+  counts above come from one. Nobody outside the author has rerun the audit.
 - **A score reducing to a fifth statistic passes.** The primitive set is four,
   each declared by the scores' own authors.
 - **It needs a score-independent ordinal.** A pseudotime derived from the same
@@ -569,7 +603,7 @@ max |Δ| < 1e-13), ORIGINS to rank agreement only (Spearman 1.000).
   title  = {Pairwise correlation cannot tell you if a single-cell potency score
             adds biology: an own-baseline test and a field audit},
   year   = {2026},
-  note   = {Preprint. Code and run records at tag preprint-2026-10-21},
+  note   = {Preprint. Code and run records at tag preprint-2026-11-05},
   url    = {https://github.com/IskakovDamir/ownbaseline}
 }
 ```

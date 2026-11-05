@@ -1,0 +1,48 @@
+{
+ "n": 39505,
+ "n_draws": 100,
+ "rows": [
+  {
+   "delta": 0.0,
+   "reps": 20,
+   "mean_cs": 0.026364943412536212,
+   "clears_grid": 0.75,
+   "clears_perm": 0.0
+  },
+  {
+   "delta": 0.02,
+   "reps": 20,
+   "mean_cs": 0.03655272792902873,
+   "clears_grid": 1.0,
+   "clears_perm": 0.9
+  },
+  {
+   "delta": 0.05,
+   "reps": 20,
+   "mean_cs": 0.05150122727267533,
+   "clears_grid": 1.0,
+   "clears_perm": 1.0
+  },
+  {
+   "delta": 0.1,
+   "reps": 20,
+   "mean_cs": 0.07776054145837447,
+   "clears_grid": 1.0,
+   "clears_perm": 1.0
+  },
+  {
+   "delta": 0.2,
+   "reps": 20,
+   "mean_cs": 0.1277529563082162,
+   "clears_grid": 1.0,
+   "clears_perm": 1.0
+  },
+  {
+   "delta": 0.5,
+   "reps": 20,
+   "mean_cs": 0.26267521027883745,
+   "clears_grid": 1.0,
+   "clears_perm": 1.0
+  }
+ ]
+}

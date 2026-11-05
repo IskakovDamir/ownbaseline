@@ -1,0 +1,69 @@
+{
+ "n": 39505,
+ "rows": [
+  {
+   "case": "coupled",
+   "rho_param": 0.5,
+   "reps": 20,
+   "mean_T": 0.18112986828803884,
+   "sd_T": 0.8799994675271616,
+   "false_clear": 0.0
+  },
+  {
+   "case": "coupled",
+   "rho_param": 0.9,
+   "reps": 20,
+   "mean_T": 0.32122462811487434,
+   "sd_T": 1.0877374960549715,
+   "false_clear": 0.05
+  },
+  {
+   "case": "coupled_k4",
+   "rho_param": 0.5,
+   "reps": 20,
+   "mean_T": 0.010191352999551758,
+   "sd_T": 0.9700587497303877,
+   "false_clear": 0.05
+  },
+  {
+   "case": "coupled_k4",
+   "rho_param": 0.9,
+   "reps": 20,
+   "mean_T": -0.06868190386106154,
+   "sd_T": 1.1606606319119714,
+   "false_clear": 0.0
+  },
+  {
+   "case": "curved",
+   "rho_param": 0.5,
+   "reps": 20,
+   "mean_T": -0.34937221686769354,
+   "sd_T": 1.1374378455113143,
+   "false_clear": 0.0
+  },
+  {
+   "case": "curved",
+   "rho_param": 0.9,
+   "reps": 20,
+   "mean_T": 0.0003216275873850649,
+   "sd_T": 0.9567973383414909,
+   "false_clear": 0.0
+  },
+  {
+   "case": "curved_k4",
+   "rho_param": 0.5,
+   "reps": 20,
+   "mean_T": 0.9072988388884957,
+   "sd_T": 0.7896069568021503,
+   "false_clear": 0.1
+  },
+  {
+   "case": "curved_k4",
+   "rho_param": 0.9,
+   "reps": 20,
+   "mean_T": 1.452211052045275,
+   "sd_T": 1.0146338977244236,
+   "false_clear": 0.35
+  }
+ ]
+}

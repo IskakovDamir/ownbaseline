@@ -80,6 +80,8 @@ def load():
     for name in ("cluster", "concordance"):
         path = HERE / "results" / f"calibration_{name}.json"
         cal[name] = json.loads(path.read_text())["rows"] if path.is_file() else []
+    path = HERE / "results" / "depth_2.json"
+    cal["depth_2"] = json.loads(path.read_text()) if path.is_file() else None
     return d, perm, batch, cal
 
 
@@ -244,6 +246,38 @@ def tables(d, rows, cal):
                  f"{pc(r['clears_permutation_floor'])} & {pc(r['sample_test_stratum_mean'])} & "
                  f"{pc(r['sample_test_stratum_mean_no_batch_strata'])} & {pc(r['sample_test_least_squares'])} \\\\")
     T += [r"\bottomrule", r"\end{tabular}}", ""]
+    d2 = cal["depth_2"]
+    if d2:
+        T += [r"\newcommand{\depthtwotable}{%", r"\begin{tabular}{llrrrrrr}", r"\toprule",
+              r"atlas & statistic & \shortstack{AUROC,\\raw} & \shortstack{AUROC,\\kept cells} & \shortstack{AUROC,\\1,000} & "
+              r"\shortstack{AUROC,\\500 / 2,000} & \shortstack{$\tau_b$,\\raw} & \shortstack{$\tau_b$,\\1,000} \\", r"\midrule"]
+        for geo in ("GSE117498h", "GSE125970"):
+            a = d2["atlases"][geo]
+            th = a["thinned"]
+            T.append(f"{geo} & detected genes & {a['raw']['detected_genes']['auroc_top_vs_bottom']:.3f} & "
+                     f"{a['kept_cells_raw_depth']['detected_genes']['auroc_top_vs_bottom']:.3f} & {th['1000']['detected_genes']['auroc_top_vs_bottom']:.3f} & "
+                     f"{th['500']['detected_genes']['auroc_top_vs_bottom']:.3f} / {th['2000']['detected_genes']['auroc_top_vs_bottom']:.3f} & "
+                     f"{sgn(a['raw']['detected_genes']['tau_b_all_ranked'])} & {sgn(th['1000']['detected_genes']['tau_b_all_ranked'])} \\\\")
+            T.append(f"{geo} & gene-count signature & {a['raw']['gene_count_signature']['auroc_top_vs_bottom']:.3f} & "
+                     f"{a['kept_cells_raw_depth']['gene_count_signature']['auroc_top_vs_bottom']:.3f} & "
+                     f"{th['1000']['gene_count_signature']['auroc_top_vs_bottom']:.3f} & -- & "
+                     f"{sgn(a['raw']['gene_count_signature']['tau_b_all_ranked'])} & {sgn(th['1000']['gene_count_signature']['tau_b_all_ranked'])} \\\\")
+        T += [r"\bottomrule", r"\end{tabular}}", ""]
+        T += [r"\newcommand{\depthtwopoptable}{%", r"\begin{tabular}{llrrrrr}", r"\toprule",
+              r"atlas & population & tier & cells & \shortstack{median\\library size} & \shortstack{median genes,\\raw} & \shortstack{median genes,\\1,000} \\", r"\midrule"]
+        for geo in ("GSE117498h", "GSE125970"):
+            for pop, v in sorted(d2["atlases"][geo]["by_population"].items(), key=lambda kv: (-kv[1]["ordinal"], kv[0])):
+                at = "--" if v["median_detected_genes_at_1000"] is None else f"{v['median_detected_genes_at_1000']:,.0f}"
+                T.append(f"{geo} & {pop.replace('_', ' ')} & {v['ordinal']:.0f} & {v['cells']:,} & {v['median_library_size']:,.0f} & "
+                         f"{v['median_detected_genes']:,.0f} & {at} \\\\")
+        T += [r"\bottomrule", r"\end{tabular}}", ""]
+        T += [r"\newcommand{\depthtwopcctable}{%", r"\begin{tabular}{lrrrrr}", r"\toprule",
+              r"series & cells & cells kept & \shortstack{PCC with stage,\\raw} & \shortstack{PCC with stage,\\1,000} & \shortstack{raw against\\1,000} \\", r"\midrule"]
+        for geo in SERIES:
+            v = d2["staged"][geo]
+            T.append(f"{geo} & {v['cells']:,} & {v['cells_kept']:,} & {sgn(v['spearman_pcc_with_stage_raw'])} & "
+                     f"{sgn(v['spearman_pcc_with_stage_at_1000'])} & {v['spearman_pcc_raw_with_pcc_at_1000']:.2f} \\\\")
+        T += [r"\bottomrule", r"\end{tabular}}", ""]
     return "\n".join(T) + "\n"
 
 
@@ -270,6 +304,8 @@ def numbers(d, rows, cal):
         for n, r in z["rows"].items():
             a = r["vs_controls"]["a1_g200"]
             N[f"row{s}{n}Cs"] = txt(r["conditional_skill"])
+            N[f"row{s}{n}Rho"] = f"{abs(r['spearman_with_primitive']):.2f}"
+            N[f"row{s}{n}ConcPct"] = pc((1 + r["concordance"]["value"]) / 2, 0)
             N[f"row{s}{n}Marg"] = txt(r["marginal_tau"])
             N[f"row{s}{n}Pct"] = pc(a["percentile"])
             N[f"row{s}{n}Hi"] = txt(a["control_p975"])
@@ -295,11 +331,15 @@ def numbers(d, rows, cal):
         N[f"dep{s}Gc"] = txt(dp["spearman_detected_genes_with_stage"])
         N[f"dep{s}GcGivenLib"] = txt(dp["spearman_detected_genes_with_stage_given_library_size"])
         N[f"dep{s}Ct"] = txt(z["rows"]["CytoTRACE"]["spearman_with_stage"])
+        libs = [v["median_library_size"] for _, v in sorted(dp["per_stage"].items(), key=lambda kv: int(kv[0]))]
+        N[f"dep{s}LibFirst"], N[f"dep{s}LibLast"] = f"{libs[0]:,.0f}", f"{libs[-1]:,.0f}"
+        N[f"dep{s}LibRestLo"], N[f"dep{s}LibRestHi"] = f"{min(libs[1:]):,.0f}", f"{max(libs[1:]):,.0f}"
         t = dp["thinned"].get("1000")
         if t:
             N[f"dep{s}ThinGc"] = txt(t["spearman_detected_genes_with_stage"])
             N[f"dep{s}ThinKept"] = f"{t['cells_kept']:,}"
             if "spearman_cytotrace_with_stage" in t:
+                N[f"dep{s}ThinCs"] = txt(t["cytotrace_conditional_skill_on_thinned_gene_count"])
                 N[f"dep{s}ThinCt"] = txt(t["spearman_cytotrace_with_stage"])
                 N[f"dep{s}ThinGcs"] = txt(t["spearman_gene_count_signature_with_stage"])
         k = dp.get("kept_cells_raw_depth")
@@ -328,6 +368,52 @@ def numbers(d, rows, cal):
         N[key + "Floor"] = pc(r["clears_registered_floor"])
         if r["clears_permutation_floor"] is not None:
             N[key + "Perm"] = pc(r["clears_permutation_floor"])
+    zero = [r for r in cal["cluster"] if r["planted_trend"] == 0]
+    if zero:
+        N["calNullSampleMin"] = pc(min(r["sample_test_stratum_mean"] for r in zero))
+        N["calNullSampleMax"] = pc(max(r["sample_test_stratum_mean"] for r in zero))
+        N["calNullLsMax"] = pc(max(r["sample_test_least_squares"] for r in zero))
+        N["calNullNoBatchMax"] = pc(max(r["sample_test_stratum_mean_no_batch_strata"] for r in zero))
+        N["calNullFloorMin"] = pc(min(r["clears_registered_floor"] for r in zero))
+        N["calNullFloorMax"] = pc(max(r["clears_registered_floor"] for r in zero))
+        perm = [r["clears_permutation_floor"] for r in zero if r["clears_permutation_floor"] is not None]
+        N["calNullPermMin"], N["calNullPermMax"] = pc(min(perm)), pc(max(perm))
+        N["calReps"] = str(zero[0]["reps"])
+        for r in cal["cluster"]:
+            if r["planted_trend"] > 0:
+                N["calPower" + {0.05: "Low", 0.1: "Mid", 0.2: "High"}[r["planted_trend"]]] = pc(r["sample_test_stratum_mean"])
+    if cal["concordance"]:
+        N["calConcMin"] = pc(min(r["false_clear"] for r in cal["concordance"]))
+        N["calConcMax"] = pc(max(r["false_clear"] for r in cal["concordance"]))
+    d2 = cal["depth_2"]
+    if d2:
+        for geo, tag in (("GSE117498h", "Blood"), ("GSE125970", "Gut")):
+            a = d2["atlases"][geo]
+            N[f"dtwo{tag}Raw"] = f"{a['deposit_detected_genes']['auroc_top_vs_bottom']:.3f}"
+            N[f"dtwo{tag}Kept"] = f"{a['kept_cells_raw_depth']['detected_genes']['auroc_top_vs_bottom']:.3f}"
+            N[f"dtwo{tag}Thin"] = f"{a['thinned']['1000']['detected_genes']['auroc_top_vs_bottom']:.3f}"
+            N[f"dtwo{tag}ThinLow"] = f"{a['thinned']['500']['detected_genes']['auroc_top_vs_bottom']:.3f}"
+            N[f"dtwo{tag}ThinHigh"] = f"{a['thinned']['2000']['detected_genes']['auroc_top_vs_bottom']:.3f}"
+            N[f"dtwo{tag}TauRaw"] = txt(a["deposit_detected_genes"]["tau_b_all_ranked"])
+            N[f"dtwo{tag}TauThin"] = txt(a["thinned"]["1000"]["detected_genes"]["tau_b_all_ranked"])
+            N[f"dtwo{tag}GcsRaw"] = f"{a['raw']['gene_count_signature']['auroc_top_vs_bottom']:.3f}"
+            N[f"dtwo{tag}GcsThin"] = f"{a['thinned']['1000']['gene_count_signature']['auroc_top_vs_bottom']:.3f}"
+            N[f"dtwo{tag}GcsTauRaw"] = txt(a["raw"]["gene_count_signature"]["tau_b_all_ranked"])
+            N[f"dtwo{tag}GcsTauThin"] = txt(a["thinned"]["1000"]["gene_count_signature"]["tau_b_all_ranked"])
+            t = a["thinned"]["1000"]["detected_genes"]
+            N[f"dtwo{tag}TopKept"], N[f"dtwo{tag}BottomKept"] = f"{t['top_cells']:,}", f"{t['bottom_cells']:,}"
+            N[f"dtwo{tag}TopAll"] = f"{a['deposit_detected_genes']['top_cells']:,}"
+            N[f"dtwo{tag}BottomAll"] = f"{a['deposit_detected_genes']['bottom_cells']:,}"
+            for pop, v in a["by_population"].items():
+                key = "".join(ch for ch in pop if ch.isalpha())
+                N[f"dtwo{tag}Lib{key}"] = f"{v['median_library_size']:,.0f}"
+                if v["median_detected_genes_at_1000"] is not None:
+                    N[f"dtwo{tag}Thin{key}"] = f"{v['median_detected_genes_at_1000']:,.0f}"
+        for geo, s in LETTERS.items():
+            v = d2["staged"][geo]
+            N[f"dtwoPcc{s}Raw"] = txt(v["spearman_pcc_with_stage_raw"])
+            N[f"dtwoPcc{s}Thin"] = txt(v["spearman_pcc_with_stage_at_1000"])
+            N[f"dtwoPcc{s}Agree"] = f"{v['spearman_pcc_raw_with_pcc_at_1000']:.2f}"
     digits = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"}
     safe = {}
     for k, v in N.items():

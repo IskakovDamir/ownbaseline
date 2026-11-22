@@ -1,0 +1,12 @@
+[mce] 10 blocks, 1682 s
+[mce] 20 blocks, 3141 s
+[mce] 30 blocks, 4526 s
+[mce] 40 blocks, 6015 s
+[mce] 50 blocks, 6800 s
+[mce] 60 blocks, 7329 s
+MCE GSE106474: 33700 cells in 7692 s on 4 processes, steps 153-630, NaN 0
+wrote /Users/damir/potency-ownbaseline/data/runs/breadth/GSE169210/root/w5_new_rows/scores/GSE106474/mce.csv
+  GSE169210: chunk 10/34
+  GSE169210: chunk 20/34
+  GSE169210: chunk 30/34
+{"series": "GSE169210", "cells": 33700, "scores": ["cytotrace_gene_count_signature", "cytotrace_v1", "mce", "scent_ccat", "scent_sr"], "seconds": 34.0, "sha256": "fe71fae305243706fe3ba638bf571bb53ba22a480001891af3bd2aa35c289edd"}

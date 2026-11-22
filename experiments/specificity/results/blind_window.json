@@ -1,0 +1,26 @@
+{
+ "GSE106474": {
+  "series": "GSE106474",
+  "window_hpf": [
+   4.0,
+   12.0
+  ],
+  "cells_in_window": 38994,
+  "cells_in_window_thinned": 38804,
+  "seconds": 54.1,
+  "file": "GSE106474_window.npz",
+  "sha256": "4da76fab6f8d3c93a97b413553e64082d239e22638c66cec10607d7cd74bc165"
+ },
+ "GSE112294": {
+  "series": "GSE112294",
+  "window_hpf": [
+   4.0,
+   12.0
+  ],
+  "cells_in_window": 17817,
+  "cells_in_window_thinned": 17817,
+  "seconds": 39.9,
+  "file": "GSE112294_window.npz",
+  "sha256": "10fd2eeda6644a191793b2fcd5446c592417309f8724363e6a8e24ad9961783f"
+ }
+}

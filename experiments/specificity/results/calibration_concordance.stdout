@@ -1,0 +1,9 @@
+{"case": "coupled", "n": 3000, "rho": 0.5, "reps": 200, "mean_value": -0.0009781402269160447, "false_clear": 0.01, "mean_null_mean_in_sd": -0.0033047172312652808, "mean_z": -0.06480483068635504}
+{"case": "coupled", "n": 3000, "rho": 0.9, "reps": 200, "mean_value": 0.0012470005138067617, "false_clear": 0.04, "mean_null_mean_in_sd": -0.0002801894529053617, "mean_z": 0.08919216606643939}
+{"case": "coupled", "n": 39505, "rho": 0.5, "reps": 20, "mean_value": -0.0008124160372029868, "false_clear": 0.0, "mean_null_mean_in_sd": 0.02728786704683473, "mean_z": -0.22681576194873926}
+{"case": "coupled", "n": 39505, "rho": 0.9, "reps": 20, "mean_value": 0.001333096079776389, "false_clear": 0.05, "mean_null_mean_in_sd": -0.030809559664910113, "mean_z": 0.38949728704947156}
+{"case": "curved", "n": 3000, "rho": 0.5, "reps": 200, "mean_value": 0.002997159691173431, "false_clear": 0.015, "mean_null_mean_in_sd": -0.006014082472896492, "mean_z": 0.21091414934703628}
+{"case": "curved", "n": 3000, "rho": 0.9, "reps": 200, "mean_value": 0.007769449849463623, "false_clear": 0.1, "mean_null_mean_in_sd": -0.004133597413786456, "mean_z": 0.5449768899510526}
+{"case": "curved", "n": 39505, "rho": 0.5, "reps": 20, "mean_value": 0.0006659729611637316, "false_clear": 0.1, "mean_null_mean_in_sd": 0.034614613663648645, "mean_z": 0.14732604510151945}
+{"case": "curved", "n": 39505, "rho": 0.9, "reps": 20, "mean_value": 0.000785389259145242, "false_clear": 0.05, "mean_null_mean_in_sd": 0.03239824749477553, "mean_z": 0.17219469217992364}
+CALIB_DONE

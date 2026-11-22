@@ -1,0 +1,38 @@
+{
+ "S1": {
+  "held": true,
+  "observed": "share above the bracketed registered floor: 78.5%, 96.5%, 53.8%, 89.6%, 52.6%"
+ },
+ "S2": {
+  "held": true,
+  "observed": "CytoTRACE exceeds A1 on GSE106474, GSE112294"
+ },
+ "S4": {
+  "held": true,
+  "observed": "dpath does not exceed, StemFinder does not exceed"
+ },
+ "S5": {
+  "held": false,
+  "observed": "exceed: SR"
+ },
+ "S3": {
+  "held": false,
+  "observed": "CytoTRACE exceeds A3 on 2 of 2 zebrafish series"
+ },
+ "S6": {
+  "held": false,
+  "observed": "supported on GSE106474: CytoTRACE, ORIGINS, NCG, CCAT, MCE"
+ },
+ "S7": {
+  "held": true,
+  "observed": "gene count at 1,000 counts: -0.747 and -0.771; CytoTRACE at 1,000 counts: -0.912 and -0.920"
+ },
+ "S8": {
+  "held": true,
+  "observed": "CytoTRACE on the shared window, raw depth: -0.932 and +0.942"
+ },
+ "S9": {
+  "held": true,
+  "observed": "above on GSE106474: CytoTRACE, SR, ORIGINS, NCG, dpath, StemFinder"
+ }
+}

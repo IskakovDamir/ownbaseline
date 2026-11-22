@@ -358,6 +358,13 @@ def numbers(d, rows, cal):
     N["nClearExceed"] = str(sum(r["exceeds"] for r in clearing))
     N["nClearExceedJoint"] = str(sum(r["joint_exceeds"] for r in clearing))
     N["nClearSample"] = str(sum(r["sample_supported"] for r in clearing))
+    words = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+    for key in ("nClear", "nClearExceed", "nClearExceedJoint", "nClearSample"):
+        N[key + "Word"] = words[int(N[key])]
+    N["nClearNotSampleWord"] = words[int(N["nClear"]) - int(N["nClearSample"])]
+    z = d["GSE106474"]["controls"]["a1_g200"]
+    N["ctlFloorGap"] = pc(max(abs(z[c]["fraction_above_registered_floor_bracketed"] - z[c]["fraction_above_registered_floor_nearest"])
+                              for c in ("detected_genes", "pcc_x_degree", "shannon_entropy", "log10_library_size", "joint")))
     for r in cal["cluster"]:
         tag = {"linear": "Line", "cube": "Cube", "square": "Square"}[r["shape"]]
         if r["shape"] == "linear":

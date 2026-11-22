@@ -1,0 +1,327 @@
+{
+ "locked_at_commit": "4f8304be3b89d90507e109a7ce778e73b978fd20",
+ "atlases": {
+  "GSE117498h": {
+   "deposit_detected_genes": {
+    "auroc_top_vs_bottom": 0.37831208452600984,
+    "tau_b_all_ranked": -0.08907422363061017,
+    "top_cells": 1282,
+    "bottom_cells": 2815,
+    "ranked_cells": 12354
+   },
+   "raw": {
+    "detected_genes": {
+     "auroc_top_vs_bottom": 0.37831208452600984,
+     "tau_b_all_ranked": -0.08907422363061017,
+     "top_cells": 1282,
+     "bottom_cells": 2815,
+     "ranked_cells": 12354
+    },
+    "gene_count_signature": {
+     "auroc_top_vs_bottom": 0.2691079934494005,
+     "tau_b_all_ranked": 0.09150441367958795,
+     "top_cells": 1282,
+     "bottom_cells": 2815,
+     "ranked_cells": 12354
+    }
+   },
+   "kept_cells_raw_depth": {
+    "detected_genes": {
+     "auroc_top_vs_bottom": 0.37588337698985846,
+     "tau_b_all_ranked": -0.08535507372234068,
+     "top_cells": 1282,
+     "bottom_cells": 2804,
+     "ranked_cells": 12073
+    },
+    "gene_count_signature": {
+     "auroc_top_vs_bottom": 0.2530027306655747,
+     "tau_b_all_ranked": 0.08619661672972752,
+     "top_cells": 1282,
+     "bottom_cells": 2804,
+     "ranked_cells": 12073
+    }
+   },
+   "thinned": {
+    "1000": {
+     "detected_genes": {
+      "auroc_top_vs_bottom": 0.19947907046096394,
+      "tau_b_all_ranked": 0.1403173973128037,
+      "top_cells": 1282,
+      "bottom_cells": 2804,
+      "ranked_cells": 12073
+     },
+     "gene_count_signature": {
+      "auroc_top_vs_bottom": 0.3410057728985336,
+      "tau_b_all_ranked": 0.20874383905868715,
+      "top_cells": 1282,
+      "bottom_cells": 2804,
+      "ranked_cells": 12073
+     }
+    },
+    "500": {
+     "detected_genes": {
+      "auroc_top_vs_bottom": 0.19588065938268082,
+      "tau_b_all_ranked": 0.13682221607922698,
+      "top_cells": 1282,
+      "bottom_cells": 2815,
+      "ranked_cells": 12354
+     }
+    },
+    "2000": {
+     "detected_genes": {
+      "auroc_top_vs_bottom": 0.18711805555555555,
+      "tau_b_all_ranked": 0.11771034464830009,
+      "top_cells": 1152,
+      "bottom_cells": 2450,
+      "ranked_cells": 9386
+     }
+    }
+   },
+   "by_population": {
+    "CMP": {
+     "ordinal": 3.0,
+     "cells": 1576,
+     "cells_with_1000_counts": 1539,
+     "median_library_size": 3346.0,
+     "median_detected_genes": 1061.0,
+     "median_detected_genes_at_1000": 454.0
+    },
+    "GMP": {
+     "ordinal": 2.0,
+     "cells": 1012,
+     "cells_with_1000_counts": 1012,
+     "median_library_size": 4337.5,
+     "median_detected_genes": 1402.5,
+     "median_detected_genes_at_1000": 508.0
+    },
+    "HSC": {
+     "ordinal": 5.0,
+     "cells": 1282,
+     "cells_with_1000_counts": 1282,
+     "median_library_size": 2959.0,
+     "median_detected_genes": 914.0,
+     "median_detected_genes_at_1000": 432.0
+    },
+    "LinNegCD34PosCD164Pos": {
+     "ordinal": 4.0,
+     "cells": 6343,
+     "cells_with_1000_counts": 6110,
+     "median_library_size": 2384.0,
+     "median_detected_genes": 1017.0,
+     "median_detected_genes_at_1000": 548.0
+    },
+    "MEP": {
+     "ordinal": 2.0,
+     "cells": 1211,
+     "cells_with_1000_counts": 1211,
+     "median_library_size": 2606.0,
+     "median_detected_genes": 881.0,
+     "median_detected_genes_at_1000": 457.0
+    },
+    "MLP": {
+     "ordinal": 3.0,
+     "cells": 123,
+     "cells_with_1000_counts": 123,
+     "median_library_size": 5748.0,
+     "median_detected_genes": 1348.0,
+     "median_detected_genes_at_1000": 478.0
+    },
+    "MPP": {
+     "ordinal": 4.0,
+     "cells": 215,
+     "cells_with_1000_counts": 215,
+     "median_library_size": 4179.0,
+     "median_detected_genes": 1038.0,
+     "median_detected_genes_at_1000": 418.0
+    },
+    "PreBNK": {
+     "ordinal": 2.0,
+     "cells": 592,
+     "cells_with_1000_counts": 581,
+     "median_library_size": 3008.5,
+     "median_detected_genes": 988.0,
+     "median_detected_genes_at_1000": 482.0
+    }
+   }
+  },
+  "GSE125970": {
+   "deposit_detected_genes": {
+    "auroc_top_vs_bottom": 0.7979776899429073,
+    "tau_b_all_ranked": 0.44112607078432514,
+    "top_cells": 660,
+    "bottom_cells": 8625,
+    "ranked_cells": 14537
+   },
+   "raw": {
+    "detected_genes": {
+     "auroc_top_vs_bottom": 0.7979776899429073,
+     "tau_b_all_ranked": 0.44112607078432514,
+     "top_cells": 660,
+     "bottom_cells": 8625,
+     "ranked_cells": 14537
+    },
+    "gene_count_signature": {
+     "auroc_top_vs_bottom": 0.9280414580588494,
+     "tau_b_all_ranked": 0.5467583156303074,
+     "top_cells": 660,
+     "bottom_cells": 8625,
+     "ranked_cells": 14537
+    }
+   },
+   "kept_cells_raw_depth": {
+    "detected_genes": {
+     "auroc_top_vs_bottom": 0.7979776899429073,
+     "tau_b_all_ranked": 0.44112607078432514,
+     "top_cells": 660,
+     "bottom_cells": 8625,
+     "ranked_cells": 14537
+    },
+    "gene_count_signature": {
+     "auroc_top_vs_bottom": 0.9280414580588494,
+     "tau_b_all_ranked": 0.5467583156303074,
+     "top_cells": 660,
+     "bottom_cells": 8625,
+     "ranked_cells": 14537
+    }
+   },
+   "thinned": {
+    "1000": {
+     "detected_genes": {
+      "auroc_top_vs_bottom": 0.29506341677646025,
+      "tau_b_all_ranked": 0.09820792996726294,
+      "top_cells": 660,
+      "bottom_cells": 8625,
+      "ranked_cells": 14537
+     },
+     "gene_count_signature": {
+      "auroc_top_vs_bottom": 0.2513223539745279,
+      "tau_b_all_ranked": 0.12089019866740394,
+      "top_cells": 660,
+      "bottom_cells": 8625,
+      "ranked_cells": 14537
+     }
+    },
+    "500": {
+     "detected_genes": {
+      "auroc_top_vs_bottom": 0.37155678524374175,
+      "tau_b_all_ranked": 0.17074891682639864,
+      "top_cells": 660,
+      "bottom_cells": 8625,
+      "ranked_cells": 14537
+     }
+    },
+    "2000": {
+     "detected_genes": {
+      "auroc_top_vs_bottom": 0.2954408432147563,
+      "tau_b_all_ranked": 0.08927320011632048,
+      "top_cells": 660,
+      "bottom_cells": 8625,
+      "ranked_cells": 14537
+     }
+    }
+   },
+   "by_population": {
+    "Enteriendocrine": {
+     "ordinal": 1.0,
+     "cells": 128,
+     "cells_with_1000_counts": 128,
+     "median_library_size": 7621.5,
+     "median_detected_genes": 2309.5,
+     "median_detected_genes_at_1000": 514.0
+    },
+    "Enterocyte": {
+     "ordinal": 1.0,
+     "cells": 5719,
+     "cells_with_1000_counts": 5719,
+     "median_library_size": 7678.0,
+     "median_detected_genes": 1862.0,
+     "median_detected_genes_at_1000": 467.0
+    },
+    "Goblet": {
+     "ordinal": 1.0,
+     "cells": 2019,
+     "cells_with_1000_counts": 2019,
+     "median_library_size": 8203.0,
+     "median_detected_genes": 1959.0,
+     "median_detected_genes_at_1000": 448.0
+    },
+    "Paneth-like": {
+     "ordinal": 1.0,
+     "cells": 759,
+     "cells_with_1000_counts": 759,
+     "median_library_size": 14485.0,
+     "median_detected_genes": 3038.0,
+     "median_detected_genes_at_1000": 495.0
+    },
+    "Progenitor": {
+     "ordinal": 3.0,
+     "cells": 4156,
+     "cells_with_1000_counts": 4156,
+     "median_library_size": 16665.5,
+     "median_detected_genes": 3248.0,
+     "median_detected_genes_at_1000": 482.0
+    },
+    "Stem Cell": {
+     "ordinal": 4.0,
+     "cells": 660,
+     "cells_with_1000_counts": 660,
+     "median_library_size": 18099.0,
+     "median_detected_genes": 3262.5,
+     "median_detected_genes_at_1000": 433.5
+    },
+    "TA": {
+     "ordinal": 3.0,
+     "cells": 1096,
+     "cells_with_1000_counts": 1096,
+     "median_library_size": 23468.5,
+     "median_detected_genes": 4110.5,
+     "median_detected_genes_at_1000": 502.0
+    }
+   }
+  }
+ },
+ "staged": {
+  "GSE106474": {
+   "cells": 39505,
+   "cells_kept": 39315,
+   "spearman_pcc_with_stage_raw": 0.516418478241046,
+   "spearman_pcc_with_stage_raw_kept_cells": 0.524255532564003,
+   "spearman_pcc_with_stage_at_1000": 0.8755033532772626,
+   "spearman_pcc_raw_with_pcc_at_1000": 0.6457107918067855
+  },
+  "GSE112294": {
+   "cells": 36749,
+   "cells_kept": 36749,
+   "spearman_pcc_with_stage_raw": 0.7427008235042506,
+   "spearman_pcc_with_stage_raw_kept_cells": 0.7427008235042506,
+   "spearman_pcc_with_stage_at_1000": 0.861518842228739,
+   "spearman_pcc_raw_with_pcc_at_1000": 0.9028606092263046
+  },
+  "GSE113074": {
+   "cells": 127607,
+   "cells_kept": 89755,
+   "spearman_pcc_with_stage_raw": 0.6706008582644838,
+   "spearman_pcc_with_stage_raw_kept_cells": 0.6111134194913043,
+   "spearman_pcc_with_stage_at_1000": 0.675342710456765,
+   "spearman_pcc_raw_with_pcc_at_1000": 0.8420082626290271
+  }
+ },
+ "predictions": {
+  "T1": {
+   "held": false,
+   "observed": 0.19947907046096394
+  },
+  "T2": {
+   "held": false,
+   "observed": 0.29506341677646025
+  },
+  "T3": {
+   "held": true,
+   "observed": {
+    "GSE106474": 0.8755033532772626,
+    "GSE112294": 0.861518842228739,
+    "GSE113074": 0.675342710456765
+   }
+  }
+ }
+}

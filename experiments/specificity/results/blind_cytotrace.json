@@ -1,0 +1,20 @@
+{
+ "GSE106474": {
+  "series": "GSE106474",
+  "controls": 100,
+  "spearman_rerun_vs_deposit_cytotrace": 1.0,
+  "max_abs_diff_rerun_vs_deposit": 0.0,
+  "seconds": 2403.1,
+  "file": "GSE106474_cytotrace_controls.npz",
+  "sha256": "f2074bc39da7556908066e1651b63ea99e79c1b87cd858d7f17017a7670ced0c"
+ },
+ "GSE112294": {
+  "series": "GSE112294",
+  "controls": 100,
+  "spearman_rerun_vs_deposit_cytotrace": 0.9999999999999998,
+  "max_abs_diff_rerun_vs_deposit": 0.0,
+  "seconds": 1373.7,
+  "file": "GSE112294_cytotrace_controls.npz",
+  "sha256": "196eb538e7f810ca37642485b24e0ecf406ae090176b7c00caa21259e3103433"
+ }
+}

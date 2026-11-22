@@ -1,0 +1,38 @@
+{
+ "GSE106474": {
+  "series": "GSE106474",
+  "cells": 39505,
+  "kept": {
+   "1000": 39315,
+   "500": 39505,
+   "2000": 33186
+  },
+  "seconds": 75.5,
+  "file": "GSE106474_thinned.npz",
+  "sha256": "bc4df0d76ffd9744134b1b276cca4cd8336a04e11a0010dbb6e4e68e63be7575"
+ },
+ "GSE112294": {
+  "series": "GSE112294",
+  "cells": 36749,
+  "kept": {
+   "1000": 36749,
+   "500": 36749,
+   "2000": 34435
+  },
+  "seconds": 93.6,
+  "file": "GSE112294_thinned.npz",
+  "sha256": "694e6b679ac65264c8e37ab2b9e4ce443aea96a1b80feaa993c42340433e5ee8"
+ },
+ "GSE113074": {
+  "series": "GSE113074",
+  "cells": 127607,
+  "kept": {
+   "1000": 89755,
+   "500": 123237,
+   "2000": 52365
+  },
+  "seconds": 58.1,
+  "file": "GSE113074_thinned.npz",
+  "sha256": "7b4b31a5c112b4806d1c2632420cae5c62c150f38e8ed898616f1a39cb9a0968"
+ }
+}

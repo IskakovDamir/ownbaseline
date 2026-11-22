@@ -63,3 +63,10 @@ own_baseline.egg-info/
 *.egg-info/
 build/
 dist/
+
+# the specificity plan (negative controls, the sample test, depth): small, the record
+!experiments/specificity/results/
+!experiments/specificity/results/*.json
+!experiments/specificity/results/*.md
+!experiments/specificity/results/*.stdout
+experiments/specificity/results/dryrun/

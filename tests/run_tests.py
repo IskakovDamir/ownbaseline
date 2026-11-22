@@ -18,6 +18,7 @@ sys.path.insert(0, str(HERE.parent))
 
 import _harness  # noqa: E402
 import test_estimator  # noqa: E402
+import test_specificity  # noqa: E402
 
 if __name__ == "__main__":
-    sys.exit(_harness.run([test_estimator]))
+    sys.exit(_harness.run([test_estimator, test_specificity]))

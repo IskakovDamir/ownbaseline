@@ -88,6 +88,9 @@ def load():
     cal["mouse"] = json.loads(path.read_text()) if path.is_file() else None
     path = HERE / "results" / "predictions_breadth.json"
     cal["mouse_predictions"] = json.loads(path.read_text()).get("GSE169210", []) if path.is_file() else []
+    cal["sur_predictions"] = json.loads(path.read_text()).get("GSE223922", []) if path.is_file() else []
+    path = HERE / "results" / "breadth_GSE223922.json"
+    cal["sur"] = json.loads(path.read_text()) if path.is_file() else None
     return d, perm, batch, cal
 
 
@@ -284,12 +287,15 @@ def tables(d, rows, cal):
             T.append(f"{geo} & {v['cells']:,} & {v['cells_kept']:,} & {sgn(v['spearman_pcc_with_stage_raw'])} & "
                      f"{sgn(v['spearman_pcc_with_stage_at_1000'])} & {v['spearman_pcc_raw_with_pcc_at_1000']:.2f} \\\\")
         T += [r"\bottomrule", r"\end{tabular}}", ""]
-    if cal["mouse_predictions"]:
-        T += [r"\newcommand{\mousetable}{%", r"\begin{tabular}{lp{7.6cm}lp{6.2cm}}", r"\toprule",
+    for key, macro in (("mouse_predictions", "mousetable"), ("sur_predictions", "surtable")):
+        if not cal[key]:
+            continue
+        T += [r"\newcommand{\%s}{%%" % macro, r"\begin{tabular}{lp{7.6cm}lp{6.2cm}}", r"\toprule",
               r" & prediction & outcome & observed \\", r"\midrule"]
         esc = lambda t: t.replace("%", r"\%").replace("_", r"\_").replace("+", "+").replace("-0", "$-$0").replace(" -", " $-$")  # noqa: E731
-        for r in cal["mouse_predictions"]:
-            T.append(f"{r['id']} & {esc(r['prediction'])} & {r['outcome']} & {esc(str(r['observed']))} \\\\")
+        for r in cal[key]:
+            seen = esc(str(r['observed'])).replace("p 0.0000", "p below 0.0001")     # a Monte Carlo p of 1 in 100,001
+            T.append(f"{r['id']} & {esc(r['prediction'])} & {r['outcome']} & {seen} \\\\")
         T += [r"\bottomrule", r"\end{tabular}}", ""]
     d3 = cal["depth_3"]
     if d3:
@@ -458,31 +464,45 @@ def numbers(d, rows, cal):
             N[f"dtwoPcc{s}Agree"] = f"{v['spearman_pcc_raw_with_pcc_at_1000']:.2f}"
             N[f"dtwoPcc{s}KeptRaw"] = txt(v["spearman_pcc_with_stage_raw_kept_cells"])
             N[f"dtwoPcc{s}LostPct"] = pc(1 - v["cells_kept"] / v["cells"])
-    mo = cal["mouse"]
-    if mo:
+    for mo, pre, unit, preds in ((cal["mouse"], "mou", "Embryos", cal["mouse_predictions"]),
+                                 (cal["sur"], "sur", "Pools", cal["sur_predictions"])):
+        if not mo:
+            continue
         if mo.get("dry_run"):
-            raise SystemExit("the mouse result file is a dry run")
-        N["mouCells"], N["mouEmbryos"] = f"{mo['n']:,}", str(mo["samples"])
+            raise SystemExit(f"the {pre} result file is a dry run")
+        N[f"{pre}Cells"], N[f"{pre}{unit}"] = f"{mo['n']:,}", str(mo["samples"])
         for c, tag in (("detected_genes", "Gc"), ("pcc_x_degree", "Pcc"), ("shannon_entropy", "Sh"), ("log10_library_size", "Lib")):
-            N[f"mouPerm{tag}"] = pc(mo["controls_permutation_floor"]["by_primitive"][c]["fraction_above"], 0)
-        N["mouJointHi"] = txt(mo["controls"]["a1_g200"]["joint"]["conditional_skill"]["quantiles"]["0.975"])
-        N["mouMargMed"] = f"{mo['controls']['a1_g200']['marginal_abs_tau']['quantiles']['0.5']:.3f}"
+            N[f"{pre}Perm{tag}"] = pc(mo["controls_permutation_floor"]["by_primitive"][c]["fraction_above"], 0)
+        N[pre + "JointHi"] = txt(mo["controls"]["a1_g200"]["joint"]["conditional_skill"]["quantiles"]["0.975"])
+        N[pre + "MargMed"] = f"{mo['controls']['a1_g200']['marginal_abs_tau']['quantiles']['0.5']:.3f}"
         for n, r in mo["rows"].items():
             a = r["vs_controls"]["a1_g200"]
-            N[f"mou{n}Cs"], N[f"mou{n}Joint"] = txt(r["conditional_skill"]), txt(r["conditional_skill_joint"])
-            N[f"mou{n}Pct"], N[f"mou{n}JointPct"] = pc(a["percentile"]), pc(a["joint_percentile"])
-            N[f"mou{n}Stage"] = txt(r["spearman_with_stage"])
-            N[f"mou{n}SampleP"] = pval(r["sample_test"]["p_two_sided"]).replace("$<$", "below ")
-        N["mouUnits"] = str(mo["rows"]["CytoTRACE"]["sample_test"]["samples_in_tested_batches"])
+            N[f"{pre}{n}Cs"], N[f"{pre}{n}Joint"] = txt(r["conditional_skill"]), txt(r["conditional_skill_joint"])
+            N[f"{pre}{n}Pct"], N[f"{pre}{n}JointPct"] = pc(a["percentile"]), pc(a["joint_percentile"])
+            N[f"{pre}{n}Stage"] = txt(r["spearman_with_stage"])
+            N[f"{pre}{n}SampleP"] = pval(r["sample_test"]["p_two_sided"]).replace("$<$", "below ")
+            N[f"{pre}{n}SampleTau"] = txt(r["sample_test"]["tau"])
+            N[f"{pre}{n}Floor"] = txt(r["permutation_floor"])
+            if "sample_test_no_batch_strata" in r:
+                N[f"{pre}{n}SamplePNoStrata"] = pval(r["sample_test_no_batch_strata"]["p_two_sided"]).replace("$<$", "below ")
+            if "sample_test_batch2" in r:
+                N[f"{pre}{n}SamplePExp"] = pval(r["sample_test_batch2"]["p_two_sided"]).replace("$<$", "below ")
+        N[pre + "Units"] = str(mo["rows"]["CytoTRACE"]["sample_test"]["samples_in_tested_batches"])
+        N[pre + "Strata"] = str(mo["rows"]["CytoTRACE"]["sample_test"]["batches"])
+        N[pre + "CellsThin"] = f"{mo['depth']['thinned']['1000']['cells_kept']:,}"
+        N[pre + "GcKeptRaw"] = txt(mo["depth"]["kept_cells_raw_depth"]["spearman_detected_genes_with_stage"])
+        N[pre + "CtKeptRaw"] = txt(mo["depth"]["kept_cells_raw_depth"]["spearman_cytotrace_with_stage"])
+        N[pre + "GcGivenLib"] = txt(mo["depth"]["spearman_detected_genes_with_stage_given_library_size"])
+        N[pre + "LibStage"] = txt(mo["depth"]["spearman_library_size_with_stage"])
         dp = mo["depth"]
-        N["mouGcRaw"], N["mouCtRaw"] = txt(dp["spearman_detected_genes_with_stage"]), txt(dp["spearman_cytotrace_with_stage"])
-        N["mouGcThin"] = txt(dp["thinned"]["1000"]["spearman_detected_genes_with_stage"])
-        N["mouCtThin"] = txt(dp["thinned"]["1000"]["spearman_cytotrace_with_stage"])
-        N["mouCtThinEmbryos"] = txt(dp["over_samples"]["thinned_1000"]["spearman_median_cytotrace_with_stage"])
-        outs = [r["outcome"] for r in cal["mouse_predictions"]]
+        N[pre + "GcRaw"], N[pre + "CtRaw"] = txt(dp["spearman_detected_genes_with_stage"]), txt(dp["spearman_cytotrace_with_stage"])
+        N[pre + "GcThin"] = txt(dp["thinned"]["1000"]["spearman_detected_genes_with_stage"])
+        N[pre + "CtThin"] = txt(dp["thinned"]["1000"]["spearman_cytotrace_with_stage"])
+        N[pre + "CtThinEmbryos"] = txt(dp["over_samples"]["thinned_1000"]["spearman_median_cytotrace_with_stage"])
+        outs = [r["outcome"] for r in preds]
         for o in ("held", "failed", "void"):
-            N["mouPred" + o.capitalize()] = words[outs.count(o)] if outs.count(o) < 10 else str(outs.count(o))
-        N["mouPredAll"] = str(len(outs))
+            N[pre + "Pred" + o.capitalize()] = words[outs.count(o)] if outs.count(o) < 10 else str(outs.count(o))
+        N[pre + "PredAll"] = str(len(outs))
     d3 = cal["depth_3"]
     if d3:
         for g, sl in LETTERS.items():

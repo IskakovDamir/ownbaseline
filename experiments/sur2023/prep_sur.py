@@ -48,7 +48,8 @@ STEM = "GSE223922_Sur2023_"
 
 def main():
     run = Path(sys.argv[1]).resolve()
-    raw, root = run / "raw", run / "root"
+    draw = int(sys.argv[2]) if len(sys.argv) > 2 else 1          # 2: a second draw, disjoint from the first
+    raw, root = (Path(sys.argv[3]).resolve() if len(sys.argv) > 3 else run / "raw"), run / "root"
     os.environ["OWNBASELINE_DATA_ROOT"] = str(root)
     sys.path.insert(0, str(REPO))
     sys.path.insert(0, str(REPO / "experiments" / "w5_new_rows"))
@@ -72,6 +73,10 @@ def main():
     for ui, key in enumerate(sorted(units)):
         cells = sorted(units[key])
         take = cells if len(cells) <= PER_UNIT else [cells[i] for i in np.sort(rng_for(20, SID, ui).choice(len(cells), PER_UNIT, replace=False))]
+        if draw == 2:                                            # what the first draw left, under a new seed
+            first = set(take)
+            rest = [c for c in cells if c not in first]
+            take = rest if len(rest) <= PER_UNIT else [rest[i] for i in np.sort(rng_for(21, SID, ui).choice(len(rest), PER_UNIT, replace=False))]
         for c in take:
             label[c] = key
     with gzip.open(raw / f"{STEM}counts_cols_cells.txt.gz", "rt") as fh:
@@ -139,7 +144,7 @@ def main():
     (out / "meta.json").write_text(json.dumps({
         "source": "GSE223922 counts.mtx.gz, 10x cells only, subsample fixed from the metadata table", "n_cells": int(X.shape[0]),
         "n_genes": int(X.shape[1]), "nnz": int(X.nnz), "units": len(kept_units), "lanes": len({u[0] for u in kept_units}),
-        "collection_times": len({u[1] for u in kept_units}), "cells_per_unit": PER_UNIT,
+        "collection_times": len({u[1] for u in kept_units}), "cells_per_unit": PER_UNIT, "draw": draw,
         "median_library_size": float(np.median(lib)), "cells_with_1000_counts": int((lib >= 1000).sum()), **meta}, indent=1))
     print((out / "meta.json").read_text(), flush=True)
 

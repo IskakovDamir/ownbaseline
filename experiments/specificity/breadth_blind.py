@@ -43,7 +43,7 @@ from controls import (cytotrace_pipeline, gene_count_signature, gene_set_scores,
                       thin_counts)
 
 # seed index of each series: the deposit's three series hold 0 to 2 in common.SERIES
-SID = {"GSE169210": 3, "GSE223922": 4}
+SID = {"GSE169210": 3, "GSE223922": 4, "GSE223922b": 5}        # b: the second, disjoint draw of GSE223922
 M_A1, G_A1, M_A2, MIN_CELLS = 1000, 200, 1000, 10
 THIN_PRIMARY, THIN_SENS = 1000, (500, 2000)
 MANIFEST = HERE / "blind_manifest_breadth.json"

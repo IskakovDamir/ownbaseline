@@ -47,13 +47,18 @@ from own_baseline.conditional_skill import kang_taub, rank_resid_multi  # noqa: 
 N_DRAWS, N_PERM, PERM_CONTROLS = 200, 100_000, 50
 FAMILIES = ("a1_g200", "a2")
 PLAN = HERE / "PREREG_breadth.md"
-NAMES = {"GSE169210": "mouse, Mittnenzweig 2021", "GSE223922": "zebrafish 14 to 120 hpf, Sur 2023"}
+NAMES = {"GSE169210": "mouse, Mittnenzweig 2021", "GSE223922": "zebrafish 14 to 120 hpf, Sur 2023",
+         "GSE223922b": "zebrafish 14 to 120 hpf, Sur 2023, second disjoint draw"}
 PRIMITIVE = {"detected_genes": "gene count", "pcc_x_degree": "PCC(x, degree)", "shannon_entropy": "Shannon entropy",
              "log10_library_size": "log library size", "joint": "all four"}
 # PREREG_breadth.md, the same for both series: is the joint increment above the 97.5th percentile of the
 # random gene sets, and is the residual trend supported over the replicated unit
-EXPECT_JOINT = {"CytoTRACE": True, "SR": True, "CCAT": False, "MCE": False}
-EXPECT_UNIT = {"CytoTRACE": True, "SR": True, "CCAT": True, "MCE": True}
+_FIRST = {"joint": {"CytoTRACE": True, "SR": True, "CCAT": False, "MCE": False},
+          "unit": {"CytoTRACE": True, "SR": True, "CCAT": True, "MCE": True}, "depth": (True, True, True, True)}
+# PREREG_breadth_2.md: on the second draw each row is predicted to come out as it did on the first
+EXPECT = {"GSE169210": _FIRST, "GSE223922": _FIRST,
+          "GSE223922b": {"joint": {"CytoTRACE": True, "SR": False, "CCAT": False, "MCE": True},
+                         "unit": {"CytoTRACE": True, "SR": False, "CCAT": False, "MCE": False}, "depth": (False, False, True, False)}}
 ROWS = [("CytoTRACE", "cytotrace_v1", "detected_genes"), ("SR", "scent_sr", "pcc_x_degree"),
         ("CCAT", "scent_ccat", "pcc_x_degree"), ("MCE", "mce", "pcc_x_degree"),
         ("GCS", "cytotrace_gene_count_signature", "detected_genes")]
@@ -64,7 +69,7 @@ def check_lock():
     rel = HERE.relative_to(REPO).as_posix()
     run = lambda *args: subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True, check=True).stdout  # noqa: E731
     # the plan, the manifest and every file this analysis runs through; other work shares the directory, so it is not all of it
-    mine = [f"{rel}/{f}" for f in (PLAN.name, MANIFEST.name, "breadth_analyse.py", "breadth_blind.py", "analyse.py", "common.py",
+    mine = [f"{rel}/{f}" for f in (PLAN.name, "PREREG_breadth_2.md", MANIFEST.name, "breadth_analyse.py", "breadth_blind.py", "analyse.py", "common.py",
                                    "controls.py", "stats.py")]
     mine += ["experiments/mittnenzweig2021/prep_mittnenzweig.py", "experiments/sur2023/prep_sur.py", "own_baseline"]
     dirty = run("status", "--porcelain", "--", *mine).splitlines()
@@ -259,14 +264,15 @@ def supported(row, key="sample_test"):
 
 def predictions(d):
     """The thirteen registered rows of PREREG_breadth.md for one series: (id, statement, outcome, observed)."""
-    tag = {"GSE169210": "M", "GSE223922": "Z"}[d["series"]]
+    tag = {"GSE169210": "M", "GSE223922": "Z", "GSE223922b": "R"}[d["series"]]
+    ex = EXPECT[d["series"]]
     rows, dep = d["rows"], d["depth"]
     pf = d["controls_permutation_floor"]["by_primitive"]
     shares = [pf[q]["fraction_above"] for q in JOINT]
     out = [(f"{tag}1", "more than half of the first 50 random gene sets are above the permutation floor on each primitive",
             all(x > 0.5 for x in shares), ", ".join(f"{PRIMITIVE[q]} {x:.0%}" for q, x in zip(JOINT, shares)))]
     for i, name in enumerate(("CytoTRACE", "SR", "CCAT", "MCE"), 2):
-        want = EXPECT_JOINT[name]
+        want = ex["joint"][name]
         text = f"{name}: joint increment {'above' if want else 'not above'} the 97.5th percentile of the random gene sets"
         if name not in rows:
             out.append((f"{tag}{i}", text, None, "not scored"))
@@ -275,12 +281,13 @@ def predictions(d):
         out.append((f"{tag}{i}", text, v["joint_exceeds_p975"] == want,
                     f"joint CS {rows[name]['conditional_skill_joint']:+.3f}, controls' 97.5th {v['joint_control_p975']:+.3f}"))
     for i, name in enumerate(("CytoTRACE", "SR", "CCAT", "MCE"), 6):
-        text = f"{name}: residual trend supported over the replicated unit"
+        want = ex["unit"][name]
+        text = f"{name}: residual trend {'supported' if want else 'not supported'} over the replicated unit"
         if name not in rows:
             out.append((f"{tag}{i}", text, None, "not scored"))
             continue
         t = rows[name]["sample_test"]
-        out.append((f"{tag}{i}", text, supported(rows[name]) == EXPECT_UNIT[name],
+        out.append((f"{tag}{i}", text, supported(rows[name]) == want,
                     f"tau {t['tau']:+.3f}, p {t['p_two_sided']:.4f}, {t['samples_in_tested_batches']} units in {t['batches']} strata, "
                     f"CS {rows[name]['conditional_skill']:+.3f}"))
     t = dep["thinned"]["1000"] if "1000" in dep["thinned"] else dep["thinned"][1000]
@@ -288,7 +295,9 @@ def predictions(d):
                                    ("gene count falls with stage at 1,000 counts", t["spearman_detected_genes_with_stage"]),
                                    ("CytoTRACE falls with stage at raw depth", dep["spearman_cytotrace_with_stage"]),
                                    ("CytoTRACE falls with stage at 1,000 counts", t["spearman_cytotrace_with_stage"])), 10):
-        out.append((f"{tag}{i}", f"{text}, Spearman -0.1 or below", bool(v <= -0.1), f"Spearman {v:+.3f}"))
+        want = ex["depth"][i - 10]
+        text = f"{text}, Spearman -0.1 or below" if want else text.replace("falls", "does not fall") + ", Spearman above -0.1"
+        out.append((f"{tag}{i}", text, bool(v <= -0.1) == want, f"Spearman {v:+.3f}"))
     return out
 
 

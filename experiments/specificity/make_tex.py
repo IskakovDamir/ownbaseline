@@ -91,6 +91,10 @@ def load():
     cal["sur_predictions"] = json.loads(path.read_text()).get("GSE223922", []) if path.is_file() else []
     path = HERE / "results" / "breadth_GSE223922.json"
     cal["sur"] = json.loads(path.read_text()) if path.is_file() else None
+    path = HERE / "results" / "breadth_GSE223922b.json"
+    cal["surb"] = json.loads(path.read_text()) if path.is_file() else None
+    path = HERE / "results" / "predictions_breadth.json"
+    cal["surb_predictions"] = json.loads(path.read_text()).get("GSE223922b", []) if path.is_file() else []
     return d, perm, batch, cal
 
 
@@ -465,7 +469,8 @@ def numbers(d, rows, cal):
             N[f"dtwoPcc{s}KeptRaw"] = txt(v["spearman_pcc_with_stage_raw_kept_cells"])
             N[f"dtwoPcc{s}LostPct"] = pc(1 - v["cells_kept"] / v["cells"])
     for mo, pre, unit, preds in ((cal["mouse"], "mou", "Embryos", cal["mouse_predictions"]),
-                                 (cal["sur"], "sur", "Pools", cal["sur_predictions"])):
+                                 (cal["sur"], "sur", "Pools", cal["sur_predictions"]),
+                                 (cal["surb"], "surb", "Pools", cal["surb_predictions"])):
         if not mo:
             continue
         if mo.get("dry_run"):

@@ -1,0 +1,14 @@
+{
+ "GSE169210": {
+  "series": "GSE169210",
+  "cells": 33700,
+  "scores": [
+   "cytotrace_gene_count_signature",
+   "cytotrace_v1",
+   "scent_ccat",
+   "scent_sr"
+  ],
+  "seconds": 62.2,
+  "sha256": "85731f97d47c6e9ca8f531606e5e0bc7ca858ab3b0d14316a5eb848859ed2909"
+ }
+}

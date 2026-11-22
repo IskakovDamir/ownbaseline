@@ -1,0 +1,16 @@
+atlas∩STRING=12559  LCC(adjMC)=12400 genes, 175339 edges, deg mean 28.3
+target_sum(CPM)=4543.5  subsample N=500 (seed 42)
+wrote SCENT IO to /Users/damir/potency-ownbaseline/data/runs/breadth/GSE169210/scratch/scent_io
+SR and CCAT on 33700 cells, network 12400 genes, NaN 0, 0
+{"series": "GSE169210", "cells": 33700, "genes": 27373, "universe": 16853, "target_library_size": 4543.5, "scaffold_genes": 12559, "max_abs_diff_pcc_vs_primitive": 7.271960811294775e-15, "seconds": 89.6, "sha256": "10284a9b6a1cce95b20311e530bab1447f786aca1f4713bf77db645681fd18f4"}
+  GSE169210_thin: chunk 10/34
+  GSE169210_thin: chunk 20/34
+  GSE169210_thin: chunk 30/34
+  GSE169210_kept: chunk 10/34
+  GSE169210_kept: chunk 20/34
+  GSE169210_kept: chunk 30/34
+{"series": "GSE169210", "cells": 33700, "kept": {"1000": 33700, "500": 33700, "2000": 31593}, "seconds": 219.8, "sha256": "d10732c94f5ad659f2ea2bbb4449e8432500207fb4a23bd5d8274565083bade3"}
+  GSE169210: chunk 10/34
+  GSE169210: chunk 20/34
+  GSE169210: chunk 30/34
+{"series": "GSE169210", "cells": 33700, "scores": ["cytotrace_gene_count_signature", "cytotrace_v1", "scent_ccat", "scent_sr"], "seconds": 62.2, "sha256": "85731f97d47c6e9ca8f531606e5e0bc7ca858ab3b0d14316a5eb848859ed2909"}

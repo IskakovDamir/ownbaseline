@@ -1,0 +1,13 @@
+{
+ "GSE169210": {
+  "series": "GSE169210",
+  "cells": 33700,
+  "genes": 27373,
+  "universe": 16853,
+  "target_library_size": 4543.5,
+  "scaffold_genes": 12559,
+  "max_abs_diff_pcc_vs_primitive": 7.271960811294775e-15,
+  "seconds": 89.6,
+  "sha256": "10284a9b6a1cce95b20311e530bab1447f786aca1f4713bf77db645681fd18f4"
+ }
+}

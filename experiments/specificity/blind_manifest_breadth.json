@@ -23,8 +23,8 @@
   }
  },
  "GSE169210/scores.npz": {
-  "bytes": 1081320,
-  "sha256": "85731f97d47c6e9ca8f531606e5e0bc7ca858ab3b0d14316a5eb848859ed2909",
+  "bytes": 1351158,
+  "sha256": "fe71fae305243706fe3ba638bf571bb53ba22a480001891af3bd2aa35c289edd",
   "shapes": {
    "cytotrace_gene_count_signature": [
     33700
@@ -34,6 +34,9 @@
    ],
    "gcs_genes": [
     200
+   ],
+   "mce": [
+    33700
    ],
    "scent_ccat": [
     33700
@@ -207,6 +210,113 @@
    ],
    "keep_500": [
     39139
+   ]
+  }
+ },
+ "GSE223922b/labels.tsv": {
+  "bytes": 2340050,
+  "sha256": "0753645b06338e40f2a79fdbececdff069f12056f26098bc9229bae9e4f9002d",
+  "shapes": {}
+ },
+ "GSE223922b/primitives.npz": {
+  "bytes": 1257962,
+  "sha256": "d67001dc5ad04d42086441ee19d7478a39246c628ebfeedd5eb22321a849f3da",
+  "shapes": {
+   "gene_count": [
+    39279
+   ],
+   "log10_lib": [
+    39279
+   ],
+   "pcc_string_v12": [
+    39279
+   ],
+   "shannon_H": [
+    39279
+   ]
+  }
+ },
+ "GSE223922b/scores.npz": {
+  "bytes": 1574318,
+  "sha256": "9eeb0b7a00422abb6e4a72932cba1a5e0ca2454d59df919c573fbd27be3a09ea",
+  "shapes": {
+   "cytotrace_gene_count_signature": [
+    39279
+   ],
+   "cytotrace_v1": [
+    39279
+   ],
+   "gcs_genes": [
+    200
+   ],
+   "mce": [
+    39279
+   ],
+   "scent_ccat": [
+    39279
+   ],
+   "scent_sr": [
+    39279
+   ]
+  }
+ },
+ "GSE223922b/signatures.npz": {
+  "bytes": 316363638,
+  "sha256": "98384db8d7245645b41147aa416dd2233dbc78b4af08d37c986d969db955613f",
+  "shapes": {
+   "a1_g200": [
+    39279,
+    1000
+   ],
+   "a1_g200_sets": [
+    1000,
+    200
+   ],
+   "a2": [
+    39279,
+    1000
+   ],
+   "pcc_real_recomputed": [
+    39279
+   ],
+   "universe": [
+    27016
+   ]
+  }
+ },
+ "GSE223922b/thinned.npz": {
+  "bytes": 2677160,
+  "sha256": "c2d1a9421f7a02a9859777a2feeab7cd45209191b45b77b701ddb094f6316787",
+  "shapes": {
+   "cytotrace_kept_raw": [
+    33566
+   ],
+   "cytotrace_thinned": [
+    33566
+   ],
+   "gcs_kept_raw": [
+    33566
+   ],
+   "gcs_thinned": [
+    33566
+   ],
+   "genes_1000": [
+    33566
+   ],
+   "genes_2000": [
+    27994
+   ],
+   "genes_500": [
+    38470
+   ],
+   "keep_1000": [
+    33566
+   ],
+   "keep_2000": [
+    27994
+   ],
+   "keep_500": [
+    38470
    ]
   }
  }

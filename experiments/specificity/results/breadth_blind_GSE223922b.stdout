@@ -1,0 +1,85 @@
+184 units, 39279 of 450955 eligible cells drawn
+  2% of the matrix read
+  5% of the matrix read
+  7% of the matrix read
+  9% of the matrix read
+  12% of the matrix read
+  14% of the matrix read
+  16% of the matrix read
+  19% of the matrix read
+  21% of the matrix read
+  23% of the matrix read
+  26% of the matrix read
+  28% of the matrix read
+  30% of the matrix read
+  33% of the matrix read
+  35% of the matrix read
+  37% of the matrix read
+  40% of the matrix read
+  42% of the matrix read
+  44% of the matrix read
+  47% of the matrix read
+  49% of the matrix read
+  51% of the matrix read
+  54% of the matrix read
+  56% of the matrix read
+  58% of the matrix read
+  61% of the matrix read
+  63% of the matrix read
+  66% of the matrix read
+  68% of the matrix read
+  70% of the matrix read
+  73% of the matrix read
+  75% of the matrix read
+  77% of the matrix read
+  80% of the matrix read
+  82% of the matrix read
+  84% of the matrix read
+  87% of the matrix read
+  89% of the matrix read
+  91% of the matrix read
+  94% of the matrix read
+  96% of the matrix read
+  98% of the matrix read
+  100% of the matrix read
+QC: kept 39279 of 39279 cells; 36250 symbols, 36218 after upper-casing
+{
+ "source": "GSE223922 counts.mtx.gz, 10x cells only, subsample fixed from the metadata table",
+ "n_cells": 39279,
+ "n_genes": 36218,
+ "nnz": 60663860,
+ "units": 182,
+ "lanes": 58,
+ "collection_times": 53,
+ "cells_per_unit": 220,
+ "draw": 2,
+ "median_library_size": 4208.0,
+ "cells_with_1000_counts": 33566,
+ "n_atlas_x_string": 8966,
+ "target_sum_cpm": 4208.0
+}
+atlas∩STRING=8966  LCC(adjMC)=8524 genes, 105922 edges, deg mean 24.9
+target_sum(CPM)=4208.0  subsample N=500 (seed 42)
+wrote SCENT IO to /Users/damir/potency-ownbaseline/data/runs/breadth/GSE223922b/scratch/scent_io
+SR and CCAT on 39279 cells, network 8524 genes, NaN 0, 0
+[mce] 10 blocks, 648 s
+[mce] 20 blocks, 1590 s
+[mce] 30 blocks, 2295 s
+[mce] 40 blocks, 3615 s
+[mce] 50 blocks, 4315 s
+[mce] 60 blocks, 4812 s
+[mce] 70 blocks, 5739 s
+MCE GSE106474: 39279 cells in 6194 s on 5 processes, steps 82-952, NaN 0
+wrote /Users/damir/potency-ownbaseline/data/runs/breadth/GSE223922b/root/w5_new_rows/scores/GSE106474/mce.csv
+{"series": "GSE223922b", "cells": 39279, "genes": 36218, "universe": 27016, "target_library_size": 4208.0, "scaffold_genes": 8966, "max_abs_diff_pcc_vs_primitive": 1.1324274851176597e-14, "seconds": 77.2, "sha256": "98384db8d7245645b41147aa416dd2233dbc78b4af08d37c986d969db955613f"}
+  GSE223922b_thin: chunk 10/34
+  GSE223922b_thin: chunk 20/34
+  GSE223922b_thin: chunk 30/34
+  GSE223922b_kept: chunk 10/34
+  GSE223922b_kept: chunk 20/34
+  GSE223922b_kept: chunk 30/34
+{"series": "GSE223922b", "cells": 39279, "kept": {"1000": 33566, "500": 38470, "2000": 27994}, "seconds": 153.4, "sha256": "c2d1a9421f7a02a9859777a2feeab7cd45209191b45b77b701ddb094f6316787"}
+  GSE223922b: chunk 10/39
+  GSE223922b: chunk 20/39
+  GSE223922b: chunk 30/39
+{"series": "GSE223922b", "cells": 39279, "scores": ["cytotrace_gene_count_signature", "cytotrace_v1", "mce", "scent_ccat", "scent_sr"], "seconds": 57.3, "sha256": "9eeb0b7a00422abb6e4a72932cba1a5e0ca2454d59df919c573fbd27be3a09ea"}

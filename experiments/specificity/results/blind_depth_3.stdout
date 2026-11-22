@@ -1,0 +1,4 @@
+GSE106474 {"network_genes": 8468, "sr_spearman_vs_deposit": 1.0, "sr_max_abs_diff": 2.220446049250313e-16, "ccat_spearman_vs_deposit": 1.0, "ccat_max_abs_diff": 0.0, "mce_spearman_vs_deposit": 1.0, "mce_max_abs_diff": 0.0} 1631.6
+GSE112294 {"network_genes": 8186, "sr_spearman_vs_deposit": 1.0, "sr_max_abs_diff": 2.220446049250313e-16, "ccat_spearman_vs_deposit": 1.0, "ccat_max_abs_diff": 0.0, "mce_spearman_vs_deposit": 1.0, "mce_max_abs_diff": 0.0} 2029.0
+GSE113074 {"network_genes": 8699, "sr_spearman_vs_deposit": 1.0, "sr_max_abs_diff": 5.551115123125783e-16, "ccat_spearman_vs_deposit": 1.0, "ccat_max_abs_diff": 1.6653345369377348e-16} 95.0
+DEPTH3_BLIND_DONE

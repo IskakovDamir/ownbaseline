@@ -295,6 +295,7 @@ def numbers(d, rows, cal):
             if e.get("fraction_above_registered_floor_bracketed") is not None:
                 N[f"ctl{s}{tag}AboveFloor"] = pc(e["fraction_above_registered_floor_bracketed"])
                 N[f"ctl{s}{tag}AboveNearest"] = pc(e["fraction_above_registered_floor_nearest"])
+                N[f"ctl{s}{tag}AboveNotDistant"] = pc(e["fraction_above_registered_floor_nearest_not_distant"])
             pf = z["controls_permutation_floor"]["by_primitive"].get(c)
             if pf:
                 N[f"ctl{s}{tag}AbovePerm"] = pc(pf["fraction_above"], 0)
@@ -308,6 +309,7 @@ def numbers(d, rows, cal):
             N[f"row{s}{n}ConcPct"] = pc((1 + r["concordance"]["value"]) / 2, 0)
             N[f"row{s}{n}Marg"] = txt(r["marginal_tau"])
             N[f"row{s}{n}Pct"] = pc(a["percentile"])
+            N[f"row{s}{n}NotBelow"] = str(round((1 - a["percentile"]) * 1000))
             N[f"row{s}{n}Hi"] = txt(a["control_p975"])
             N[f"row{s}{n}Joint"] = txt(r["conditional_skill_joint"])
             N[f"row{s}{n}JointHi"] = txt(a["joint_control_p975"])
@@ -317,6 +319,7 @@ def numbers(d, rows, cal):
             if "sample_test" in r:
                 N[f"row{s}{n}SampleTau"] = txt(r["sample_test"]["tau"])
                 N[f"row{s}{n}SampleP"] = pval(r["sample_test"]["p_two_sided"]).replace("$<$", "below ")
+                N[f"row{s}{n}SampleN"] = str(r["sample_test"]["samples"])
         if "cytotrace_ablation" in z:
             for key, tag in (("a3", "Smooth"), ("a3_unsmoothed", "Raw")):
                 q = z["cytotrace_ablation"][key]["detected_genes"]["quantiles"]
@@ -359,6 +362,14 @@ def numbers(d, rows, cal):
     N["nClearExceedJoint"] = str(sum(r["joint_exceeds"] for r in clearing))
     N["nClearSample"] = str(sum(r["sample_supported"] for r in clearing))
     words = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+    hz = d["GSE106474"]["rows"]
+    hp = dict(zip(ORDER, holm([hz[n]["sample_test"]["p_two_sided"] for n in ORDER])))
+    for n in ORDER:
+        N[f"rowF{n}SampleHolm"] = pval(hp[n]).replace("$<$", "below ")
+    for g, sl in LETTERS.items():
+        th = d[g]["depth"]["thinned"]["1000"]
+        N[f"dep{sl}ThinLost"] = f"{d[g]['n'] - th['cells_kept']:,}"
+        N[f"dep{sl}Cells"] = f"{d[g]['n']:,}"
     for key in ("nClear", "nClearExceed", "nClearExceedJoint", "nClearSample"):
         N[key + "Word"] = words[int(N[key])]
     N["nClearNotSampleWord"] = words[int(N["nClear"]) - int(N["nClearSample"])]
@@ -421,6 +432,8 @@ def numbers(d, rows, cal):
             N[f"dtwoPcc{s}Raw"] = txt(v["spearman_pcc_with_stage_raw"])
             N[f"dtwoPcc{s}Thin"] = txt(v["spearman_pcc_with_stage_at_1000"])
             N[f"dtwoPcc{s}Agree"] = f"{v['spearman_pcc_raw_with_pcc_at_1000']:.2f}"
+            N[f"dtwoPcc{s}KeptRaw"] = txt(v["spearman_pcc_with_stage_raw_kept_cells"])
+            N[f"dtwoPcc{s}LostPct"] = pc(1 - v["cells_kept"] / v["cells"])
     digits = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"}
     safe = {}
     for k, v in N.items():

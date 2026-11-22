@@ -252,6 +252,28 @@ def main():
     d = {g: json.loads((Path(a.dir) / f"specificity_{g}.json").read_text()) for g in SERIES
          if (Path(a.dir) / f"specificity_{g}.json").is_file()}
     text, pred = build(d)
+    extra = []
+    for name, title in (("depth_2", "Second plan (PREREG_depth_2.md)"), ("depth_3", "Third plan (PREREG_depth_3.md)")):
+        f = Path(a.dir) / f"{name}.json"
+        if f.is_file():
+            pj = json.loads(f.read_text())["predictions"]
+            extra += ["", f"## {title}: predictions", "", "| prediction | outcome | observed |", "|---|---|---|"]
+            extra += [f"| {k} | {'held' if v['held'] else 'failed'} | {json.dumps(v['observed'])} |" for k, v in sorted(pj.items())]
+            pred.update({k: (v["held"], json.dumps(v["observed"])) for k, v in pj.items()})
+    f = Path(a.dir) / "calibration_cluster.json"
+    if f.is_file():
+        extra += ["", "## Calibration of the sample test (share of replicates called skilled)", "",
+                  "| shape | rho | sample sd | batch sd | trend | registered floor | permutation floor | sample test | no batch strata | least squares |",
+                  "|---|---|---|---|---|---|---|---|---|---|"]
+        extra += [f"| {r['shape']} | {r['rho']} | {r['sample_sd']} | {r['batch_sd']} | {r['planted_trend']} | {pct(r['clears_registered_floor'])} | "
+                  f"{pct(r['clears_permutation_floor'])} | {pct(r['sample_test_stratum_mean'])} | "
+                  f"{pct(r['sample_test_stratum_mean_no_batch_strata'])} | {pct(r['sample_test_least_squares'])} |"
+                  for r in json.loads(f.read_text())["rows"]]
+    f = Path(a.dir) / "calibration_concordance.json"
+    if f.is_file():
+        extra += ["", "## Calibration of the stratified concordance (false clears, nominal 2.5%)", "", "| case | n | rho | reps | false clear |", "|---|---|---|---|---|"]
+        extra += [f"| {r['case']} | {r['n']} | {r['rho']} | {r['reps']} | {pct(r['false_clear'])} |" for r in json.loads(f.read_text())["rows"]]
+    text += "\n".join(extra) + "\n"
     (Path(a.dir) / "REPORT.md").write_text(text)
     (Path(a.dir) / "predictions.json").write_text(json.dumps({k: {"held": v[0], "observed": v[1]} for k, v in pred.items()}, indent=1))
     print(text)

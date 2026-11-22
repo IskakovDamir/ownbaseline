@@ -97,3 +97,13 @@ Every failed row is listed as failed. No further variant is run after the result
 ## What this does not address
 
 The time of the mouse embryos is derived from their transcriptomes, as stated above, and nothing here removes that. The mouse cells are those the authors kept. Mouse and zebrafish symbols meet a human scaffold by name. The mouse ordinal is close to continuous, which the permutation floor handles and the audit's simulated floor does not. A sort session whose embryos span a few hours gives the within-session permutation little to work with, and a lane with one collection time gives it nothing. The zebrafish result rests on 220 cells per unit of one draw. The hashed lanes were demultiplexed by the authors. Stage is not potency. No one other than the analyst has rerun any of this.
+
+## Amendment of 2026-11-22, before the labels of GSE223922 were read
+
+Added with the manifest entries of GSE223922. Nothing above is changed, and the Z rows are the ones registered at commit `b9c190f`.
+
+- **What was known by now.** The results on GSE169210 (commit `9d3dcbe`: M1, M4 and M12 held, eight rows failed, the two MCE rows void) were in view when this amendment was written. The predictions for GSE223922 were registered before them and are left as they were, including the rows that failed on the mouse series.
+- **The download.** A guard on free disk space stopped the transfer of the count matrix twice and it was resumed from the saved byte ranges; the last stop fell during the joining of the eight ranges, and the file was cut back to the end of the sixth range and the last two were appended again. The result has the size GEO announces, 2,675,186,023 bytes, SHA256 `98798e1965680dd94df07b8a8d9761479c92fcef868c070d56b391aa8d9e23a4`, and `prep_sur.py` read from it exactly the 854,719,070 entries its header declares.
+- **The cells.** All 40,108 drawn cells pass the check on the loaded matrix: 184 units in 58 lanes, 53 collection times, 36,218 symbols after upper-casing, median library size 4,186. 33,955 cells hold 1,000 counts, 39,139 hold 500 and 28,351 hold 2,000, so thinning to 1,000 drops 15 percent of the cells on this series; the kept-cells row at raw depth shows what that selection does by itself.
+- **The blind stage.** 27,065 genes are detected in at least 10 cells; 8,966 genes are on the scaffold and the network of SR, CCAT and MCE holds 8,524; PCC(x, degree) recomputed from the deposit's degree table agrees with the primitive to 1e-14. The machine was free, so MCE was run and Z5 and Z9 are scored.
+- **Dry run.** `breadth_analyse.py GSE223922 --dry-run` was run once on eight controls per family, with the stage labels shuffled between cells, to test the code path that the second stratification adds.

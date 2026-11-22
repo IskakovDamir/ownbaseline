@@ -102,5 +102,112 @@
     33700
    ]
   }
+ },
+ "GSE223922/labels.tsv": {
+  "bytes": 2390525,
+  "sha256": "490df64f60c39d2865178f01946cd1ab267cc4b300155b7d1f50ff455f67d575",
+  "shapes": {}
+ },
+ "GSE223922/primitives.npz": {
+  "bytes": 1284490,
+  "sha256": "958d01c7d2531010f635ecd7cff10833616c22ed30c5458387eb7df64de629ec",
+  "shapes": {
+   "gene_count": [
+    40108
+   ],
+   "log10_lib": [
+    40108
+   ],
+   "pcc_string_v12": [
+    40108
+   ],
+   "shannon_H": [
+    40108
+   ]
+  }
+ },
+ "GSE223922/scores.npz": {
+  "bytes": 1607478,
+  "sha256": "eb86f6a218e439367f0756de12dadceefbe7025b33f9b0366c9a0e75caa53d6a",
+  "shapes": {
+   "cytotrace_gene_count_signature": [
+    40108
+   ],
+   "cytotrace_v1": [
+    40108
+   ],
+   "gcs_genes": [
+    200
+   ],
+   "mce": [
+    40108
+   ],
+   "scent_ccat": [
+    40108
+   ],
+   "scent_sr": [
+    40108
+   ]
+  }
+ },
+ "GSE223922/signatures.npz": {
+  "bytes": 323002662,
+  "sha256": "93d523e53bb4a2ad37be2a47e1cbc1542c8ae13479dcce31fc9c49ed70f7909c",
+  "shapes": {
+   "a1_g200": [
+    40108,
+    1000
+   ],
+   "a1_g200_sets": [
+    1000,
+    200
+   ],
+   "a2": [
+    40108,
+    1000
+   ],
+   "pcc_real_recomputed": [
+    40108
+   ],
+   "universe": [
+    27065
+   ]
+  }
+ },
+ "GSE223922/thinned.npz": {
+  "bytes": 2712248,
+  "sha256": "48a7a97c7c9ae484ec9301a349f72e471ef0acb5d3f8f35e84eff860c8c37de4",
+  "shapes": {
+   "cytotrace_kept_raw": [
+    33955
+   ],
+   "cytotrace_thinned": [
+    33955
+   ],
+   "gcs_kept_raw": [
+    33955
+   ],
+   "gcs_thinned": [
+    33955
+   ],
+   "genes_1000": [
+    33955
+   ],
+   "genes_2000": [
+    28351
+   ],
+   "genes_500": [
+    39139
+   ],
+   "keep_1000": [
+    33955
+   ],
+   "keep_2000": [
+    28351
+   ],
+   "keep_500": [
+    39139
+   ]
+  }
  }
 }

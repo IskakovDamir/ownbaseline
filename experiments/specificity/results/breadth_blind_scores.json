@@ -10,5 +10,18 @@
   ],
   "seconds": 62.2,
   "sha256": "85731f97d47c6e9ca8f531606e5e0bc7ca858ab3b0d14316a5eb848859ed2909"
+ },
+ "GSE223922": {
+  "series": "GSE223922",
+  "cells": 40108,
+  "scores": [
+   "cytotrace_gene_count_signature",
+   "cytotrace_v1",
+   "mce",
+   "scent_ccat",
+   "scent_sr"
+  ],
+  "seconds": 6.7,
+  "sha256": "eb86f6a218e439367f0756de12dadceefbe7025b33f9b0366c9a0e75caa53d6a"
  }
 }

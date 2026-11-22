@@ -9,5 +9,16 @@
   "max_abs_diff_pcc_vs_primitive": 7.271960811294775e-15,
   "seconds": 89.6,
   "sha256": "10284a9b6a1cce95b20311e530bab1447f786aca1f4713bf77db645681fd18f4"
+ },
+ "GSE223922": {
+  "series": "GSE223922",
+  "cells": 40108,
+  "genes": 36218,
+  "universe": 27065,
+  "target_library_size": 4186.0,
+  "scaffold_genes": 8966,
+  "max_abs_diff_pcc_vs_primitive": 1.0658141036401503e-14,
+  "seconds": 84.0,
+  "sha256": "93d523e53bb4a2ad37be2a47e1cbc1542c8ae13479dcce31fc9c49ed70f7909c"
  }
 }

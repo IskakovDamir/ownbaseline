@@ -78,5 +78,85 @@
    "outcome": "failed",
    "observed": "Spearman +0.563"
   }
+ ],
+ "GSE223922": [
+  {
+   "id": "Z1",
+   "prediction": "more than half of the first 50 random gene sets are above the permutation floor on each primitive",
+   "outcome": "held",
+   "observed": "gene count 92%, PCC(x, degree) 54%, Shannon entropy 78%, log library size 80%"
+  },
+  {
+   "id": "Z2",
+   "prediction": "CytoTRACE: joint increment above the 97.5th percentile of the random gene sets",
+   "outcome": "held",
+   "observed": "joint CS +0.117, controls' 97.5th +0.115"
+  },
+  {
+   "id": "Z3",
+   "prediction": "SR: joint increment above the 97.5th percentile of the random gene sets",
+   "outcome": "failed",
+   "observed": "joint CS -0.088, controls' 97.5th +0.115"
+  },
+  {
+   "id": "Z4",
+   "prediction": "CCAT: joint increment not above the 97.5th percentile of the random gene sets",
+   "outcome": "held",
+   "observed": "joint CS +0.035, controls' 97.5th +0.115"
+  },
+  {
+   "id": "Z5",
+   "prediction": "MCE: joint increment not above the 97.5th percentile of the random gene sets",
+   "outcome": "failed",
+   "observed": "joint CS +0.124, controls' 97.5th +0.115"
+  },
+  {
+   "id": "Z6",
+   "prediction": "CytoTRACE: residual trend supported over the replicated unit",
+   "outcome": "held",
+   "observed": "tau +0.317, p 0.0000, 152 units in 26 strata, CS +0.248"
+  },
+  {
+   "id": "Z7",
+   "prediction": "SR: residual trend supported over the replicated unit",
+   "outcome": "failed",
+   "observed": "tau +0.038, p 0.6210, 152 units in 26 strata, CS -0.141"
+  },
+  {
+   "id": "Z8",
+   "prediction": "CCAT: residual trend supported over the replicated unit",
+   "outcome": "failed",
+   "observed": "tau +0.081, p 0.2761, 152 units in 26 strata, CS +0.044"
+  },
+  {
+   "id": "Z9",
+   "prediction": "MCE: residual trend supported over the replicated unit",
+   "outcome": "failed",
+   "observed": "tau -0.070, p 0.3456, 152 units in 26 strata, CS -0.018"
+  },
+  {
+   "id": "Z10",
+   "prediction": "gene count falls with stage at raw depth, Spearman -0.1 or below",
+   "outcome": "failed",
+   "observed": "Spearman -0.080"
+  },
+  {
+   "id": "Z11",
+   "prediction": "gene count falls with stage at 1,000 counts, Spearman -0.1 or below",
+   "outcome": "failed",
+   "observed": "Spearman +0.053"
+  },
+  {
+   "id": "Z12",
+   "prediction": "CytoTRACE falls with stage at raw depth, Spearman -0.1 or below",
+   "outcome": "held",
+   "observed": "Spearman -0.364"
+  },
+  {
+   "id": "Z13",
+   "prediction": "CytoTRACE falls with stage at 1,000 counts, Spearman -0.1 or below",
+   "outcome": "failed",
+   "observed": "Spearman -0.096"
+  }
  ]
 }

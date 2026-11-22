@@ -71,3 +71,75 @@ Over the 153 units, per-unit medians against the unit's stage: library size +0.0
 | M11 | gene count falls with stage at 1,000 counts, Spearman -0.1 or below | failed | Spearman +0.316 |
 | M12 | CytoTRACE falls with stage at raw depth, Spearman -0.1 or below | held | Spearman -0.208 |
 | M13 | CytoTRACE falls with stage at 1,000 counts, Spearman -0.1 or below | failed | Spearman +0.563 |
+
+## GSE223922 (zebrafish 14 to 120 hpf, Sur 2023)
+
+40,108 cells, 184 replicated units, 58 strata, 53 distinct stage values. Locked at commit `b723d63`.
+
+### A. How often an arbitrary gene set clears the floor
+
+Permutation floor: the first 50 of the 1,000 random 200-gene sets, 200 draws each; this is the reading the plan registers. Grid: all 1,000 sets against the audit's simulated floor, bracketed reading, which was built for 12 ordinal levels and is an extrapolation here.
+
+| covariates removed | above permutation floor | above grid floor (extrapolated) | median CS | 2.5th | 97.5th | median abs. Spearman with covariates |
+|---|---|---|---|---|---|---|
+| gene count | 92.0% | 70.3% | +0.048 | -0.019 | +0.160 | 0.52 |
+| PCC(x, degree) | 54.0% | 50.4% | +0.025 | -0.051 | +0.114 | 0.26 |
+| Shannon entropy | 78.0% | 64.5% | +0.054 | -0.042 | +0.173 | 0.66 |
+| log library size | 80.0% | 71.8% | +0.045 | -0.014 | +0.149 | 0.37 |
+| all four | n/a | n/a | +0.030 | -0.041 | +0.115 | 0.66 |
+
+### A. Each audited row against arbitrary gene sets
+
+| row | primitive | rho, row / controls | CS | permutation floor | clears | A1 97.5th | exceeds | joint CS | joint A1 97.5th | exceeds | controls with larger marginal tau | exceeds A2, primitive / joint |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| CytoTRACE | gene count | 0.30 / 0.52 | +0.248 | +0.018 | yes | +0.160 | yes | +0.117 | +0.115 | yes | 0.0% | yes / yes |
+| SR | PCC(x, degree) | 0.92 / 0.26 | -0.141 | +0.011 | no | +0.114 | no | -0.088 | +0.115 | no | 3.2% | no / no |
+| CCAT | PCC(x, degree) | 1.00 / 0.26 | +0.044 | +0.011 | yes | +0.114 | no | +0.035 | +0.115 | no | 0.0% | no / no |
+| MCE | PCC(x, degree) | 0.88 / 0.26 | -0.018 | +0.030 | no | +0.114 | no | +0.124 | +0.115 | yes | 0.5% | no / yes |
+| GCS | gene count | 0.70 / 0.52 | +0.172 | +0.010 | yes | +0.160 | yes | -0.103 | +0.115 | no | 1.8% | yes / no |
+
+### B. The trend over the replicated unit
+
+Kendall's tau between the per-unit mean of the stratum-mean residual and the unit's stage, stage labels permuted between the units of a stratum. Least squares: the residual of Eq. (2), anti-conservative in the calibration of the first plan.
+
+| row | units tested | strata | tau | p | sign agrees with CS | supported | no strata p | least-squares p | second stratification p |
+|---|---|---|---|---|---|---|---|---|---|
+| CytoTRACE | 152 of 184 | 26 | +0.317 | 0.0000 | yes | yes | 0.0000 | 0.0000 | 0.0000 |
+| SR | 152 of 184 | 26 | +0.038 | 0.6210 | no | no | 0.0000 | 0.8492 | 0.0000 |
+| CCAT | 152 of 184 | 26 | +0.081 | 0.2761 | yes | no | 0.0841 | 0.1651 | 0.0000 |
+| MCE | 152 of 184 | 26 | -0.070 | 0.3456 | yes | no | 0.0003 | 0.3864 | 0.0016 |
+| GCS | 152 of 184 | 26 | +0.156 | 0.0312 | yes | yes | 0.0000 | 0.0252 | 0.0000 |
+
+### C. Depth
+
+Spearman correlation with stage, early to late.
+
+Library size -0.094; gene count -0.080; gene count given library size +0.051.
+
+| depth | cells kept | units kept | gene count | gene-count signature | CytoTRACE |
+|---|---|---|---|---|---|
+| raw | 40,108 | 184 | -0.080 | -0.223 | -0.364 |
+| 1,000 counts | 33,955 | 184 | +0.053 | -0.064 | -0.096 |
+| raw, cells with 1,000 counts | 33,955 | 184 | -0.122 | -0.206 | -0.308 |
+| 500 counts | 39,139 | 184 | +0.083 | n/a | n/a |
+| 2,000 counts | 28,351 | 184 | -0.011 | n/a | n/a |
+
+Over the 184 units, per-unit medians against the unit's stage: library size -0.320, gene count -0.305, CytoTRACE -0.664; at 1,000 counts (184 units) gene count +0.105, CytoTRACE -0.317.
+
+### The registered predictions
+
+| prediction | registered | outcome | observed |
+|---|---|---|---|
+| Z1 | more than half of the first 50 random gene sets are above the permutation floor on each primitive | held | gene count 92%, PCC(x, degree) 54%, Shannon entropy 78%, log library size 80% |
+| Z2 | CytoTRACE: joint increment above the 97.5th percentile of the random gene sets | held | joint CS +0.117, controls' 97.5th +0.115 |
+| Z3 | SR: joint increment above the 97.5th percentile of the random gene sets | failed | joint CS -0.088, controls' 97.5th +0.115 |
+| Z4 | CCAT: joint increment not above the 97.5th percentile of the random gene sets | held | joint CS +0.035, controls' 97.5th +0.115 |
+| Z5 | MCE: joint increment not above the 97.5th percentile of the random gene sets | failed | joint CS +0.124, controls' 97.5th +0.115 |
+| Z6 | CytoTRACE: residual trend supported over the replicated unit | held | tau +0.317, p 0.0000, 152 units in 26 strata, CS +0.248 |
+| Z7 | SR: residual trend supported over the replicated unit | failed | tau +0.038, p 0.6210, 152 units in 26 strata, CS -0.141 |
+| Z8 | CCAT: residual trend supported over the replicated unit | failed | tau +0.081, p 0.2761, 152 units in 26 strata, CS +0.044 |
+| Z9 | MCE: residual trend supported over the replicated unit | failed | tau -0.070, p 0.3456, 152 units in 26 strata, CS -0.018 |
+| Z10 | gene count falls with stage at raw depth, Spearman -0.1 or below | failed | Spearman -0.080 |
+| Z11 | gene count falls with stage at 1,000 counts, Spearman -0.1 or below | failed | Spearman +0.053 |
+| Z12 | CytoTRACE falls with stage at raw depth, Spearman -0.1 or below | held | Spearman -0.364 |
+| Z13 | CytoTRACE falls with stage at 1,000 counts, Spearman -0.1 or below | failed | Spearman -0.096 |

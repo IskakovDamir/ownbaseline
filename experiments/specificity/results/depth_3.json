@@ -1,0 +1,124 @@
+{
+ "locked_at_commit": "42fd51cd85d135f81bce2b45150cb413009a4b72",
+ "series": {
+  "GSE106474": {
+   "SR": {
+    "cells": 39315,
+    "spearman_with_stage_raw": 0.6916631342483601,
+    "spearman_with_stage_at_1000": 0.9138156729634657,
+    "spearman_with_primitive_at_1000": 0.9623226090595659,
+    "spearman_raw_score_with_score_at_1000": 0.7624557169443168,
+    "conditional_skill_at_1000": 0.1772818795234389,
+    "permutation_floor": 0.03596657648615926,
+    "clears": true
+   },
+   "CCAT": {
+    "cells": 39315,
+    "spearman_with_stage_raw": 0.4958984578523619,
+    "spearman_with_stage_at_1000": 0.8713999279349683,
+    "spearman_with_primitive_at_1000": 0.9981952130247761,
+    "spearman_raw_score_with_score_at_1000": 0.6343126286935736,
+    "conditional_skill_at_1000": -0.015303041991130657,
+    "permutation_floor": 0.01161477072682878,
+    "clears": false
+   },
+   "MCE": {
+    "cells": 39315,
+    "spearman_with_stage_raw": 0.03480191552229823,
+    "spearman_with_stage_at_1000": 0.747302966071588,
+    "spearman_with_primitive_at_1000": 0.9345235093219472,
+    "spearman_raw_score_with_score_at_1000": 0.2246532587187938,
+    "conditional_skill_at_1000": -0.08381970712604991,
+    "permutation_floor": 0.05171379673877596,
+    "clears": false
+   }
+  },
+  "GSE112294": {
+   "SR": {
+    "cells": 36749,
+    "spearman_with_stage_raw": 0.8127646505625391,
+    "spearman_with_stage_at_1000": 0.8973858549985846,
+    "spearman_with_primitive_at_1000": 0.9572872344534022,
+    "spearman_raw_score_with_score_at_1000": 0.9136798237971895,
+    "conditional_skill_at_1000": 0.1599233022898666,
+    "permutation_floor": 0.04213614988649095,
+    "clears": true
+   },
+   "CCAT": {
+    "cells": 36749,
+    "spearman_with_stage_raw": 0.7245154358995956,
+    "spearman_with_stage_at_1000": 0.85672138975457,
+    "spearman_with_primitive_at_1000": 0.9987343249711126,
+    "spearman_raw_score_with_score_at_1000": 0.899649960040141,
+    "conditional_skill_at_1000": -0.047391055559158346,
+    "permutation_floor": 0.009026678325741529,
+    "clears": false
+   },
+   "MCE": {
+    "cells": 36749,
+    "spearman_with_stage_raw": 0.49571248082384983,
+    "spearman_with_stage_at_1000": 0.7870392996821605,
+    "spearman_with_primitive_at_1000": 0.954348166429611,
+    "spearman_raw_score_with_score_at_1000": 0.7164639672219638,
+    "conditional_skill_at_1000": -0.05562248888356196,
+    "permutation_floor": 0.03121722419622083,
+    "clears": false
+   }
+  },
+  "GSE113074": {
+   "SR": {
+    "cells": 89755,
+    "spearman_with_stage_raw": 0.7176684302588958,
+    "spearman_with_stage_at_1000": 0.7046916916387735,
+    "spearman_with_primitive_at_1000": 0.9732448243871784,
+    "spearman_raw_score_with_score_at_1000": 0.884268386409977,
+    "conditional_skill_at_1000": 0.16250979879856864,
+    "permutation_floor": 0.024345965828173315,
+    "clears": true
+   },
+   "CCAT": {
+    "cells": 89755,
+    "spearman_with_stage_raw": 0.6589801094305465,
+    "spearman_with_stage_at_1000": 0.668995758358539,
+    "spearman_with_primitive_at_1000": 0.9990115391317058,
+    "spearman_raw_score_with_score_at_1000": 0.8340592869787377,
+    "conditional_skill_at_1000": -0.0943088778325652,
+    "permutation_floor": 0.007143486571147141,
+    "clears": false
+   }
+  }
+ },
+ "predictions": {
+  "V1": {
+   "held": true,
+   "observed": {
+    "GSE106474": 0.9138156729634657,
+    "GSE112294": 0.8973858549985846,
+    "GSE113074": 0.7046916916387735
+   }
+  },
+  "V2": {
+   "held": true,
+   "observed": {
+    "GSE106474": 0.1772818795234389,
+    "GSE112294": 0.1599233022898666,
+    "GSE113074": 0.16250979879856864
+   }
+  },
+  "V3": {
+   "held": true,
+   "observed": {
+    "GSE106474": -0.015303041991130657,
+    "GSE112294": -0.047391055559158346,
+    "GSE113074": -0.0943088778325652
+   }
+  },
+  "V4": {
+   "held": true,
+   "observed": {
+    "GSE106474": -0.08381970712604991,
+    "GSE112294": -0.05562248888356196
+   }
+  }
+ }
+}

@@ -185,3 +185,54 @@ Kendall's tau over pairs of cells in the same stratum of the declared primitive 
 | S7 | held | gene count at 1,000 counts: -0.747 and -0.771; CytoTRACE at 1,000 counts: -0.912 and -0.920 |
 | S8 | held | CytoTRACE on the shared window, raw depth: -0.932 and +0.942 |
 | S9 | held | above on GSE106474: CytoTRACE, SR, ORIGINS, NCG, dpath, StemFinder |
+
+## Second plan (PREREG_depth_2.md): predictions
+
+| prediction | outcome | observed |
+|---|---|---|
+| T1 | failed | 0.19947907046096394 |
+| T2 | failed | 0.29506341677646025 |
+| T3 | held | {"GSE106474": 0.8755033532772626, "GSE112294": 0.861518842228739, "GSE113074": 0.675342710456765} |
+
+## Third plan (PREREG_depth_3.md): predictions
+
+| prediction | outcome | observed |
+|---|---|---|
+| V1 | held | {"GSE106474": 0.9138156729634657, "GSE112294": 0.8973858549985846, "GSE113074": 0.7046916916387735} |
+| V2 | held | {"GSE106474": 0.1772818795234389, "GSE112294": 0.1599233022898666, "GSE113074": 0.16250979879856864} |
+| V3 | held | {"GSE106474": -0.015303041991130657, "GSE112294": -0.047391055559158346, "GSE113074": -0.0943088778325652} |
+| V4 | held | {"GSE106474": -0.08381970712604991, "GSE112294": -0.05562248888356196} |
+
+## Calibration of the sample test (share of replicates called skilled)
+
+| shape | rho | sample sd | batch sd | trend | registered floor | permutation floor | sample test | no batch strata | least squares |
+|---|---|---|---|---|---|---|---|---|---|
+| linear | 0.5 | 0.0 | 0.0 | 0.0 | 2.0% | 5.0% | 3.5% | 4.0% | 31.5% |
+| linear | 0.5 | 0.05 | 0.0 | 0.0 | 14.5% | n/a | 2.0% | 1.5% | 18.0% |
+| linear | 0.5 | 0.1 | 0.0 | 0.0 | 31.0% | 37.5% | 2.0% | 1.5% | 5.0% |
+| linear | 0.5 | 0.2 | 0.0 | 0.0 | 34.0% | n/a | 2.5% | 1.5% | 3.5% |
+| linear | 0.5 | 0.5 | 0.0 | 0.0 | 46.5% | 37.5% | 1.0% | 0.5% | 2.0% |
+| linear | 0.9 | 0.0 | 0.0 | 0.0 | 2.0% | n/a | 4.5% | 9.0% | 40.5% |
+| linear | 0.9 | 0.1 | 0.0 | 0.0 | 44.5% | n/a | 2.0% | 1.0% | 6.5% |
+| linear | 0.9 | 0.5 | 0.0 | 0.0 | 47.5% | n/a | 2.5% | 1.0% | 3.0% |
+| cube | None | 0.0 | 0.0 | 0.0 | 100.0% | n/a | 5.0% | 5.0% | 92.5% |
+| cube | None | 0.1 | 0.0 | 0.0 | 96.0% | n/a | 2.0% | 1.0% | 78.5% |
+| square | None | 0.0 | 0.0 | 0.0 | 100.0% | 5.0% | 3.0% | 6.5% | 100.0% |
+| square | None | 0.1 | 0.0 | 0.0 | 89.0% | n/a | 3.0% | 2.5% | 99.5% |
+| linear | 0.5 | 0.1 | 0.3 | 0.0 | 39.0% | n/a | 6.0% | 6.0% | 7.5% |
+| linear | 0.5 | 0.1 | 0.0 | 0.05 | 97.0% | n/a | 25.5% | 47.0% | 66.5% |
+| linear | 0.5 | 0.1 | 0.0 | 0.1 | 100.0% | n/a | 84.5% | 98.5% | 97.5% |
+| linear | 0.5 | 0.1 | 0.0 | 0.2 | 100.0% | n/a | 100.0% | 100.0% | 100.0% |
+
+## Calibration of the stratified concordance (false clears, nominal 2.5%)
+
+| case | n | rho | reps | false clear |
+|---|---|---|---|---|
+| coupled | 3000 | 0.5 | 200 | 1.0% |
+| coupled | 3000 | 0.9 | 200 | 4.0% |
+| coupled | 39505 | 0.5 | 20 | 0.0% |
+| coupled | 39505 | 0.9 | 20 | 5.0% |
+| curved | 3000 | 0.5 | 200 | 1.5% |
+| curved | 3000 | 0.9 | 200 | 10.0% |
+| curved | 39505 | 0.5 | 20 | 10.0% |
+| curved | 39505 | 0.9 | 20 | 5.0% |

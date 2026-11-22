@@ -82,6 +82,8 @@ def load():
         cal[name] = json.loads(path.read_text())["rows"] if path.is_file() else []
     path = HERE / "results" / "depth_2.json"
     cal["depth_2"] = json.loads(path.read_text()) if path.is_file() else None
+    path = HERE / "results" / "depth_3.json"
+    cal["depth_3"] = json.loads(path.read_text()) if path.is_file() else None
     return d, perm, batch, cal
 
 
@@ -278,6 +280,17 @@ def tables(d, rows, cal):
             T.append(f"{geo} & {v['cells']:,} & {v['cells_kept']:,} & {sgn(v['spearman_pcc_with_stage_raw'])} & "
                      f"{sgn(v['spearman_pcc_with_stage_at_1000'])} & {v['spearman_pcc_raw_with_pcc_at_1000']:.2f} \\\\")
         T += [r"\bottomrule", r"\end{tabular}}", ""]
+    d3 = cal["depth_3"]
+    if d3:
+        T += [r"\newcommand{\depththreetable}{%", r"\begin{tabular}{llrrrrrrc}", r"\toprule",
+              r"series & score & cells & \shortstack{with stage,\\raw} & \shortstack{with stage,\\1,000} & \shortstack{raw against\\1,000} & "
+              r"\shortstack{CS on PCC,\\1,000} & \shortstack{permutation\\floor} & clears \\", r"\midrule"]
+        for g in SERIES:
+            for n, r in d3["series"][g].items():
+                T.append(f"{g} & {n} & {r['cells']:,} & {sgn(r['spearman_with_stage_raw'])} & {sgn(r['spearman_with_stage_at_1000'])} & "
+                         f"{r['spearman_raw_score_with_score_at_1000']:.2f} & {sgn(r['conditional_skill_at_1000'])} & "
+                         f"{r['permutation_floor']:.4f} & {yes(r['clears'])} \\\\")
+        T += [r"\bottomrule", r"\end{tabular}}", ""]
     return "\n".join(T) + "\n"
 
 
@@ -434,6 +447,14 @@ def numbers(d, rows, cal):
             N[f"dtwoPcc{s}Agree"] = f"{v['spearman_pcc_raw_with_pcc_at_1000']:.2f}"
             N[f"dtwoPcc{s}KeptRaw"] = txt(v["spearman_pcc_with_stage_raw_kept_cells"])
             N[f"dtwoPcc{s}LostPct"] = pc(1 - v["cells_kept"] / v["cells"])
+    d3 = cal["depth_3"]
+    if d3:
+        for g, sl in LETTERS.items():
+            for n, r in d3["series"][g].items():
+                N[f"dthree{sl}{n}Stage"] = txt(r["spearman_with_stage_at_1000"])
+                N[f"dthree{sl}{n}Cs"] = txt(r["conditional_skill_at_1000"])
+                N[f"dthree{sl}{n}Floor"] = f"{r['permutation_floor']:.3f}"
+                N[f"dthree{sl}{n}Agree"] = f"{r['spearman_raw_score_with_score_at_1000']:.2f}"
     digits = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"}
     safe = {}
     for k, v in N.items():

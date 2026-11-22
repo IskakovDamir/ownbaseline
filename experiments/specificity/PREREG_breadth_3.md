@@ -1,0 +1,7 @@
+# The share of random gene sets above the permutation floor, on 200 sets: pre-registration
+
+Written on 2026-11-22 with every earlier result in view, by the same AI analyst, on the author's instruction to tighten the headline share; locked by a commit before the run; unratified until the author reads it.
+
+`PREREG.md` and `PREREG_breadth.md` measured the permutation floor on the first 50 of the 1,000 random 200-gene sets of each series (20 on GSE113074), so a share of 54 percent carries a binomial interval of about 40 to 68. `floor_extend.py` measures it on the first 200 sets, with the same strata, the same 200 draws per set and the same random streams, so the first 50 floors return unchanged. Series: GSE106474, GSE112294, GSE223922, its second draw, and GSE169210. GSE113074 is left at 20 sets: 127,607 cells make 200 sets a day's computation on this machine. For each series and primitive the file reports the share of the 200 sets above their own floor and its Wilson 95 percent interval.
+
+**Prediction F1.** On each of the five data sets the share is above one half on gene count, Shannon entropy and library size. **F2.** On PCC(x, degree) it is above one half on GSE106474, GSE112294 and GSE169210, and its interval includes one half on both draws of GSE223922. Fails if a share is on the other side. The paper then quotes these shares in place of the 50-set ones, with their intervals, and says so if F1 or F2 fails. No further variant is run.

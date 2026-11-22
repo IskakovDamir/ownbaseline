@@ -27,8 +27,8 @@
   {
    "id": "M5",
    "prediction": "MCE: joint increment not above the 97.5th percentile of the random gene sets",
-   "outcome": "void",
-   "observed": "not scored"
+   "outcome": "held",
+   "observed": "joint CS +0.056, controls' 97.5th +0.105"
   },
   {
    "id": "M6",
@@ -51,8 +51,8 @@
   {
    "id": "M9",
    "prediction": "MCE: residual trend supported over the replicated unit",
-   "outcome": "void",
-   "observed": "not scored"
+   "outcome": "failed",
+   "observed": "tau +0.131, p 0.0794, 152 units in 17 strata, CS -0.088"
   },
   {
    "id": "M10",
@@ -157,6 +157,86 @@
    "prediction": "CytoTRACE falls with stage at 1,000 counts, Spearman -0.1 or below",
    "outcome": "failed",
    "observed": "Spearman -0.096"
+  }
+ ],
+ "GSE223922b": [
+  {
+   "id": "R1",
+   "prediction": "more than half of the first 50 random gene sets are above the permutation floor on each primitive",
+   "outcome": "failed",
+   "observed": "gene count 88%, PCC(x, degree) 48%, Shannon entropy 66%, log library size 76%"
+  },
+  {
+   "id": "R2",
+   "prediction": "CytoTRACE: joint increment above the 97.5th percentile of the random gene sets",
+   "outcome": "held",
+   "observed": "joint CS +0.128, controls' 97.5th +0.118"
+  },
+  {
+   "id": "R3",
+   "prediction": "SR: joint increment not above the 97.5th percentile of the random gene sets",
+   "outcome": "held",
+   "observed": "joint CS -0.079, controls' 97.5th +0.118"
+  },
+  {
+   "id": "R4",
+   "prediction": "CCAT: joint increment not above the 97.5th percentile of the random gene sets",
+   "outcome": "held",
+   "observed": "joint CS +0.038, controls' 97.5th +0.118"
+  },
+  {
+   "id": "R5",
+   "prediction": "MCE: joint increment above the 97.5th percentile of the random gene sets",
+   "outcome": "held",
+   "observed": "joint CS +0.120, controls' 97.5th +0.118"
+  },
+  {
+   "id": "R6",
+   "prediction": "CytoTRACE: residual trend supported over the replicated unit",
+   "outcome": "held",
+   "observed": "tau +0.348, p 0.0000, 150 units in 26 strata, CS +0.259"
+  },
+  {
+   "id": "R7",
+   "prediction": "SR: residual trend not supported over the replicated unit",
+   "outcome": "held",
+   "observed": "tau +0.110, p 0.1325, 150 units in 26 strata, CS -0.133"
+  },
+  {
+   "id": "R8",
+   "prediction": "CCAT: residual trend not supported over the replicated unit",
+   "outcome": "failed",
+   "observed": "tau +0.171, p 0.0187, 150 units in 26 strata, CS +0.043"
+  },
+  {
+   "id": "R9",
+   "prediction": "MCE: residual trend not supported over the replicated unit",
+   "outcome": "held",
+   "observed": "tau -0.039, p 0.6184, 150 units in 26 strata, CS -0.020"
+  },
+  {
+   "id": "R10",
+   "prediction": "gene count does not fall with stage at raw depth, Spearman above -0.1",
+   "outcome": "held",
+   "observed": "Spearman -0.100"
+  },
+  {
+   "id": "R11",
+   "prediction": "gene count does not fall with stage at 1,000 counts, Spearman above -0.1",
+   "outcome": "held",
+   "observed": "Spearman +0.050"
+  },
+  {
+   "id": "R12",
+   "prediction": "CytoTRACE falls with stage at raw depth, Spearman -0.1 or below",
+   "outcome": "held",
+   "observed": "Spearman -0.385"
+  },
+  {
+   "id": "R13",
+   "prediction": "CytoTRACE does not fall with stage at 1,000 counts, Spearman above -0.1",
+   "outcome": "held",
+   "observed": "Spearman -0.092"
   }
  ]
 }

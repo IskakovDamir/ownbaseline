@@ -5,7 +5,7 @@
  "samples": 153,
  "batches": 18,
  "dry_run": false,
- "locked_at_commit": "b9c190fce169d96a5284bbc3b59100e7036de24e",
+ "locked_at_commit": "e218439ce6703c3961c510a3b0493e19b6ec28ee",
  "controls": {
   "a1_g200": {
    "marginal_abs_tau": {
@@ -612,6 +612,84 @@
     "S": -4474.0,
     "tau": -0.3852910781949707,
     "p_two_sided": 9.99990000099999e-06,
+    "samples": 153,
+    "samples_dropped": 0,
+    "batches": 1,
+    "samples_in_tested_batches": 153,
+    "pairs": 11612.0,
+    "n_perm": 100000
+   }
+  },
+  "MCE": {
+   "n": 33700,
+   "primitive": "pcc_x_degree",
+   "conditional_skill": -0.08781472624827126,
+   "permutation_floor": 0.019776071348375508,
+   "clears_permutation_floor": false,
+   "marginal_tau": -0.0962303864805007,
+   "spearman_with_stage": -0.1439919463008405,
+   "spearman_with_primitive": 0.9320981092344127,
+   "conditional_skill_joint": 0.05585784337937615,
+   "max_abs_spearman_with_joint_covariates": 0.9717832231727435,
+   "vs_controls": {
+    "a1_g200": {
+     "percentile": 0.0,
+     "control_p975": 0.18610440003498926,
+     "exceeds_p975": false,
+     "control_median_abs_spearman_with_primitive": 0.4668436316522482,
+     "joint_percentile": 0.801,
+     "joint_control_p975": 0.10489446529821285,
+     "joint_exceeds_p975": false,
+     "fraction_of_controls_with_larger_abs_marginal_tau": 0.067
+    },
+    "a2": {
+     "percentile": 0.0,
+     "control_p975": 0.12978072681312106,
+     "exceeds_p975": false,
+     "control_median_abs_spearman_with_primitive": 0.08760790513449644,
+     "joint_percentile": 0.792,
+     "joint_control_p975": 0.10588681548155962,
+     "joint_exceeds_p975": false,
+     "fraction_of_controls_with_larger_abs_marginal_tau": 0.096
+    }
+   },
+   "sample_test": {
+    "S": 139.0,
+    "tau": 0.13051643192488263,
+    "p_two_sided": 0.07937920620793792,
+    "samples": 153,
+    "samples_dropped": 0,
+    "batches": 17,
+    "samples_in_tested_batches": 152,
+    "pairs": 1065.0,
+    "n_perm": 100000
+   },
+   "sample_test_no_batch_strata": {
+    "S": -2072.0,
+    "tau": -0.1784361005856011,
+    "p_two_sided": 0.001009989900100999,
+    "samples": 153,
+    "samples_dropped": 0,
+    "batches": 1,
+    "samples_in_tested_batches": 153,
+    "pairs": 11612.0,
+    "n_perm": 100000
+   },
+   "sample_test_linear": {
+    "S": 135.0,
+    "tau": 0.1267605633802817,
+    "p_two_sided": 0.08867911320886791,
+    "samples": 153,
+    "samples_dropped": 0,
+    "batches": 17,
+    "samples_in_tested_batches": 152,
+    "pairs": 1065.0,
+    "n_perm": 100000
+   },
+   "sample_test_linear_no_batch_strata": {
+    "S": -2118.0,
+    "tau": -0.18239751980709612,
+    "p_two_sided": 0.0007699923000769992,
     "samples": 153,
     "samples_dropped": 0,
     "batches": 1,
@@ -1847,5 +1925,5 @@
    }
   }
  },
- "seconds": 662.9
+ "seconds": 1174.8
 }
